@@ -1,8 +1,28 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 245, 245, 240;
+  --background-end-rgb: 255, 255, 255;
+
+  /* Luksusowa paleta kolorów */
+  --beige: #f5f5dc;
+  --cream: #fffdd0;
+  --deep-navy: #000080;
+  --gold: #d4af37;
+  --light-gold: #f9f3e3;
+  --subtle-gold: rgba(212, 175, 55, 0.15);
+  --dark-beige: #e0d8b0;
+  --soft-white: #f8f8f8;
+  --charcoal: #36454f;
+  --royal-gold: #ffd700;
+  --sun-yellow: #ffed8a;
+  --amber: #ffbf00;
+  --burnt-orange: #cc5500;
+  --deep-brown: #5c4033;
+  --light-blue: #add8e6;
+  --navy-blue: #000080;
+  --midnight-blue: #191970;
 }
 
 @theme inline {
@@ -20,7 +40,578 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Wyrafinowane efekty hover */
+.split-screen {
+  transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+}
+
+.split-screen:hover {
+  transform: scale(1.03);
+}
+
+/* Eleganckie nagłówki */
+.luxury-heading {
+  font-weight: 200;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: white;
+  position: relative;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.page-heading {
+  position: relative;
+  display: inline-block;
+}
+
+.page-heading::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.4s ease-in-out;
+}
+
+.page-heading:hover::after {
+  width: 100px;
+}
+
+/* Złote akcenty */
+.gold-accent {
+  color: var(--gold);
+}
+
+.gold-border {
+  border-color: var(--gold);
+}
+
+.gold-bg {
+  background-color: var(--gold);
+}
+
+/* Artystyczne przyciski */
+.btn-primary {
+  background-color: var(--deep-navy);
+  color: white;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--gold);
+  transition: left 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: -1;
+}
+
+.btn-primary:hover::before {
+  left: 0;
+}
+
+.btn-primary:hover {
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Efekty przewijania */
+.parallax-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.parallax-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  z-index: -1;
+  transform: translateZ(0);
+}
+
+/* Efekty kart i paneli */
+.luxury-card {
+  background-color: var(--soft-white);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.5s ease;
+  transform: translateZ(0);
+  overflow: hidden;
+}
+
+.luxury-card:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.luxury-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--deep-navy));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.luxury-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Artystyczne efekty tekstu */
+.elegant-text {
+  line-height: 1.8;
+  letter-spacing: 0.5px;
+}
+
+.subtle-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Wyrafinowane animacje */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes borderGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4),
+      0 0 20px rgba(212, 175, 55, 0.2);
+    opacity: 0.7;
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.7),
+      0 0 40px rgba(212, 175, 55, 0.4);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4),
+      0 0 20px rgba(212, 175, 55, 0.2);
+    opacity: 0.7;
+  }
+}
+
+.gold-glow {
+  animation: borderGlow 3s infinite ease-in-out;
+}
+
+/* Luksusowe tła i gradienty */
+.luxury-gradient {
+  background: linear-gradient(135deg, var(--light-gold), var(--cream));
+}
+
+.navy-gradient {
+  background: linear-gradient(135deg, var(--deep-navy), #1a237e);
+}
+
+.gold-overlay {
+  background-color: rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(5px);
+}
+
+/* Efekty formularzy */
+.luxury-input {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.luxury-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* Delikatne przewijanie */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Zaawansowane efekty artystyczne dla głównej kreski */
+.divider-gold {
+  position: relative;
+  overflow: visible;
+}
+
+.divider-gold::before,
+.divider-gold::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--royal-gold),
+    transparent
+  );
+  opacity: 0.5;
+  filter: blur(10px);
+  animation: dividerPulse 4s ease-in-out infinite alternate;
+}
+
+.divider-gold::before {
+  left: -10px;
+  animation-delay: 0.5s;
+}
+
+.divider-gold::after {
+  right: -10px;
+  animation-delay: 1s;
+}
+
+@keyframes dividerPulse {
+  0% {
+    opacity: 0.3;
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.7;
+    filter: blur(15px);
+  }
+  100% {
+    opacity: 0.3;
+    filter: blur(10px);
+  }
+}
+
+/* Magiczny efekt słońca */
+.sun-effect {
+  position: relative;
+  z-index: 30;
+}
+
+.sun-effect::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    var(--royal-gold) 0%,
+    transparent 70%
+  );
+  animation: sunRays 12s infinite linear;
+}
+
+@keyframes sunRays {
+  0% {
+    box-shadow: 0 0 40px 20px rgba(255, 215, 0, 0.5),
+      0 0 60px 40px rgba(255, 165, 0, 0.3), 0 0 80px 60px rgba(255, 140, 0, 0.1);
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.6),
+      0 0 80px 50px rgba(255, 165, 0, 0.4),
+      0 0 100px 70px rgba(255, 140, 0, 0.2),
+      0 0 120px 90px rgba(255, 140, 0, 0.1);
+    transform: scale(1.1) rotate(180deg);
+  }
+  100% {
+    box-shadow: 0 0 40px 20px rgba(255, 215, 0, 0.5),
+      0 0 60px 40px rgba(255, 165, 0, 0.3), 0 0 80px 60px rgba(255, 140, 0, 0.1);
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.sun-glow {
+  position: relative;
+}
+
+.sun-glow::before,
+.sun-glow::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+  filter: blur(6px);
+  transform-origin: center;
+}
+
+.sun-glow::before {
+  width: 140%;
+  height: 140%;
+  top: -20%;
+  left: -20%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 237, 138, 0.8) 0%,
+    transparent 70%
+  );
+  animation: glowPulse 3s infinite alternate;
+}
+
+.sun-glow::after {
+  width: 160%;
+  height: 160%;
+  top: -30%;
+  left: -30%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 191, 0, 0.4) 0%,
+    transparent 70%
+  );
+  animation: glowPulse 4s infinite alternate-reverse;
+}
+
+@keyframes glowPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+/* Zaawansowany efekt śladu słońca */
+.sun-trail {
+  position: absolute;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.sun-trail::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: blur(10px);
+  background: linear-gradient(90deg, var(--royal-gold), transparent);
+  opacity: 0;
+  animation: trailFade 2s infinite;
+}
+
+@keyframes trailFade {
+  0% {
+    opacity: 0.1;
+    transform: translateX(0px) scaleX(0.8);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateX(-10px) scaleX(1.2);
+  }
+  100% {
+    opacity: 0.1;
+    transform: translateX(0px) scaleX(0.8);
+  }
+}
+
+/* Magiczne przyciski z efektem 3D */
+.magic-button {
+  border: 2px solid var(--gold);
+  background: transparent;
+  color: white;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  z-index: 1;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  letter-spacing: 3px;
+  font-weight: 300;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.magic-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--gold);
+  transform: translate3d(-101%, 0, 0);
+  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  z-index: -1;
+}
+
+.magic-button:hover {
+  color: var(--deep-navy);
+  transform: translate3d(0, -5px, 20px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(212, 175, 55, 0.5),
+    0 0 50px rgba(212, 175, 55, 0.3);
+  letter-spacing: 4px;
+  text-shadow: none;
+}
+
+.magic-button:hover::before {
+  transform: translate3d(0, 0, 0);
+}
+
+.magic-button::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border: 2px solid transparent;
+  background: linear-gradient(90deg, var(--gold), var(--amber), var(--gold))
+    border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.magic-button:hover::after {
+  opacity: 1;
+}
+
+/* Efekt rozmycia dla dynamicznych przejść */
+.blur-transition {
+  transition: filter 0.5s ease-in-out;
+}
+
+.blur-transition:hover {
+  filter: blur(2px);
+}
+
+/* Główny efekt kreski dzielącej */
+.divine-divider {
+  position: relative;
+  width: 2px;
+  overflow: visible;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  filter: drop-shadow(0 0 8px var(--gold));
+}
+
+.divine-divider::before,
+.divine-divider::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  background: linear-gradient(to bottom, transparent, white, transparent);
+  animation: divineGlow 6s ease infinite;
+  opacity: 0;
+  filter: blur(5px);
+}
+
+.divine-divider::before {
+  left: -5px;
+  animation-delay: 0s;
+}
+
+.divine-divider::after {
+  right: -5px;
+  animation-delay: 3s;
+}
+
+@keyframes divineGlow {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.8);
+  }
+  40% {
+    opacity: 0.8;
+    transform: scaleY(1.1);
+  }
+  60% {
+    opacity: 0.8;
+    transform: scaleY(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(0.8);
+  }
+}
+
+/* Animacja dla gwiazd */
+@keyframes starTwinkle {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(45deg);
+    filter: brightness(1.3);
+  }
+}
+
+.divider-star {
+  animation: starTwinkle 4s infinite ease-in-out;
+}
+
+.divider-star-left:nth-child(1) {
+  animation-delay: 0.5s;
+}
+.divider-star-left:nth-child(2) {
+  animation-delay: 1s;
+}
+.divider-star-left:nth-child(3) {
+  animation-delay: 1.5s;
+}
+.divider-star-right:nth-child(1) {
+  animation-delay: 2s;
+}
+.divider-star-right:nth-child(2) {
+  animation-delay: 2.5s;
+}
+.divider-star-right:nth-child(3) {
+  animation-delay: 3s;
+}
+
+/* Efekt tła */
+.bg-black {
+  background-color: #000;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(20, 20, 40, 0.8) 0%,
+    rgba(0, 0, 0, 1) 70%
+  );
 }
