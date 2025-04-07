@@ -15,32 +15,51 @@ export default function HeaderMask({
   onEnterClick,
 }: HeaderMaskProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<HTMLImageElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const textRef = useRef<SVGTextElement>(null);
+  const rectRef = useRef<SVGRectElement>(null);
   const enterBtnRef = useRef<HTMLDivElement>(null);
 
   // Rejestracja pluginów GSAP
   useEffect(() => {
-    if (!wrapperRef.current) return;
+    if (!wrapperRef.current || !textRef.current || !rectRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-    // Stworzenie animacji dla maski tekstowej - tak jak w przykładzie
+    // Animacja powiększania tekstu w SVG i zanikania maski
+    const tl = gsap.timeline();
+
+    // Powiększamy tekst - napis FIRANY
+    tl.fromTo(
+      textRef.current,
+      { scale: 1 },
+      {
+        scale: 20,
+        transformOrigin: 'center center',
+        ease: 'power1.inOut',
+        duration: 3,
+      },
+    );
+
+    // Na końcu animacji sprawiamy, że maska znika - zostaje tylko film
+    tl.to(
+      rectRef.current,
+      { opacity: 0, duration: 1 },
+      '-=0.5', // zaczynamy zanikanie pod koniec powiększania
+    );
+
     ScrollTrigger.create({
-      trigger: '.wrapper',
-      animation: gsap.fromTo(
-        '.svg',
-        { scale: 1, opacity: 1 },
-        { scale: 50, transformOrigin: 'center center', duration: 1 },
-      ),
+      trigger: wrapperRef.current,
+      animation: tl,
       start: 'top top',
-      end: 'bottom top',
-      scrub: 0.7,
+      end: '+=2000', // wydłużamy czas trwania efektu
+      scrub: true,
       pin: true,
       onLeave: function () {
-        gsap.to('#enter', { opacity: 1, duration: 1 });
+        gsap.to(enterBtnRef.current, { opacity: 1, duration: 1 });
       },
       onEnter: function () {
-        gsap.to('#enter', { opacity: 0, duration: 1 });
+        gsap.to(enterBtnRef.current, { opacity: 0, duration: 1 });
       },
     });
 
@@ -52,136 +71,124 @@ export default function HeaderMask({
   // Obsługa kliknięcia przycisku "Enter"
   const handleEnterClick = () => {
     if (onEnterClick) {
-      // Dokładnie tak jak w przykładzie
-      gsap.to('.wrapper', { opacity: 0, zIndex: 0, duration: 3 });
-
+      gsap.to(wrapperRef.current, { opacity: 0, zIndex: 0, duration: 3 });
       gsap.to(window, {
         scrollTo: 0,
         duration: 1,
         ease: 'power2.inOut',
       });
-
       onEnterClick();
     }
   };
 
   return (
-    <section className='wrapper' ref={wrapperRef}>
-      <div className='sticky_layer'>
-        <div className='landing_screen'>
-          <div className='video-container'>
-            <video autoPlay playsInline muted loop preload='auto'>
-              <source src={videoSrc} />
-            </video>
-          </div>
-          <div className='content-wrap'>
-            <div className='zoom'>
-              <img
-                src={`/svg-${title.toLowerCase()}.svg`}
-                loading='lazy'
-                alt={title}
-                className='svg'
-                ref={svgRef}
-              />
-            </div>
-          </div>
-          <div
-            className='btn btn-primary magic-button'
-            id='enter'
-            onClick={handleEnterClick}
-            ref={enterBtnRef}
-          >
-            Odkryj
-          </div>
-        </div>
+    <div className='header-mask' ref={wrapperRef}>
+      {/* Film w tle */}
+      <div className='video-background'>
+        <video autoPlay muted loop playsInline>
+          <source src={videoSrc} type='video/mp4' />
+        </video>
+      </div>
+
+      {/* SVG jako maska */}
+      <svg
+        className='mask-svg'
+        ref={svgRef}
+        viewBox='0 0 1920 1080'
+        preserveAspectRatio='xMidYMid slice'
+      >
+        <defs>
+          <mask id='text-mask'>
+            {/* Czarne tło maski */}
+            <rect width='100%' height='100%' fill='white' />
+            {/* Biały tekst, który będzie przezroczysty */}
+            <text
+              ref={textRef}
+              x='50%'
+              y='50%'
+              textAnchor='middle'
+              dominantBaseline='middle'
+              fontSize='400'
+              fontWeight='900'
+              fontFamily='Arial, sans-serif'
+              fill='black'
+              letterSpacing='20'
+            >
+              {title}
+            </text>
+          </mask>
+        </defs>
+
+        {/* Prostokąt z czarnym kolorem, używający maski tekstowej */}
+        <rect
+          ref={rectRef}
+          width='100%'
+          height='100%'
+          fill='black'
+          mask='url(#text-mask)'
+        />
+      </svg>
+
+      {/* Przycisk odkryj */}
+      <div
+        className='enter-button'
+        ref={enterBtnRef}
+        onClick={handleEnterClick}
+      >
+        Odkryj
       </div>
 
       <style jsx>{`
-        .wrapper {
+        .header-mask {
           position: relative;
-          top: 0;
           width: 100%;
           height: 100vh;
           overflow: hidden;
+        }
+
+        .video-background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
           z-index: 1;
         }
 
-        .sticky_layer {
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          display: flex;
-          position: sticky;
-          top: 0;
-          overflow: hidden;
-        }
-
-        .landing_screen {
-          position: relative;
+        .video-background video {
           width: 100%;
           height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .video-container {
-          width: 100%;
-          height: 100vh;
-          position: absolute;
-          overflow: hidden;
-        }
-
-        video {
           object-fit: cover;
-          z-index: -100;
-          background-position: 50%;
-          background-size: cover;
-          width: 100%;
-          height: 100%;
-          margin: auto;
+        }
+
+        .mask-svg {
           position: absolute;
-          top: -100%;
-          bottom: -100%;
-          left: -100%;
-          right: -100%;
-        }
-
-        .content-wrap {
-          position: relative;
+          top: 0;
+          left: 0;
           width: 100%;
           height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1;
+          z-index: 2;
         }
 
-        .zoom {
-          flex-direction: column;
-          justify-content: center;
-          display: flex;
-          position: relative;
-          height: 100vh;
-          align-items: center;
-        }
-
-        .svg {
-          width: 100%;
-          position: relative;
-          box-shadow: inset 0 0 0 2px #eef7ff, 0 0 0 50vw rgba(0, 0, 0, 0.7);
-          max-width: 800px;
-        }
-
-        #enter {
+        .enter-button {
           position: absolute;
           right: 20px;
           bottom: 20px;
-          opacity: 0;
           padding: 12px 30px;
+          background-color: rgba(255, 255, 255, 0.8);
+          color: black;
+          border: none;
+          border-radius: 4px;
           cursor: pointer;
+          z-index: 10;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .enter-button:hover {
+          background-color: white;
         }
       `}</style>
-    </section>
+    </div>
   );
 }
