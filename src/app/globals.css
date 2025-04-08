@@ -451,30 +451,44 @@ html {
 /* Magiczne przyciski z efektem 3D */
 .magic-button {
   position: relative;
+  display: inline-block;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: white;
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  text-transform: uppercase;
+  transition: all 0.4s ease;
+  text-decoration: none;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--deep-navy), var(--royal-gold));
-  border: none;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 .magic-button::before {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
+  left: 0;
   width: 100%;
   height: 100%;
   background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
+    135deg,
+    rgba(212, 175, 55, 0.4) 0%,
+    rgba(212, 175, 55, 0.1) 100%
   );
-  transition: all 0.6s ease;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  transform-origin: right;
+  transform: scaleX(0);
+  z-index: -1;
 }
 
 .magic-button:hover::before {
-  left: 100%;
+  transform-origin: left;
+  transform: scaleX(1);
 }
 
 .magic-button::after {
@@ -482,13 +496,18 @@ html {
   position: absolute;
   top: -2px;
   left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, var(--royal-gold), var(--deep-gold));
-  z-index: -1;
-  border-radius: 0.5rem;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border: 1px solid transparent;
+  border-image: linear-gradient(
+    135deg,
+    var(--gold) 0%,
+    transparent 50%,
+    var(--gold) 100%
+  );
+  border-image-slice: 1;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
 
 .magic-button:hover::after {
@@ -820,6 +839,20 @@ html {
   .calculation-details {
     @apply p-4;
   }
+
+  .magic-button {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .magic-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+  }
 }
 
 @layer components {
@@ -987,5 +1020,190 @@ html {
 
   .calculation-total {
     @apply text-xl;
+  }
+}
+
+/* Animacja dla menu mobilnego */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+/* Responsywny układ strony */
+@media (max-width: 768px) {
+  .luxury-heading {
+    font-size: 2.5rem !important;
+    letter-spacing: 3px;
+  }
+
+  .contact-button {
+    bottom: 20px;
+  }
+}
+
+/* Nowy, bardziej wyrazisty styl przycisków */
+.premium-button {
+  position: relative;
+  display: inline-block;
+  padding: 0.9rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #000;
+  background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+  border: none;
+  border-radius: 4px;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(212, 175, 55, 0.1);
+  transition: all 0.4s ease;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.premium-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.75s ease;
+  z-index: 2;
+}
+
+.premium-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(212, 175, 55, 0.2);
+  background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+  color: #000;
+}
+
+.premium-button:hover::before {
+  left: 100%;
+}
+
+.premium-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsywne style dla przycisków premium */
+@media (max-width: 768px) {
+  .premium-button {
+    padding: 0.8rem 2rem;
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .premium-button {
+    padding: 0.7rem 1.8rem;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+  }
+}
+
+/* Stylizacja paneli w układzie grid */
+.panel-section {
+  position: relative;
+  transition: all 0.5s ease;
+  overflow: hidden;
+  height: 50vh; /* Domyślna wysokość dla mobilnych urządzeń */
+}
+
+/* Responsywne wysokości paneli */
+@media (min-width: 768px) {
+  .panel-section {
+    height: 50vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  .panel-section {
+    height: 60vh;
+  }
+}
+
+@media (min-width: 1280px) {
+  .panel-section {
+    height: 65vh;
+  }
+}
+
+.panel-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.panel-section:hover::after {
+  opacity: 1;
+}
+
+.panel-section:hover .panel-image {
+  transform: scale(1.05);
+}
+
+.panel-image {
+  transition: transform 0.7s ease, filter 0.5s ease;
+}
+
+.panel-section:hover h2 {
+  transform: translateY(-5px);
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.panel-section h2,
+.panel-section p,
+.panel-section a {
+  transition: all 0.5s ease;
+}
+
+.panel-section:hover p {
+  transform: translateY(-3px);
+}
+
+.panel-section:hover .premium-button {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+@media (max-width: 768px) {
+  .panel-section {
+    min-height: 60vh;
+    height: auto;
+    border-bottom: 1px solid rgba(34, 34, 34, 0.3);
+  }
+
+  /* Poprawka dla małych urządzeń - przylegające panele */
+  .panel-section + .panel-section {
+    border-top: none;
   }
 }
