@@ -19,6 +19,10 @@ export default function HeaderMask({
   const textRef = useRef<SVGTextElement>(null);
   const rectRef = useRef<SVGRectElement>(null);
   const enterBtnRef = useRef<HTMLDivElement>(null);
+  const textContentRef = useRef<HTMLDivElement>(null);
+  const line1Ref = useRef<HTMLDivElement>(null);
+  const line2Ref = useRef<HTMLDivElement>(null);
+  const line3Ref = useRef<HTMLDivElement>(null);
 
   // Rejestracja pluginów GSAP
   useEffect(() => {
@@ -48,11 +52,33 @@ export default function HeaderMask({
       '-=0.5', // zaczynamy zanikanie pod koniec powiększania
     );
 
+    // Pokazujemy dodatkowy tekst, linia po linii
+    tl.fromTo(
+      line1Ref.current,
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 0.7 },
+      '-=0.3',
+    );
+
+    tl.fromTo(
+      line2Ref.current,
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 0.7 },
+      '-=0.4',
+    );
+
+    tl.fromTo(
+      line3Ref.current,
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 0.7 },
+      '-=0.4',
+    );
+
     ScrollTrigger.create({
       trigger: wrapperRef.current,
       animation: tl,
       start: 'top top',
-      end: '+=2000', // wydłużamy czas trwania efektu
+      end: '+=2500', // wydłużamy czas trwania efektu dla dodatkowego tekstu
       scrub: true,
       pin: true,
       onLeave: function () {
@@ -129,13 +155,17 @@ export default function HeaderMask({
         />
       </svg>
 
-      {/* Przycisk odkryj */}
-      <div
-        className='enter-button'
-        ref={enterBtnRef}
-        onClick={handleEnterClick}
-      >
-        Odkryj
+      {/* Dodatkowy tekst, który pojawi się po zniknięciu maski */}
+      <div className='text-content' ref={textContentRef}>
+        <div className='text-line line-1' ref={line1Ref}>
+          Elegancja i jakość
+        </div>
+        <div className='text-line line-2' ref={line2Ref}>
+          Fabryczne Zasłony
+        </div>
+        <div className='text-line line-3' ref={line3Ref}>
+          Odkryj najnowsze trendy
+        </div>
       </div>
 
       <style jsx>{`
@@ -168,6 +198,43 @@ export default function HeaderMask({
           width: 100%;
           height: 100%;
           z-index: 2;
+        }
+
+        .text-content {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          text-align: center;
+          z-index: 3;
+          width: 80%;
+        }
+
+        .text-line {
+          opacity: 0;
+          color: white;
+          text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .line-1 {
+          font-size: 3.5rem;
+          font-weight: 300;
+          margin-bottom: 1rem;
+          letter-spacing: 2px;
+        }
+
+        .line-2 {
+          font-size: 5rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+          letter-spacing: 3px;
+        }
+
+        .line-3 {
+          font-size: 2.5rem;
+          font-weight: 400;
+          font-style: italic;
+          letter-spacing: 1px;
         }
 
         .enter-button {

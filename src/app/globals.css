@@ -1,4 +1,6 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -8,14 +10,14 @@
   /* Luksusowa paleta kolorów */
   --beige: #f5f5dc;
   --cream: #fffdd0;
-  --deep-navy: #000080;
-  --gold: #d4af37;
+  --deep-navy: #152354;
+  --gold: #ffd700;
   --light-gold: #f9f3e3;
   --subtle-gold: rgba(212, 175, 55, 0.15);
   --dark-beige: #e0d8b0;
   --soft-white: #f8f8f8;
   --charcoal: #36454f;
-  --royal-gold: #ffd700;
+  --royal-gold: #d4af37;
   --sun-yellow: #ffed8a;
   --amber: #ffbf00;
   --burnt-orange: #cc5500;
@@ -23,6 +25,14 @@
   --light-blue: #add8e6;
   --navy-blue: #000080;
   --midnight-blue: #191970;
+  --deep-gold: #b8860b;
+
+  --color-beige: #f5f5dc;
+  --color-cream: #fffdd0;
+  --color-deep-navy: #152354;
+  --color-royal-gold: #d4af37;
+  --color-deep-gold: #b8860b;
+  --color-gold: #ffd700;
 }
 
 @theme inline {
@@ -40,13 +50,8 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--deep-navy);
+  background: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -445,46 +450,31 @@ html {
 
 /* Magiczne przyciski z efektem 3D */
 .magic-button {
-  border: 2px solid var(--gold);
-  background: transparent;
-  color: white;
-  padding: 12px 30px;
-  font-size: 1.1rem;
   position: relative;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-  z-index: 1;
-  transform-style: preserve-3d;
-  perspective: 1000px;
-  letter-spacing: 3px;
-  font-weight: 300;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, var(--deep-navy), var(--royal-gold));
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .magic-button::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  left: -100%;
   width: 100%;
   height: 100%;
-  background: var(--gold);
-  transform: translate3d(-101%, 0, 0);
-  transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-  z-index: -1;
-}
-
-.magic-button:hover {
-  color: var(--deep-navy);
-  transform: translate3d(0, -5px, 20px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(212, 175, 55, 0.5),
-    0 0 50px rgba(212, 175, 55, 0.3);
-  letter-spacing: 4px;
-  text-shadow: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all 0.6s ease;
 }
 
 .magic-button:hover::before {
-  transform: translate3d(0, 0, 0);
+  left: 100%;
 }
 
 .magic-button::after {
@@ -492,16 +482,13 @@ html {
   position: absolute;
   top: -2px;
   left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 4px);
-  border: 2px solid transparent;
-  background: linear-gradient(90deg, var(--gold), var(--amber), var(--gold))
-    border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, var(--royal-gold), var(--deep-gold));
+  z-index: -1;
+  border-radius: 0.5rem;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
 .magic-button:hover::after {
@@ -614,4 +601,391 @@ html {
     rgba(20, 20, 40, 0.8) 0%,
     rgba(0, 0, 0, 1) 70%
   );
+}
+
+/* Style dla formularza zamówienia */
+.order-form-container {
+  @apply relative overflow-hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.95)
+  );
+}
+
+.order-form-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--royal-gold) 0%,
+    var(--deep-gold) 100%
+  );
+  opacity: 0.05;
+  z-index: -1;
+}
+
+.form-input-focus {
+  @apply transition-all duration-300;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-input-focus:focus {
+  @apply ring-2 ring-royal-gold/20 border-royal-gold;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.15);
+}
+
+.checkbox-gold {
+  @apply text-royal-gold border-gray-300 rounded focus:ring-royal-gold/20;
+  transition: all 0.3s ease;
+}
+
+.checkbox-gold:checked {
+  background-color: var(--royal-gold);
+  border-color: var(--royal-gold);
+}
+
+.form-section {
+  @apply bg-white rounded-lg shadow-lg p-8;
+  background: linear-gradient(
+    to right bottom,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.95)
+  );
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at top right,
+    rgba(212, 175, 55, 0.1),
+    transparent 70%
+  );
+  z-index: 0;
+}
+
+.form-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.form-heading {
+  @apply text-3xl font-light mb-6;
+  background: linear-gradient(135deg, var(--deep-navy), var(--royal-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.form-heading::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(to right, var(--royal-gold), var(--deep-gold));
+}
+
+.feature-icon {
+  @apply w-12 h-12 rounded-full flex items-center justify-center;
+  background: linear-gradient(135deg, var(--royal-gold), var(--deep-gold));
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-icon::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
+
+/* Animacja dla kwiatów */
+.floating-flower {
+  animation: floatingAnimation 6s ease-in-out infinite;
+}
+
+@keyframes floatingAnimation {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+/* Pasek kontaktowy */
+.contact-bar {
+  @apply fixed top-0 left-0 right-0 bg-deep-navy text-white py-2 px-4 z-50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--deep-navy) 0%,
+    var(--navy-blue) 100%
+  );
+  opacity: 0.9;
+  z-index: -1;
+}
+
+/* Szczegóły kalkulacji */
+.calculation-details {
+  @apply bg-gray-50 p-6 rounded-lg space-y-4;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.calculation-details h3 {
+  @apply text-lg font-medium text-deep-navy;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.calculation-details h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(to right, var(--royal-gold), var(--deep-gold));
+}
+
+.calculation-row {
+  @apply flex justify-between items-center py-2;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.calculation-row:last-child {
+  border-bottom: none;
+}
+
+.calculation-total {
+  @apply text-3xl font-light text-royal-gold;
+  text-shadow: 0 2px 4px rgba(212, 175, 55, 0.1);
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+  .order-form-container {
+    @apply flex-col;
+  }
+
+  .form-section {
+    @apply p-4;
+  }
+
+  .calculation-details {
+    @apply p-4;
+  }
+}
+
+@layer components {
+  .order-form-container {
+    @apply min-h-screen flex flex-col lg:flex-row;
+    background: linear-gradient(
+      135deg,
+      var(--color-beige) 0%,
+      var(--color-cream) 100%
+    );
+  }
+
+  .contact-bar {
+    @apply fixed top-0 left-0 right-0 bg-deep-navy text-white py-2 px-4 z-50;
+    background: linear-gradient(to right, var(--color-deep-navy), #1a2b6b);
+  }
+
+  .form-section {
+    @apply bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-xl;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.7) 100%
+    );
+  }
+
+  .form-heading {
+    @apply text-3xl font-light text-deep-navy text-center relative pb-4;
+    background: linear-gradient(to right, var(--color-deep-navy), #1a2b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .form-heading::after {
+    content: '';
+    @apply absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1;
+    background: linear-gradient(
+      to right,
+      var(--color-royal-gold),
+      var(--color-gold)
+    );
+  }
+
+  .form-input-focus {
+    @apply transition-all duration-300;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-input-focus:hover {
+    @apply border-royal-gold;
+    box-shadow: 0 4px 6px rgba(212, 175, 55, 0.1);
+  }
+
+  .form-input-focus:focus {
+    @apply border-royal-gold ring-2 ring-royal-gold/20;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+  }
+
+  .calculation-details {
+    @apply bg-gray-50/80 backdrop-blur-sm p-6 rounded-lg space-y-4;
+    background: linear-gradient(
+      135deg,
+      rgba(249, 250, 251, 0.9) 0%,
+      rgba(243, 244, 246, 0.7) 100%
+    );
+  }
+
+  .calculation-row {
+    @apply flex justify-between items-center text-sm;
+  }
+
+  .calculation-total {
+    @apply text-2xl font-light text-royal-gold;
+    background: linear-gradient(
+      to right,
+      var(--color-royal-gold),
+      var(--color-gold)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .magic-button {
+    @apply relative overflow-hidden;
+    background: linear-gradient(
+      135deg,
+      var(--color-deep-navy) 0%,
+      #1a2b6b 100%
+    );
+  }
+
+  .magic-button::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(
+      135deg,
+      #1a2b6b 0%,
+      var(--color-deep-navy) 100%
+    );
+  }
+
+  .magic-button:hover::before {
+    @apply opacity-100;
+  }
+
+  .magic-button span {
+    @apply relative z-10;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .floating {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes shine {
+    0% {
+      background-position: -100% 50%;
+    }
+    100% {
+      background-position: 200% 50%;
+    }
+  }
+
+  .feature-icon {
+    @apply relative overflow-hidden;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shine 3s infinite;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .order-form-container {
+    @apply flex-col;
+  }
+
+  .form-section {
+    @apply p-6;
+  }
+
+  .calculation-details {
+    @apply p-4;
+  }
+}
+
+@media (max-width: 640px) {
+  .form-heading {
+    @apply text-2xl;
+  }
+
+  .calculation-total {
+    @apply text-xl;
+  }
 }

@@ -495,7 +495,7 @@ export default function Home() {
   };
 
   return (
-    <div className='relative min-h-screen w-full overflow-hidden bg-black'>
+    <main className='flex flex-col items-center justify-between'>
       {/* Górne menu nawigacyjne */}
       <nav
         ref={navigationRef}
@@ -796,6 +796,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
