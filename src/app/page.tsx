@@ -163,6 +163,18 @@ export default function Home() {
             Pościel
           </Link>
           <Link
+            href='/examples'
+            className='text-white hover:text-[var(--gold)] transition-colors duration-300 text-lg font-light tracking-wider'
+          >
+            Przykłady
+          </Link>
+          <Link
+            href='/examples/simple-header-demo'
+            className='text-white hover:text-[var(--gold)] transition-colors duration-300 text-lg font-light tracking-wider'
+          >
+            Nowy Header
+          </Link>
+          <Link
             href='/contact'
             className='text-white hover:text-[var(--gold)] transition-colors duration-300 text-lg font-light tracking-wider'
           >
@@ -207,6 +219,22 @@ export default function Home() {
             onClick={() => setMobileMenuOpen(false)}
           >
             Pościel
+          </Link>
+          <div className='w-10 h-px bg-gray-700 my-1'></div>
+          <Link
+            href='/examples'
+            className='text-white hover:text-[var(--gold)] transition-colors duration-300 text-lg font-medium tracking-wider py-4 w-full text-center'
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Przykłady
+          </Link>
+          <div className='w-10 h-px bg-gray-700 my-1'></div>
+          <Link
+            href='/examples/simple-header-demo'
+            className='text-white hover:text-[var(--gold)] transition-colors duration-300 text-lg font-medium tracking-wider py-4 w-full text-center'
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Nowy Header
           </Link>
           <div className='w-10 h-px bg-gray-700 my-1'></div>
           <Link

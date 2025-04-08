@@ -3,14 +3,14 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import HeaderMask from '../components/HeaderMask';
-import About from '@/components/About';
-import TypesSection from '@/components/TypesSection';
-import KeyFactorsSection from '@/components/KeyFactorsSection';
-import CommercialResidentialSection from '@/components/CommercialResidentialSection';
-import OrderForm from '@/components/OrderForm';
-import InquiryForm from '@/components/InquiryForm';
-import MeasuringGuide from '@/components/MeasuringGuide';
+import SimpleHeader from '../components/SimpleHeader';
+import About from '../../components/About';
+import TypesSection from '../../components/TypesSection';
+import KeyFactorsSection from '../../components/KeyFactorsSection';
+import CommercialResidentialSection from '../../components/CommercialResidentialSection';
+import OrderForm from '../../components/OrderForm';
+import InquiryForm from '../../components/InquiryForm';
+import MeasuringGuide from '../../components/MeasuringGuide';
 
 export default function Firany() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -47,11 +47,13 @@ export default function Firany() {
 
   return (
     <>
-      {/* Header z animowaną maską */}
-      <HeaderMask
+      {/* Używamy nowego komponentu SimpleHeader */}
+      <SimpleHeader
         videoSrc='/video/curtains.mp4'
         title='ZASŁONY'
-        onEnterClick={() => {}}
+        subtitle='Elegancja i styl'
+        description='Odkryj kolekcję luksusowych zasłon'
+        height='60vh'
       />
 
       {/* Główna zawartość strony */}
@@ -60,24 +62,38 @@ export default function Firany() {
         className='min-h-screen py-10 px-4 md:px-8 lg:px-16 bg-[var(--light-gold)]'
       >
         {/* Nagłówek z przyciskiem powrotu */}
+        <div ref={headerRef} className='mb-8 flex justify-between items-center'>
+          <Link
+            href='/'
+            className='text-gray-600 hover:text-gray-800 transition-colors duration-300'
+          >
+            &larr; Powrót do strony głównej
+          </Link>
+          <h2 className='text-3xl md:text-4xl font-light text-gray-800'>
+            Zasłony
+          </h2>
+          <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
+        </div>
 
-        {/* Sekcja About */}
-        <About />
+        <div>
+          {/* Sekcja About */}
+          <About />
 
-        {/* Sekcja typów zasłon */}
-        <TypesSection />
+          {/* Sekcja typów zasłon */}
+          <TypesSection />
 
-        {/* Sekcja kluczowych atutów */}
-        <KeyFactorsSection />
+          {/* Sekcja kluczowych atutów */}
+          <KeyFactorsSection />
 
-        {/* Sekcja Commercial & Residential */}
-        <CommercialResidentialSection />
+          {/* Sekcja Commercial & Residential */}
+          <CommercialResidentialSection />
 
-        {/* Formularz zamówienia */}
-        <OrderForm />
+          {/* Formularz zamówienia */}
+          <OrderForm />
 
-        {/* Jak mierzyć */}
-        <MeasuringGuide />
+          {/* Jak mierzyć */}
+          <MeasuringGuide />
+        </div>
       </div>
     </>
   );
