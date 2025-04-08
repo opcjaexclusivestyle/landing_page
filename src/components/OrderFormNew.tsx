@@ -31,10 +31,6 @@ interface FormData {
   tapeType: string;
   selectedProduct: string;
   selectedImageIndex: number;
-  street: string;
-  houseNumber: string;
-  postalCode: string;
-  city: string;
 }
 
 interface CartItem {
@@ -75,10 +71,6 @@ export default function OrderForm({ productName }: OrderFormProps) {
     selectedProduct:
       productName || (products.length > 0 ? products[0].name : ''),
     selectedImageIndex: 0,
-    street: '',
-    houseNumber: '',
-    postalCode: '',
-    city: '',
   });
 
   // Znajdź aktualnie wybrany produkt
@@ -118,15 +110,12 @@ export default function OrderForm({ productName }: OrderFormProps) {
 
     // Obliczanie metrów bieżących
     const meters = (materialWidth * height) / 10000; // konwersja z cm² na m²
-    const halfMeters = meters * 2; // ilość półmetrów
 
-    // Obliczanie ceny materiału za pół metra
-    const materialCostPerHalfMeter = MATERIAL_PRICE_PER_METER / 2;
-    const materialCost = halfMeters * materialCostPerHalfMeter;
+    // Obliczanie ceny materiału
+    const materialCost = meters * MATERIAL_PRICE_PER_METER;
 
-    // Obliczanie kosztu szycia za pół metra
-    const sewingCostPerHalfMeter = SEWING_PRICE_PER_METER / 2;
-    const sewingCost = halfMeters * sewingCostPerHalfMeter;
+    // Obliczanie kosztu szycia
+    const sewingCost = meters * SEWING_PRICE_PER_METER;
 
     return Math.round(materialCost + sewingCost);
   };
@@ -173,12 +162,6 @@ export default function OrderForm({ productName }: OrderFormProps) {
           name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
           phone: formData.phone,
-          address: {
-            street: formData.street,
-            houseNumber: formData.houseNumber,
-            postalCode: formData.postalCode,
-            city: formData.city,
-          },
         }),
       );
 
@@ -302,8 +285,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
               >
                 {products.map((product) => (
                   <option key={product.name} value={product.name}>
-                    {product.name} - {(product.fabricPricePerMB / 2).toFixed(2)}{' '}
-                    zł/0,5mb
+                    {product.name} - {product.fabricPricePerMB.toFixed(2)} zł/mb
                   </option>
                 ))}
               </select>
@@ -338,10 +320,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                         src={`${selectedProduct.imagePath}/${img}`}
                         alt={`${selectedProduct.name} - miniatura ${index + 1}`}
                         fill
-                        sizes='64px'
                         className='object-cover'
-                        priority={index === 0}
-                        quality={60}
                       />
                     </div>
                   ))}
@@ -364,11 +343,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                       }`}
                       alt={`${selectedProduct.name} - duży podgląd`}
                       fill
-                      sizes='(max-width: 768px) 100vw, 50vw'
                       className='object-contain'
-                      quality={80}
-                      placeholder='blur'
-                      blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
                     />
                     <div className='absolute bottom-2 right-2 bg-deep-navy/70 text-white text-xs px-2 py-1 rounded'>
                       Kliknij, aby powiększyć
@@ -446,24 +421,18 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>
-                    Cena materiału (za 0,5m):
-                  </span>
+                  <span className='text-gray-600'>Cena materiału:</span>
                   <span className='font-medium'>
                     {selectedProduct
-                      ? `${(selectedProduct.fabricPricePerMB / 2).toFixed(
-                          2,
-                        )} zł/0,5mb`
+                      ? `${selectedProduct.fabricPricePerMB.toFixed(2)} zł/mb`
                       : '-'}
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Koszt szycia (za 0,5m):</span>
+                  <span className='text-gray-600'>Koszt szycia:</span>
                   <span className='font-medium'>
                     {selectedProduct
-                      ? `${(selectedProduct.sewingPricePerMB / 2).toFixed(
-                          2,
-                        )} zł/0,5mb`
+                      ? `${selectedProduct.sewingPricePerMB.toFixed(2)} zł/mb`
                       : '-'}
                   </span>
                 </div>
@@ -476,16 +445,15 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Ilość półmetrów:</span>
+                  <span className='text-gray-600'>Metry bieżące:</span>
                   <span className='font-medium'>
                     {formData.rodWidth && formData.height
                       ? `${(
-                          ((parseFloat(formData.rodWidth) *
+                          (parseFloat(formData.rodWidth) *
                             2 *
                             parseFloat(formData.height)) /
-                            10000) *
-                          2
-                        ).toFixed(2)} x 0,5m²`
+                          10000
+                        ).toFixed(2)} m²`
                       : '-'}
                   </span>
                 </div>
@@ -643,119 +611,13 @@ export default function OrderForm({ productName }: OrderFormProps) {
             </div>
           </div>
 
-          {/* NOWA KOLEJNOŚĆ: 5. Dane do dostawy */}
-          <div className='space-y-6 mb-8'>
-            <h2 className='text-xl font-light text-deep-navy mb-4'>
-              Dane do dostawy
-            </h2>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Ulica
-                </label>
-                <input
-                  type='text'
-                  name='street'
-                  value={formData.street}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Numer domu/mieszkania
-                </label>
-                <input
-                  type='text'
-                  name='houseNumber'
-                  value={formData.houseNumber}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Kod pocztowy
-                </label>
-                <input
-                  type='text'
-                  name='postalCode'
-                  value={formData.postalCode}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Miasto
-                </label>
-                <input
-                  type='text'
-                  name='city'
-                  value={formData.city}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Przycisk zamówienia */}
           <button
             type='submit'
             disabled={isLoading}
-            className='magic-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
+            className='magic-button w-full py-3 px-6 text-white rounded-lg font-light text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50'
           >
-            {isLoading ? (
-              <span className='flex items-center justify-center'>
-                <svg
-                  className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle
-                    className='opacity-25'
-                    cx='12'
-                    cy='12'
-                    r='10'
-                    stroke='currentColor'
-                    strokeWidth='4'
-                  ></circle>
-                  <path
-                    className='opacity-75'
-                    fill='currentColor'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-                Przetwarzanie...
-              </span>
-            ) : (
-              <span
-                className='flex items-center justify-center'
-                style={{ color: 'black' }}
-              >
-                Zamów teraz
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-5 w-5 ml-2'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M14 5l7 7m0 0l-7 7m7-7H3'
-                  />
-                </svg>
-              </span>
-            )}
+            {isLoading ? 'Przetwarzanie...' : 'Zamów teraz'}
           </button>
 
           {error && (
@@ -794,10 +656,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                 src={modalImageSrc}
                 alt='Powiększony podgląd materiału'
                 fill
-                sizes='(max-width: 1200px) 100vw, 1200px'
                 className='object-contain'
-                quality={90}
-                priority
               />
             </div>
           </div>

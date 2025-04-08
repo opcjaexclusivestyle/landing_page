@@ -3,28 +3,38 @@
     {
       "name": "Haftowana forycja",
       "fabricPricePerMB": 60.0,
-      "sewingPricePerMB": 8.0
+      "sewingPricePerMB": 8.0,
+      "imagePath": "/images/calculator/haftowanaforsycja",
+      "images": ["1.webp", "2.webp", "3.webp", "4.webp"]
     },
     {
       "name": "Gipiura w krawacie",
       "fabricPricePerMB": 75.0,
-      "sewingPricePerMB": 8.0
+      "sewingPricePerMB": 8.0,
+      "imagePath": "/images/calculator/gipiurawkrawacie",
+      "images": ["1.webp", "2.webp", "3.webp", "4.webp"]
     },
     {
       "name": "Kwiatowe Love",
       "base": "Kwiaty żakardu",
       "fabricPricePerMB": 83.0,
-      "sewingPricePerMB": 6.0
+      "sewingPricePerMB": 6.0,
+      "imagePath": "/images/calculator/kwiatowelove",
+      "images": ["1.webp", "2.webp", "3.webp", "4.webp"]
     },
     {
       "name": "Kwiaty żakardu",
       "fabricPricePerMB": 39.9,
-      "sewingPricePerMB": 8.0
+      "sewingPricePerMB": 8.0,
+      "imagePath": "/images/calculator/kwiatyakardu",
+      "images": ["1.webp", "2.webp", "3.webp", "4.webp"]
     },
     {
       "name": "Listkowa elegancja",
       "fabricPricePerMB": 41.99,
-      "sewingPricePerMB": 8.0
+      "sewingPricePerMB": 8.0,
+      "imagePath": "/images/calculator/listkowaelegancja",
+      "images": ["1.webp", "2.webp", "3.webp", "4.webp"]
     }
   ]
 }

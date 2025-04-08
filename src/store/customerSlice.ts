@@ -1,9 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface Address {
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
+}
+
 interface CustomerInfo {
   name: string;
   email: string;
   phone: string;
+  address?: Address;
 }
 
 interface CustomerState {
