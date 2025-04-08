@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import faqConfig from '@/config/faq.json';
 import gsap from 'gsap';
