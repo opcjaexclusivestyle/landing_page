@@ -78,9 +78,6 @@ export default function Firany() {
 
         {/* Jak mierzyć */}
         <MeasuringGuide />
-
-        {/* Formularz zgłoszeniowy */}
-        <InquiryForm />
       </div>
     </>
   );

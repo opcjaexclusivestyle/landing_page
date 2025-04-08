@@ -1,14 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '@/store/cartSlice';
 import { setCustomerInfo } from '@/store/customerSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
+import productsConfig from '@/config/products.json';
+
+interface Product {
+  name: string;
+  fabricPricePerMB: number;
+  sewingPricePerMB: number;
+  base?: string;
+}
 
 interface OrderFormProps {
-  productName: string;
+  productName?: string;
 }
 
 interface FormData {
@@ -19,6 +27,7 @@ interface FormData {
   rodWidth: string;
   height: string;
   tapeType: string;
+  selectedProduct: string;
 }
 
 interface CartItem {
@@ -27,9 +36,10 @@ interface CartItem {
   price: number;
   quantity: number;
   options: {
-    rodWidth: string;
+    width: string;
     height: string;
-    tapeType: string;
+    embroidery: boolean;
+    curtainRod: boolean;
   };
 }
 
@@ -39,13 +49,12 @@ const TAPE_TYPES = [
   { id: 'dragon-5', name: 'Taśma smok 5 cm (Marszczenie 1:2)', ratio: 2 },
 ];
 
-const MATERIAL_PRICE_PER_METER = 60; // zł za 1MB
-const SEWING_PRICE_PER_METER = 8; // zł za 1MB
-
 export default function OrderForm({ productName }: OrderFormProps) {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>(productsConfig.products);
+
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -54,7 +63,32 @@ export default function OrderForm({ productName }: OrderFormProps) {
     rodWidth: '',
     height: '',
     tapeType: TAPE_TYPES[0].id,
+    selectedProduct:
+      productName || (products.length > 0 ? products[0].name : ''),
   });
+
+  // Znajdź aktualnie wybrany produkt
+  const selectedProduct = products.find(
+    (product) => product.name === formData.selectedProduct,
+  );
+
+  // Ceny materiału i szycia bazujące na wybranym produkcie
+  const MATERIAL_PRICE_PER_METER = selectedProduct
+    ? selectedProduct.fabricPricePerMB
+    : 0;
+  const SEWING_PRICE_PER_METER = selectedProduct
+    ? selectedProduct.sewingPricePerMB
+    : 0;
+
+  useEffect(() => {
+    // Ustawienie productName jako domyślnego produktu jeśli został przekazany
+    if (productName) {
+      setFormData((prev) => ({
+        ...prev,
+        selectedProduct: productName,
+      }));
+    }
+  }, [productName]);
 
   const calculatePrice = () => {
     const rodWidth = parseFloat(formData.rodWidth) || 0;
@@ -63,7 +97,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
       (tape) => tape.id === formData.tapeType,
     );
 
-    if (!selectedTape || !rodWidth || !height) return 0;
+    if (!selectedTape || !rodWidth || !height || !selectedProduct) return 0;
 
     // Obliczanie szerokości materiału po marszczeniu
     const materialWidth = rodWidth * selectedTape.ratio;
@@ -111,13 +145,14 @@ export default function OrderForm({ productName }: OrderFormProps) {
       // Dodaj produkt do koszyka
       const cartItem: CartItem = {
         id: productId,
-        name: productName,
+        name: formData.selectedProduct,
         price,
         quantity: 1,
         options: {
-          rodWidth: formData.rodWidth,
+          width: formData.rodWidth,
           height: formData.height,
-          tapeType: formData.tapeType,
+          embroidery: false,
+          curtainRod: false,
         },
       };
 
@@ -157,7 +192,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
   };
 
   return (
-    <div className='order-form-container min-h-screen flex'>
+    <div className='order-form-container min-h-screen flex flex-col lg:flex-row'>
       {/* Pasek kontaktowy */}
       <div className='contact-bar'>
         <div className='container mx-auto flex items-center justify-between'>
@@ -183,9 +218,9 @@ export default function OrderForm({ productName }: OrderFormProps) {
         </div>
       </div>
 
-      {/* Lewa sekcja z tłem */}
-      <div className='w-1/2 relative hidden lg:block'>
-        <div className="absolute inset-0 bg-[url('/calculator.png')] bg-cover bg-center">
+      {/* Lewa sekcja z tłem kalkulatora */}
+      <div className='w-full lg:w-1/2 relative hidden lg:block'>
+        <div className="absolute inset-0 bg-[url('/images/calculator.png')] bg-cover bg-center">
           <div className='absolute inset-0 bg-gradient-to-r from-deep-navy/80 to-deep-navy/40' />
         </div>
         <div className='absolute inset-0 flex items-center justify-center'>
@@ -200,13 +235,44 @@ export default function OrderForm({ productName }: OrderFormProps) {
         </div>
       </div>
 
-      {/* Prawa sekcja z formularzem */}
-      <div className='w-full lg:w-1/2 p-8 lg:p-12 relative mt-16'>
+      {/* Prawa sekcja z formularzem i tłem lilii */}
+      <div className='w-full lg:w-1/2 p-8 lg:p-12 relative mt-16 lg:mt-0'>
+        <div className="absolute inset-0 bg-[url('/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_d4c0efab-3cd7-42e9-be57-ae5d5f0d8f2a_0-removebg-preview.png')] bg-contain bg-center opacity-10"></div>
         <form
           onSubmit={handleSubmit}
-          className='form-section max-w-2xl mx-auto'
+          className='form-section max-w-2xl mx-auto relative z-10'
         >
           <h1 className='form-heading mb-8'>Formularz zamówienia</h1>
+
+          {/* Wybór produktu */}
+          <div className='space-y-6 mb-8'>
+            <h2 className='text-xl font-light text-deep-navy mb-4'>
+              Wybór produktu
+            </h2>
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
+                Typ materiału
+              </label>
+              <select
+                name='selectedProduct'
+                value={formData.selectedProduct}
+                onChange={handleChange}
+                className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
+                required
+              >
+                {products.map((product) => (
+                  <option key={product.name} value={product.name}>
+                    {product.name} - {product.fabricPricePerMB.toFixed(2)} zł/mb
+                  </option>
+                ))}
+              </select>
+              {selectedProduct?.base && (
+                <p className='mt-1 text-sm text-gray-500'>
+                  Bazuje na: {selectedProduct.base}
+                </p>
+              )}
+            </div>
+          </div>
 
           {/* Dane osobowe */}
           <div className='space-y-6 mb-8'>
@@ -223,7 +289,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   name='firstName'
                   value={formData.firstName}
                   onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 />
               </div>
@@ -236,7 +302,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   name='lastName'
                   value={formData.lastName}
                   onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 />
               </div>
@@ -249,7 +315,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   name='email'
                   value={formData.email}
                   onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 />
               </div>
@@ -262,7 +328,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   name='phone'
                   value={formData.phone}
                   onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 />
               </div>
@@ -283,7 +349,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   name='tapeType'
                   value={formData.tapeType}
                   onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 >
                   {TAPE_TYPES.map((tape) => (
@@ -303,7 +369,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   value={formData.rodWidth}
                   onChange={handleChange}
                   min='1'
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 />
               </div>
@@ -317,7 +383,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   value={formData.height}
                   onChange={handleChange}
                   min='1'
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
                 />
               </div>
@@ -326,10 +392,32 @@ export default function OrderForm({ productName }: OrderFormProps) {
 
           {/* Szczegóły kalkulacji */}
           <div className='mb-8'>
-            <div className='calculation-details'>
-              <h3>Szczegóły kalkulacji</h3>
+            <div className='calculation-details bg-white/90 p-4 rounded-lg'>
+              <h3 className='text-lg font-medium mb-3'>Szczegóły kalkulacji</h3>
               <div className='space-y-2'>
-                <div className='calculation-row'>
+                <div className='flex justify-between items-center text-sm'>
+                  <span className='text-gray-600'>Wybrany materiał:</span>
+                  <span className='font-medium'>
+                    {selectedProduct?.name || '-'}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center text-sm'>
+                  <span className='text-gray-600'>Cena materiału:</span>
+                  <span className='font-medium'>
+                    {selectedProduct
+                      ? `${selectedProduct.fabricPricePerMB.toFixed(2)} zł/mb`
+                      : '-'}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center text-sm'>
+                  <span className='text-gray-600'>Koszt szycia:</span>
+                  <span className='font-medium'>
+                    {selectedProduct
+                      ? `${selectedProduct.sewingPricePerMB.toFixed(2)} zł/mb`
+                      : '-'}
+                  </span>
+                </div>
+                <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Szerokość materiału:</span>
                   <span className='font-medium'>
                     {formData.rodWidth
@@ -337,7 +425,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
                       : '-'}
                   </span>
                 </div>
-                <div className='calculation-row'>
+                <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Metry bieżące:</span>
                   <span className='font-medium'>
                     {formData.rodWidth && formData.height
@@ -350,44 +438,95 @@ export default function OrderForm({ productName }: OrderFormProps) {
                       : '-'}
                   </span>
                 </div>
-                <div className='calculation-row'>
+                <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Koszt materiału:</span>
                   <span className='font-medium'>
-                    {formData.rodWidth && formData.height
+                    {formData.rodWidth && formData.height && selectedProduct
                       ? `${(
                           ((parseFloat(formData.rodWidth) *
                             2 *
                             parseFloat(formData.height)) /
                             10000) *
-                          MATERIAL_PRICE_PER_METER
+                          selectedProduct.fabricPricePerMB
                         ).toFixed(2)} zł`
                       : '-'}
                   </span>
                 </div>
-                <div className='calculation-row'>
+                <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Koszt szycia:</span>
                   <span className='font-medium'>
-                    {formData.rodWidth && formData.height
+                    {formData.rodWidth && formData.height && selectedProduct
                       ? `${(
                           ((parseFloat(formData.rodWidth) *
                             2 *
                             parseFloat(formData.height)) /
                             10000) *
-                          SEWING_PRICE_PER_METER
+                          selectedProduct.sewingPricePerMB
                         ).toFixed(2)} zł`
                       : '-'}
                   </span>
                 </div>
               </div>
-              <div className='pt-4 border-t border-gray-200'>
-                <div className='calculation-row'>
+              <div className='pt-4 border-t border-gray-200 mt-4'>
+                <div className='flex justify-between items-center'>
                   <span className='text-lg font-medium text-deep-navy'>
                     Razem:
                   </span>
-                  <span className='calculation-total'>
+                  <span className='text-xl font-bold text-deep-navy'>
                     {calculatePrice()} zł
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Przewodnik pomiarowy */}
+          <div className='mb-8 bg-gray-50 p-4 rounded-lg border border-gray-100'>
+            <div className='flex items-start'>
+              <div className='mr-4 text-deep-navy'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-6 w-6'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className='text-sm font-medium text-deep-navy mb-1'>
+                  Nie masz pewności jak zmierzyć okno?
+                </h4>
+                <p className='text-xs text-gray-600 mb-2'>
+                  Sprawdź nasz przewodnik, który pomoże Ci dokonać poprawnych
+                  pomiarów.
+                </p>
+                <a
+                  href='/jak-mierzyc'
+                  className='text-royal-gold hover:text-gold text-sm font-medium inline-flex items-center'
+                >
+                  Zobacz przewodnik
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='h-4 w-4 ml-1'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M14 5l7 7m0 0l-7 7m7-7H3'
+                    />
+                  </svg>
+                </a>
               </div>
             </div>
           </div>

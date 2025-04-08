@@ -1,0 +1,30 @@
+{
+  "products": [
+    {
+      "name": "Haftowana forycja",
+      "fabricPricePerMB": 60.0,
+      "sewingPricePerMB": 8.0
+    },
+    {
+      "name": "Gipiura w krawacie",
+      "fabricPricePerMB": 75.0,
+      "sewingPricePerMB": 8.0
+    },
+    {
+      "name": "Kwiatowe Love",
+      "base": "Kwiaty żakardu",
+      "fabricPricePerMB": 83.0,
+      "sewingPricePerMB": 6.0
+    },
+    {
+      "name": "Kwiaty żakardu",
+      "fabricPricePerMB": 39.9,
+      "sewingPricePerMB": 8.0
+    },
+    {
+      "name": "Listkowa elegancja",
+      "fabricPricePerMB": 41.99,
+      "sewingPricePerMB": 8.0
+    }
+  ]
+}
