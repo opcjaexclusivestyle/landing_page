@@ -5,7 +5,7 @@ import './commands';
 // require('./commands')
 
 // Hide fetch/XHR requests from command log
-const app = window.top;
+const app = window.top as any;
 if (app) {
   app.console.log = () => {};
 }
