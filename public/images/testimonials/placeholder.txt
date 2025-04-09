@@ -1,0 +1,10 @@
+W tym folderze należy umieścić 4 zdjęcia do testimonialsów, nazwane:
+- testimonial1.jpg
+- testimonial2.jpg
+- testimonial3.jpg
+- testimonial4.jpg
+
+Dodatkowo warto dodać obraz fallbackowy:
+- default.jpg
+
+Zdjęcia powinny mieć format kwadratowy, najlepiej 128x128 px. 

@@ -1,0 +1,8 @@
+W tym folderze należy umieścić 5 obrazów kwiatów, nazwanych:
+- flower-1.png
+- flower-2.png
+- flower-3.png
+- flower-4.png
+- flower-5.png
+
+Powinny to być przezroczyste (PNG) obrazy kwiatów, które będą unosić się w tle sekcji testimoniali. 

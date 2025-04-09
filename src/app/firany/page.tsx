@@ -11,6 +11,7 @@ import CommercialResidentialSection from '../../components/CommercialResidential
 import OrderForm from '../../components/OrderForm';
 import InquiryForm from '../../components/InquiryForm';
 import MeasuringGuide from '../../components/MeasuringGuide';
+import TestimonialsSection from '../../components/TestimonialsSection';
 
 export default function Firany() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -87,6 +88,9 @@ export default function Firany() {
 
           {/* Sekcja Commercial & Residential */}
           <CommercialResidentialSection />
+
+          {/* Sekcja Testimoniali */}
+          <TestimonialsSection />
 
           {/* Formularz zamówienia */}
           <OrderForm />
