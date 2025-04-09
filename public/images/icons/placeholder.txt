@@ -1,0 +1,10 @@
+W tym folderze należy umieścić następujące ikony:
+
+1. quality.png - ikona symbolizująca jakość (np. medal, znak jakości)
+2. design.png - ikona symbolizująca design/wzornictwo 
+3. custom.png - ikona symbolizująca personalizację/indywidualne podejście
+4. installation.png - ikona symbolizująca montaż/instalację
+5. star-icon.png - ikona gwiazdki (do odznaki z doświadczeniem)
+
+Zalecany format: pliki PNG z przezroczystym tłem
+Zalecany rozmiar: 64x64 px do 128x128 px 

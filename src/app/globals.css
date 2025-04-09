@@ -1207,3 +1207,33 @@ html {
     border-top: none;
   }
 }
+
+/* Style dla nowej strony głównej */
+.hero-section {
+  background-image: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.9) 40%,
+      rgba(255, 255, 255, 0.5) 70%,
+      rgba(255, 255, 255, 0) 100%
+    ),
+    url('/images/Firany.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.testimonial-section {
+  background-color: #f9fafb;
+}
+
+.rounded-button {
+  border-radius: 8px;
+}
+
+/* Style dla selektorów w formularzu */
+.custom-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}

@@ -1,0 +1,6 @@
+W tym folderze należy umieścić następujące obrazy tła:
+
+1. light-pattern.jpg - delikatny wzór/tekstura jako tło dla sekcji KeyFactors
+2. floral-bg.png - delikatny kwiatowy wzór jako tło (opcjonalnie z przezroczystością)
+
+Zalecany rozmiar: minimum 1920x1080 px 

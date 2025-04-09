@@ -16,6 +16,7 @@
     "test:e2e:dev": "start-server-and-test dev http://localhost:3000 cypress:open"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@reduxjs/toolkit": "^2.0.1",
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^2.2.0",

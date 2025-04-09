@@ -1,0 +1,10 @@
+W tym folderze należy umieścić następujące obrazy małych kwiatów:
+
+1. small-flower-1.png - mały kwiat do unoszącego się tła
+2. small-flower-2.png - mały kwiat do unoszącego się tła
+3. small-flower-3.png - mały kwiat do unoszącego się tła
+
+Te obrazy będą używane w sekcjach DualCardSection jako unoszące się elementy dekoracyjne.
+
+Zalecany format: PNG z przezroczystym tłem
+Zalecany rozmiar: około 100x100 do 200x200 px 

@@ -1,0 +1,5 @@
+W tym folderze należy umieścić obraz:
+
+hotel-curtains.jpg - zdjęcie eleganckich zasłon w przestrzeni komercyjnej (hotel, restauracja, biuro)
+
+Zalecany rozmiar: minimum 800x600 px, najlepiej 1200x800 px w wysokiej jakości. 

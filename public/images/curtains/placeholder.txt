@@ -1,0 +1,9 @@
+W tym folderze należy umieścić następujące obrazy zasłon:
+
+1. blackout.jpg - zdjęcie zasłon zaciemniających, najlepiej w ciemnych odcieniach
+2. sheer.jpg - zdjęcie lekkich, przejrzystych zasłon
+3. thermal.jpg - zdjęcie zasłon termicznych 
+4. printed.jpg - zdjęcie zasłon z kolorowymi nadrukami/wzorami
+5. living-room.jpg - zdjęcie eleganckich zasłon w salonie (do sekcji KeyFactors)
+
+Zalecany rozmiar: minimum 800x600 px, najlepiej 1200x900 px w wysokiej jakości. 

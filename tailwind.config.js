@@ -12,6 +12,7 @@ module.exports = {
         'royal-gold': '#D4AF37',
         'deep-gold': '#B8860B',
         gold: '#FFD700',
+        primary: '#3b82f6',
       },
     },
   },

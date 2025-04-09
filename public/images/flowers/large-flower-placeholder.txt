@@ -1,0 +1,7 @@
+W tym folderze należy umieścić następujące obrazy dużych kwiatów:
+
+1. large-flower-1.png - duży kwiat do tła sekcji TypesSection (lewy górny róg)
+2. large-flower-2.png - duży kwiat do tła sekcji TypesSection (prawy dolny róg)
+
+Zalecany format: PNG z przezroczystym tłem
+Zalecany rozmiar: minimum 600x600 px 
