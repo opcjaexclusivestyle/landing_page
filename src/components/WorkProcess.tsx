@@ -175,7 +175,11 @@ const WorkProcess: React.FC = () => {
       {[...Array(12)].map((_, i) => (
         <div
           key={`flower-${i}`}
-          ref={(el) => (floatingFlowersRef.current[i] = el)}
+          ref={(el) => {
+            if (floatingFlowersRef.current) {
+              floatingFlowersRef.current[i] = el;
+            }
+          }}
           className='absolute z-10 pointer-events-none'
         >
           <Image

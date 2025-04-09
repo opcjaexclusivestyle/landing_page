@@ -818,6 +818,69 @@ const About: React.FC = () => {
             font-size: 15px;
           }
         }
+
+        .certification-icon {
+          display: block;
+          width: 15px;
+          height: 15px;
+          background: url('/images/certificate-icon.png') no-repeat center;
+          background-size: contain;
+          position: relative;
+          transition: all 0.3s ease;
+        }
+
+        .certification-image {
+          position: relative;
+          margin-top: 30px;
+          text-align: center;
+          padding: 15px;
+          background: #fff;
+          border-radius: 10px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+          transition: all 0.3s ease;
+        }
+
+        .certification-image:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .certification-image img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          border: 1px solid rgba(131, 104, 209, 0.2);
+        }
+
+        .certification-caption {
+          margin-top: 15px;
+          font-size: 14px;
+          color: #666;
+          font-style: italic;
+        }
+
+        .oeko-tex-info {
+          margin-top: 25px;
+          padding: 15px;
+          background: rgba(131, 104, 209, 0.05);
+          border-left: 3px solid #8368d1;
+          border-radius: 5px;
+        }
+
+        .oeko-tex-info p {
+          font-size: 14px;
+          line-height: 1.6;
+          color: #555;
+          margin: 0;
+        }
+
+        @media only screen and (max-width: 767px) {
+          .certification-image,
+          .oeko-tex-info {
+            margin-top: 20px;
+            padding: 10px;
+          }
+        }
       `}</style>
     </section>
   );
