@@ -12,7 +12,7 @@ import OrderForm from '../../components/OrderForm';
 import InquiryForm from '../../components/InquiryForm';
 import MeasuringGuide from '../../components/MeasuringGuide';
 import TestimonialsSection from '../../components/TestimonialsSection';
-
+import WorkProcess from '../../components/WorkProcess';
 export default function Firany() {
   const contentRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef(null);
@@ -81,14 +81,14 @@ export default function Firany() {
           <About />
 
           {/* Sekcja typów zasłon */}
-          <TypesSection />
+          {/* <TypesSection /> */}
 
           {/* Sekcja kluczowych atutów */}
-          <KeyFactorsSection />
+          {/* <KeyFactorsSection /> */}
 
           {/* Sekcja Commercial & Residential */}
-          <CommercialResidentialSection />
-
+          {/* <CommercialResidentialSection /> */}
+          <WorkProcess />
           {/* Sekcja Testimoniali */}
           <TestimonialsSection />
 
