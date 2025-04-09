@@ -262,7 +262,9 @@ const WorkProcess: React.FC = () => {
               {processSteps.map((step, index) => (
                 <div
                   key={index}
-                  ref={(el) => (stepsRef.current[index] = el)}
+                  ref={(el) => {
+                    stepsRef.current[index] = el;
+                  }}
                   className='w-full md:w-1/3 flex-shrink-0 p-1'
                 >
                   <div
