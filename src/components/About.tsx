@@ -5,354 +5,214 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 const About: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const imageBoxRef = useRef<HTMLDivElement>(null);
-  const contentBoxRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Zalety produktów
+  const benefits = [
+    'Produkt wyprodukowany w Polskiej szwalni',
+    'PISEMNA GWARANCJA JAKOŚCI',
+  ];
 
   useEffect(() => {
-    // Rejestrujemy plugin ScrollTrigger
     gsap.registerPlugin(ScrollTrigger);
 
-    // Animacja dla contentu
-    const contentTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 70%',
-        end: 'bottom 20%',
-        toggleActions: 'play none none reverse',
+    // Animacja dla treści
+    gsap.fromTo(
+      contentRef.current,
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse',
+        },
       },
-    });
-
-    contentTimeline
-      .fromTo(
-        titleRef.current,
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' },
-      )
-      .fromTo(
-        textRef.current,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out' },
-        '-=0.4',
-      )
-      .fromTo(
-        listRef.current,
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, ease: 'power2.out' },
-        '-=0.4',
-      );
-
-    // Animacja dla obrazu
-    const imageTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: imageBoxRef.current,
-        start: 'top 70%',
-        end: 'bottom 20%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-
-    imageTimeline.fromTo(
-      imageBoxRef.current,
-      { x: 50, opacity: 0 },
-      { x: 0, opacity: 1, duration: 1, ease: 'power2.out' },
     );
 
-    // Czyszczenie
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
+    // Animacja dla obrazu
+    gsap.fromTo(
+      imageBoxRef.current,
+      { x: 50, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 1,
+        scrollTrigger: {
+          trigger: imageBoxRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse',
+        },
+      },
+    );
+
+    // Animacja dla certyfikatu
+    const certificateElement = document.querySelector('.certificate-badge');
+    gsap.fromTo(
+      certificateElement,
+      { scale: 0, opacity: 0 },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.7,
+        delay: 0.5,
+        ease: 'back.out(1.7)',
+        scrollTrigger: {
+          trigger: imageBoxRef.current,
+          start: 'top 70%',
+          toggleActions: 'play none none reverse',
+        },
+      },
+    );
+
+    return () => ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   }, []);
 
   return (
     <section className='about-section' ref={sectionRef}>
-      <div className='sunlit-overlay'></div>
-      <div className='floral-bg'></div>
-      <div className='background-shapes'>
-        <div className='circle-1'></div>
-        <div className='circle-2'></div>
-        <div className='square-1'></div>
-        <div className='square-2'></div>
-      </div>
-      <div className='auto-container'>
-        <div className='row clearfix'>
-          <div className='col-lg-6 col-md-12 col-sm-12 content-column'>
-            <div className='content_block_1'>
-              <div className='content-box' ref={contentBoxRef}>
-                <div className='sec-title' ref={titleRef}>
+      <div className='bg-elements'></div>
+
+      <div className='container'>
+        <div className='row'>
+          {/* Kolumna treści */}
+          <div className='col-lg-6 col-md-12'>
+            <div className='content-box' ref={contentRef}>
+              <div className='title-area'>
+                <p className='subtitle'>
+                  Witamy w <span className='text-accent'>Zasłony i Rolety</span>
+                </p>
+                <div className='divider'></div>
+                <h2>
+                  Tworzymy Twoje Wnętrze{' '}
+                  <span className='gradient-text'>Świeżym i Nowoczesnym</span>
+                </h2>
+              </div>
+
+              <div className='description'>
+                <p>
+                  U nas znajdziesz szeroką gamę najwyższej jakości zasłon i
+                  rolet dopasowanych do Twojego wnętrza. Nasze produkty łączą
+                  elegancję z funkcjonalnością, zapewniając idealne rozwiązania
+                  dekoracyjne.
+                </p>
+              </div>
+
+              <div className='benefits-box'>
+                <ul className='benefits-list'>
+                  {benefits.map((benefit, index) => (
+                    <li key={index}>
+                      <span className='icon-check'></span>
+                      {benefit}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className='oeko-info'>
                   <p>
-                    Witamy w <span className='highlight'>Fauxis</span>{' '}
-                    <span className='text-accent'>Zasłony i Rolety</span>
+                    Nasze materiały posiadają certyfikat OEKO-TEX, co gwarantuje
+                    brak substancji szkodliwych mających wpływ na zdrowie.
                   </p>
-                  <div className='shape'></div>
-                  <h2>
-                    Tworzymy Twoje Wnętrze{' '}
-                    <span className='gradient-text'>Świeżym i Nowoczesnym</span>
-                  </h2>
-                </div>
-                <div className='text' ref={textRef}>
-                  <p>
-                    U nas znajdziesz szeroką gamę najwyższej jakości zasłon i
-                    rolet dopasowanych do Twojego wnętrza. Nasze produkty łączą
-                    elegancję z funkcjonalnością, zapewniając idealne
-                    rozwiązania dekoracyjne i praktyczne dla każdego
-                    pomieszczenia. Specjalizujemy się w dostarczaniu rozwiązań
-                    szytych na miarę, które idealnie pasują do Twojej
-                    przestrzeni.
-                  </p>
-                </div>
-                <div className='inner-box' ref={listRef}>
-                  <figure className='vector-image'>
-                    <img
-                      src='/images/about/vector-image-1.png'
-                      alt='Element dekoracyjny'
-                    />
-                  </figure>
-                  <div className='inner clearfix'>
-                    <ul className='list-item'>
-                      <li>
-                        <span className='icon-wrapper'>
-                          <span className='check-icon'></span>
-                        </span>
-                        Dostosuj Swój Projekt
-                      </li>
-                      <li>
-                        <span className='icon-wrapper'>
-                          <span className='check-icon'></span>
-                        </span>
-                        Jakość Bez Kompromisów
-                      </li>
-                    </ul>
-                    <ul className='list-item pl-45'>
-                      <li>
-                        <span className='icon-wrapper'>
-                          <span className='check-icon'></span>
-                        </span>
-                        Naturalne Kolory
-                      </li>
-                      <li>
-                        <span className='icon-wrapper'>
-                          <span className='check-icon'></span>
-                        </span>
-                        Najlepszy Wybór Zasłon i Rolet
-                      </li>
-                    </ul>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className='col-lg-6 col-md-12 col-sm-12 image-column'>
-            <div className='image_block_1'>
-              <div className='image-box ml-55' ref={imageBoxRef}>
-                <figure className='vector-image rotate-me'>
-                  <img
-                    src='/images/about/vector-image-2.png'
-                    alt='Element dekoracyjny'
-                  />
-                </figure>
-                <div className='image-pattern'>
-                  <div className='pattern-1'></div>
-                  <div className='pattern-2'></div>
-                  <div className='pattern-3'></div>
-                  <div className='pattern-4'></div>
-                </div>
-                <figure className='image'>
-                  <img
-                    src='/images/about/about-1.jpg'
-                    alt='O nas - Zasłony i Rolety'
-                  />
-                  <div className='image-overlay'></div>
-                </figure>
+
+          {/* Kolumna z obrazem */}
+          <div className='col-lg-6 col-md-12'>
+            <div className='image-wrapper' ref={imageBoxRef}>
+              <div className='main-image'>
+                <img
+                  src='/images/about/about-1.jpg'
+                  alt='O nas - Zasłony i Rolety'
+                />
+                <div className='image-overlay'></div>
               </div>
+
+              <div className='certificate-badge'>
+                <img
+                  src='/images/certyfikat-jakosci.jpg'
+                  alt='Pisemna gwarancja jakości'
+                />
+                <span>Gwarancja jakości</span>
+              </div>
+
+              <div className='decoration-element'></div>
             </div>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        /* About Section Styles */
+        /* Główne style sekcji */
         .about-section {
           position: relative;
-          padding: 140px 0px 120px 0px;
-          overflow: hidden;
+          padding: 100px 0;
           background: linear-gradient(135deg, #f9f7ff 0%, #f4f9ff 100%);
-        }
-
-        .sunlit-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: url('/images/sunlit.jpg') no-repeat;
-          background-size: cover;
-          background-position: center;
-          opacity: 0.15;
-          z-index: 0;
-          filter: brightness(1.2) contrast(1.1);
-        }
-
-        .floral-bg {
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          width: 40%;
-          height: 50%;
-          background: url('/images/sunlit.jpg') no-repeat;
-          background-size: cover;
-          background-position: center;
-          opacity: 0.04;
-          z-index: 0;
-          filter: blur(3px) brightness(1.2);
-          transform: rotate(180deg);
-        }
-
-        .background-shapes {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
           overflow: hidden;
-          z-index: 1;
-          opacity: 0.6;
         }
 
-        .circle-1,
-        .circle-2,
-        .square-1,
-        .square-2 {
+        /* Elementy tła */
+        .bg-elements {
           position: absolute;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #a893e9 0%, #8368d1 100%);
-          opacity: 0.15;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: url('/images/sunlit.jpg') no-repeat center/cover;
+          opacity: 0.05;
+          filter: brightness(1.2);
+          z-index: 0;
         }
 
-        .circle-1 {
-          width: 300px;
-          height: 300px;
-          top: -150px;
-          left: -100px;
-          filter: blur(20px);
-        }
-
-        .circle-2 {
-          width: 200px;
-          height: 200px;
-          bottom: -50px;
-          right: 10%;
-          filter: blur(15px);
-        }
-
-        .square-1,
-        .square-2 {
-          border-radius: 10px;
-          transform: rotate(45deg);
-        }
-
-        .square-1 {
-          width: 100px;
-          height: 100px;
-          top: 20%;
-          right: -30px;
-          background: linear-gradient(135deg, #f1c3fd 0%, #e389ff 100%);
-          opacity: 0.1;
-        }
-
-        .square-2 {
-          width: 150px;
-          height: 150px;
-          bottom: 10%;
-          left: 5%;
-          background: linear-gradient(135deg, #bcceff 0%, #8aa4ff 100%);
-          opacity: 0.1;
-        }
-
-        .auto-container {
-          position: relative;
+        /* Układ strony */
+        .container {
           max-width: 1200px;
-          padding: 0px 15px;
           margin: 0 auto;
-          z-index: 2;
+          padding: 0 15px;
+          position: relative;
+          z-index: 1;
         }
 
         .row {
           display: flex;
           flex-wrap: wrap;
-          margin-right: -15px;
-          margin-left: -15px;
-        }
-
-        .clearfix::after {
-          display: block;
-          clear: both;
-          content: '';
-        }
-
-        .content-column,
-        .image-column {
-          position: relative;
-          min-height: 1px;
-          padding-right: 15px;
-          padding-left: 15px;
+          margin: 0 -15px;
         }
 
         .col-lg-6 {
           flex: 0 0 50%;
           max-width: 50%;
+          padding: 0 15px;
         }
 
-        @media (max-width: 991px) {
-          .col-md-12 {
-            flex: 0 0 100%;
-            max-width: 100%;
-          }
-        }
-
-        @media (max-width: 767px) {
-          .col-sm-12 {
-            flex: 0 0 100%;
-            max-width: 100%;
-          }
-        }
-
-        /* Content Styles */
-        .content_block_1 .content-box {
-          position: relative;
-          margin-right: -15px;
-          backdrop-filter: blur(5px);
-          background-color: rgba(255, 255, 255, 0.7);
+        /* Blok treści */
+        .content-box {
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(10px);
           padding: 40px;
           border-radius: 15px;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+          height: 100%;
+          display: flex;
+          flex-direction: column;
         }
 
-        .content_block_1 .content-box .sec-title {
-          margin-bottom: 30px;
+        /* Tytuł */
+        .title-area {
+          margin-bottom: 25px;
         }
 
-        .sec-title p {
-          position: relative;
-          display: block;
+        .subtitle {
           font-size: 18px;
-          line-height: 26px;
           color: #8368d1;
-          font-weight: 500;
           margin-bottom: 15px;
-          letter-spacing: 0.5px;
-        }
-
-        .text-accent {
-          color: #555;
-          font-weight: normal;
         }
 
         .highlight {
-          font-weight: 700;
           position: relative;
-          display: inline-block;
+          font-weight: 700;
         }
 
         .highlight::after {
@@ -364,223 +224,145 @@ const About: React.FC = () => {
           bottom: 0;
           left: 0;
           z-index: -1;
-          transition: height 0.3s ease-in-out;
         }
 
-        .highlight:hover::after {
-          height: 100%;
+        .text-accent {
+          color: #555;
+          font-weight: normal;
         }
 
-        .sec-title .shape {
-          position: relative;
-          display: block;
+        .divider {
           width: 70px;
           height: 3px;
-          background: linear-gradient(90deg, #8368d1 0%, #a893e9 100%);
+          background: linear-gradient(90deg, #8368d1, #a893e9);
           margin-bottom: 18px;
           border-radius: 2px;
-          box-shadow: 0 3px 10px rgba(131, 104, 209, 0.2);
         }
 
-        .sec-title h2 {
-          position: relative;
-          display: block;
-          font-size: 40px;
+        .title-area h2 {
+          font-size: 36px;
           line-height: 1.3;
-          color: #222222;
+          color: #222;
           font-weight: 700;
-          letter-spacing: -0.5px;
           margin: 0;
         }
 
         .gradient-text {
-          background: linear-gradient(90deg, #8368d1 0%, #a893e9 100%);
+          background: linear-gradient(90deg, #8368d1, #a893e9);
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
-          position: relative;
-          display: inline-block;
         }
 
-        .content_block_1 .content-box .text {
-          position: relative;
-          margin-bottom: 55px;
+        /* Opis */
+        .description {
+          margin-bottom: 30px;
         }
 
-        .content_block_1 .content-box .text p {
+        .description p {
           font-size: 17px;
-          line-height: 1.8;
-          margin-bottom: 0px;
+          line-height: 1.7;
           color: #555;
-          position: relative;
-          padding-left: 20px;
           border-left: 2px solid rgba(131, 104, 209, 0.3);
-          padding-top: 5px;
-          padding-bottom: 5px;
+          padding: 5px 0 5px 20px;
         }
 
-        .content_block_1 .content-box .inner-box {
-          position: relative;
-          width: 100%;
-          transform: translateZ(0);
-          transition: transform 0.3s ease;
+        /* Lista korzyści */
+        .benefits-box {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+          padding: 30px;
+          flex-grow: 1;
+          margin-top: auto;
         }
 
-        .content_block_1 .content-box .inner-box:hover {
-          transform: translateY(-5px);
+        .benefits-list {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 25px 0;
         }
 
-        .content_block_1 .content-box .inner-box .vector-image {
-          position: absolute;
-          left: -140px;
-          bottom: -25px;
-          z-index: 1;
-          filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.1));
-        }
-
-        .content_block_1 .content-box .inner-box .inner {
-          position: relative;
-          display: block;
-          background: rgba(255, 255, 255, 0.9);
-          padding: 35px 40px 20px 40px;
-          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.07);
-          border-radius: 10px;
-          transition: all 0.3s ease;
-          overflow: hidden;
-          backdrop-filter: blur(5px);
-        }
-
-        .content_block_1 .content-box .inner-box .inner::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            135deg,
-            rgba(131, 104, 209, 0.05) 0%,
-            rgba(168, 147, 233, 0.07) 100%
-          );
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .content_block_1 .content-box .inner-box .inner:hover {
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-        }
-
-        .content_block_1 .content-box .inner-box .inner:hover::before {
-          opacity: 1;
-        }
-
-        .content_block_1 .content-box .inner-box .inner .list-item {
-          position: relative;
-          display: inline-block;
-        }
-
-        .content_block_1 .content-box .inner-box .inner .list-item li {
-          position: relative;
+        .benefits-list li {
           display: flex;
           align-items: center;
-          font-size: 16px;
-          line-height: 28px;
-          font-weight: 500;
-          color: #333;
-          padding-bottom: 20px;
-          margin-bottom: 20px;
+          padding: 12px 0;
           border-bottom: 1px solid rgba(215, 212, 230, 0.5);
-          transition: all 0.3s ease;
+          font-size: 16px;
+          color: #333;
+          font-weight: 500;
+          transition: transform 0.3s;
         }
 
-        .content_block_1
-          .content-box
-          .inner-box
-          .inner
-          .list-item
-          li:last-child {
+        .benefits-list li:last-child {
           border-bottom: none;
-          margin-bottom: 0px;
         }
 
-        .content_block_1 .content-box .inner-box .inner .list-item li:hover {
-          color: #8368d1;
+        .benefits-list li:hover {
           transform: translateX(5px);
+          color: #8368d1;
         }
 
-        .icon-wrapper {
-          width: 30px;
-          height: 30px;
+        .icon-check {
           display: flex;
           align-items: center;
           justify-content: center;
+          width: 24px;
+          height: 24px;
           background: rgba(131, 104, 209, 0.1);
           border-radius: 50%;
           margin-right: 15px;
-          transition: all 0.3s ease;
+          position: relative;
         }
 
-        .check-icon {
-          display: block;
-          width: 12px;
-          height: 6px;
+        .icon-check::before {
+          content: '';
+          width: 10px;
+          height: 5px;
           border-left: 2px solid #8368d1;
           border-bottom: 2px solid #8368d1;
           transform: rotate(-45deg);
           position: relative;
-          top: -2px;
-          transition: all 0.3s ease;
+          top: -1px;
         }
 
-        .list-item li:hover .icon-wrapper {
-          background: rgba(131, 104, 209, 0.3);
-          transform: scale(1.1) rotate(10deg);
+        .oeko-info {
+          padding: 15px;
+          background: rgba(131, 104, 209, 0.05);
+          border-left: 3px solid #8368d1;
+          border-radius: 5px;
         }
 
-        .list-item li:hover .check-icon {
-          transform: rotate(-45deg) scale(1.2);
+        .oeko-info p {
+          font-size: 14px;
+          line-height: 1.6;
+          color: #555;
+          margin: 0;
         }
 
-        .pl-45 {
-          padding-left: 45px !important;
-        }
-
-        /* Image Styles */
-        .image_block_1 .image-box {
+        /* Blok obrazu */
+        .image-wrapper {
           position: relative;
-          display: block;
-          margin-top: 17px;
-          perspective: 1000px;
+          height: 100%;
+          padding-top: 20px;
+          display: flex;
+          justify-content: center;
         }
 
-        .ml-55 {
-          margin-left: 55px;
-        }
-
-        .image_block_1 .image-box .vector-image {
-          position: absolute;
-          top: -70px;
-          right: -70px;
-          z-index: 5;
-          filter: drop-shadow(0px 5px 15px rgba(0, 0, 0, 0.15));
-        }
-
-        .image_block_1 .image-box .image {
+        .main-image {
           position: relative;
-          display: block;
+          width: 90%;
+          border-radius: 15px;
           overflow: hidden;
-          border-radius: 10px;
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
           transform-style: preserve-3d;
-          transition: all 0.5s ease;
-          z-index: 3;
+          transition: transform 0.5s;
         }
 
-        .image_block_1 .image-box .image img {
+        .main-image img {
           width: 100%;
-          transform: scale(1);
-          transition: all 0.5s ease;
-          border-radius: 10px;
+          display: block;
+          transition: all 0.5s;
         }
 
         .image-overlay {
@@ -591,294 +373,146 @@ const About: React.FC = () => {
           height: 100%;
           background: linear-gradient(
             135deg,
-            rgba(131, 104, 209, 0.1) 0%,
-            rgba(168, 147, 233, 0.3) 100%
+            rgba(131, 104, 209, 0.1),
+            rgba(168, 147, 233, 0.3)
           );
-          z-index: 4;
           opacity: 0;
-          transition: all 0.5s ease;
-          border-radius: 10px;
-          pointer-events: none;
+          transition: opacity 0.5s;
         }
 
-        .image_block_1 .image-box:hover .image {
-          transform: rotateY(5deg);
-          z-index: 4;
+        .image-wrapper:hover .main-image {
+          transform: perspective(1000px) rotateY(5deg);
         }
 
-        .image_block_1 .image-box:hover .image img {
+        .image-wrapper:hover .main-image img {
           transform: scale(1.05);
-          filter: brightness(1.05);
         }
 
-        .image_block_1 .image-box:hover .image-overlay {
+        .image-wrapper:hover .image-overlay {
           opacity: 1;
         }
 
-        .image_block_1 .image-box:before {
+        /* Certyfikat */
+        .certificate-badge {
           position: absolute;
-          content: '';
-          width: 90%;
-          height: calc(100% - 60px);
-          left: 5%;
-          top: 30px;
-          z-index: 2;
-          transition: all 500ms ease;
-          background: linear-gradient(135deg, #a893e9 0%, #8368d1 100%);
-          opacity: 0.2;
-          filter: blur(20px);
-          border-radius: 20px;
+          bottom: 30px;
+          right: 0;
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          background: white;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+          z-index: 10;
+          overflow: hidden;
+          cursor: pointer;
+          transition: transform 0.3s;
         }
 
-        .image_block_1 .image-box:hover:before {
-          opacity: 0.3;
-          width: 100%;
-          left: 0;
-          top: 0;
-          height: 100%;
+        .certificate-badge:hover {
+          transform: scale(1.1) rotate(5deg);
         }
 
-        .image_block_1 .image-box .image:before {
+        .certificate-badge img {
+          width: 70%;
+          height: auto;
+          margin-bottom: 5px;
+        }
+
+        .certificate-badge span {
+          font-size: 10px;
+          font-weight: 600;
+          color: #555;
+          text-align: center;
+          padding: 0 5px;
+        }
+
+        .decoration-element {
           position: absolute;
-          top: 0;
-          left: -75%;
-          display: block;
-          content: '';
-          width: 50%;
-          height: 100%;
+          top: -30px;
+          right: -30px;
+          width: 150px;
+          height: 150px;
+          border-radius: 75px;
           background: linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.4) 100%
+            135deg,
+            rgba(168, 147, 233, 0.3),
+            rgba(131, 104, 209, 0.1)
           );
-          transform: skewX(-25deg);
-          z-index: 5;
+          z-index: -1;
+          filter: blur(20px);
         }
 
-        .image_block_1 .image-box:hover .image:before {
-          animation: shine 1.2s;
-        }
+        /* Responsywność */
+        @media (max-width: 991px) {
+          .col-md-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+          }
 
-        @keyframes shine {
-          100% {
-            left: 125%;
+          .content-box {
+            margin-bottom: 50px;
+          }
+
+          .title-area h2 {
+            font-size: 32px;
+          }
+
+          .image-wrapper {
+            padding-bottom: 50px;
           }
         }
 
-        .rotate-me {
-          animation: rotate 15s linear infinite;
-          filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.1));
-        }
-
-        @keyframes rotate {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        .image_block_1 .image-box .image-pattern .pattern-1,
-        .image_block_1 .image-box .image-pattern .pattern-2,
-        .image_block_1 .image-box .image-pattern .pattern-3,
-        .image_block_1 .image-box .image-pattern .pattern-4 {
-          position: absolute;
-          background: #fff;
-          z-index: 4;
-          border-radius: 10px;
-          transition: all 0.3s ease;
-        }
-
-        .image_block_1 .image-box .image-pattern .pattern-1 {
-          left: 0px;
-          bottom: 0px;
-          width: 40px;
-          height: 20px;
-        }
-
-        .image_block_1 .image-box .image-pattern .pattern-2 {
-          left: 0px;
-          bottom: 20px;
-          width: 20px;
-          height: 40px;
-        }
-
-        .image_block_1 .image-box .image-pattern .pattern-3 {
-          right: 0px;
-          top: 0px;
-          width: 40px;
-          height: 20px;
-        }
-
-        .image_block_1 .image-box .image-pattern .pattern-4 {
-          right: 0px;
-          top: 20px;
-          width: 20px;
-          height: 40px;
-        }
-
-        .image_block_1 .image-box:hover .image-pattern .pattern-1,
-        .image_block_1 .image-box:hover .image-pattern .pattern-2,
-        .image_block_1 .image-box:hover .image-pattern .pattern-3,
-        .image_block_1 .image-box:hover .image-pattern .pattern-4 {
-          background: rgba(255, 255, 255, 0.9);
-          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-          z-index: 5;
-        }
-
-        @media only screen and (max-width: 1200px) {
-          .content_block_1 .content-box .inner-box .inner .list-item {
-            width: 100%;
-          }
-
-          .pl-45 {
-            padding-left: 0px !important;
-            margin-top: 15px;
-          }
-        }
-
-        @media only screen and (max-width: 991px) {
+        @media (max-width: 767px) {
           .about-section {
-            padding: 100px 0px 100px 0px;
+            padding: 70px 0;
           }
 
-          .content_block_1 .content-box {
-            margin-right: 0px;
-            margin-bottom: 60px;
+          .content-box {
             padding: 30px;
           }
 
-          .image_block_1 .image-box {
-            margin-top: 0px;
-            max-width: 600px;
-            margin: 0 auto;
-          }
-
-          .sec-title h2 {
-            font-size: 36px;
-          }
-
-          .image_block_1 .image-box .vector-image {
-            display: none;
-          }
-
-          .floral-bg {
-            width: 100%;
-            height: 40%;
-            opacity: 0.03;
-          }
-        }
-
-        @media only screen and (max-width: 767px) {
-          .about-section {
-            padding: 80px 0px 80px 0px;
-          }
-
-          .content_block_1 .content-box .inner-box .vector-image {
-            display: none;
-          }
-
-          .ml-55 {
-            margin-left: 0px;
-          }
-
-          .sec-title h2 {
-            font-size: 32px;
-            line-height: 1.3;
-          }
-
-          .content_block_1 .content-box .inner-box .inner {
-            padding: 30px 25px 15px 25px;
-          }
-        }
-
-        @media only screen and (max-width: 575px) {
-          .about-section {
-            padding: 70px 0px 70px 0px;
-          }
-
-          .content_block_1 .content-box {
-            padding: 25px;
-          }
-
-          .sec-title h2 {
+          .title-area h2 {
             font-size: 28px;
           }
 
-          .sec-title p {
+          .benefits-box {
+            padding: 25px;
+          }
+
+          .certificate-badge {
+            width: 100px;
+            height: 100px;
+            right: 10px;
+          }
+        }
+
+        @media (max-width: 575px) {
+          .about-section {
+            padding: 50px 0;
+          }
+
+          .content-box {
+            padding: 25px;
+          }
+
+          .title-area h2 {
+            font-size: 24px;
+          }
+
+          .subtitle {
             font-size: 16px;
           }
 
-          .content_block_1 .content-box .text p {
+          .description p {
             font-size: 15px;
           }
 
-          .content_block_1 .content-box .inner-box .inner .list-item li {
-            font-size: 15px;
-          }
-        }
-
-        .certification-icon {
-          display: block;
-          width: 15px;
-          height: 15px;
-          background: url('/images/certificate-icon.png') no-repeat center;
-          background-size: contain;
-          position: relative;
-          transition: all 0.3s ease;
-        }
-
-        .certification-image {
-          position: relative;
-          margin-top: 30px;
-          text-align: center;
-          padding: 15px;
-          background: #fff;
-          border-radius: 10px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-          transition: all 0.3s ease;
-        }
-
-        .certification-image:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-        }
-
-        .certification-image img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 8px;
-          border: 1px solid rgba(131, 104, 209, 0.2);
-        }
-
-        .certification-caption {
-          margin-top: 15px;
-          font-size: 14px;
-          color: #666;
-          font-style: italic;
-        }
-
-        .oeko-tex-info {
-          margin-top: 25px;
-          padding: 15px;
-          background: rgba(131, 104, 209, 0.05);
-          border-left: 3px solid #8368d1;
-          border-radius: 5px;
-        }
-
-        .oeko-tex-info p {
-          font-size: 14px;
-          line-height: 1.6;
-          color: #555;
-          margin: 0;
-        }
-
-        @media only screen and (max-width: 767px) {
-          .certification-image,
-          .oeko-tex-info {
-            margin-top: 20px;
-            padding: 10px;
+          .benefits-list li {
+            font-size: 14px;
           }
         }
       `}</style>

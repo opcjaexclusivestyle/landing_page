@@ -21,7 +21,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   subtitle,
   highlightText,
   description,
-  features,
+  features = [],
   imageSrc,
   imageAlt,
   vectorImage1 = '/images/about/vector-image-1.png',
@@ -90,9 +90,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({
     };
   }, []);
 
-  // Dzielimy listę cech na dwie kolumny
-  const firstHalf = features.slice(0, Math.ceil(features.length / 2));
-  const secondHalf = features.slice(Math.ceil(features.length / 2));
+  // Poprawiona wersja dzielenia tablicy z zabezpieczeniem
+  const featuresList = features || [];
+  const firstHalf = featuresList.slice(0, Math.ceil(featuresList.length / 2));
+  const secondHalf = featuresList.slice(Math.ceil(featuresList.length / 2));
 
   return (
     <section className='about-section' ref={sectionRef}>
@@ -145,24 +146,42 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                   )}
                   <div className='inner clearfix'>
                     <ul className='list-item'>
-                      {firstHalf.map((feature, index) => (
-                        <li key={`feature-first-${index}`}>
+                      {firstHalf.length > 0 ? (
+                        firstHalf.map((feature, index) => (
+                          <li key={`feature-first-${index}`}>
+                            <span className='icon-wrapper'>
+                              <span className='check-icon'></span>
+                            </span>
+                            {feature}
+                          </li>
+                        ))
+                      ) : (
+                        <li>
                           <span className='icon-wrapper'>
                             <span className='check-icon'></span>
                           </span>
-                          {feature}
+                          Produkt wyprodukowany w Polskiej szwalni
                         </li>
-                      ))}
+                      )}
                     </ul>
                     <ul className='list-item pl-45'>
-                      {secondHalf.map((feature, index) => (
-                        <li key={`feature-second-${index}`}>
+                      {secondHalf.length > 0 ? (
+                        secondHalf.map((feature, index) => (
+                          <li key={`feature-second-${index}`}>
+                            <span className='icon-wrapper'>
+                              <span className='check-icon'></span>
+                            </span>
+                            {feature}
+                          </li>
+                        ))
+                      ) : (
+                        <li>
                           <span className='icon-wrapper'>
                             <span className='check-icon'></span>
                           </span>
-                          {feature}
+                          PISEMNA GWARANCJA JAKOŚCI
                         </li>
-                      ))}
+                      )}
                     </ul>
                   </div>
                 </div>
