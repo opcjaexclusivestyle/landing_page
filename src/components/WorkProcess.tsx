@@ -78,43 +78,6 @@ const WorkProcess: React.FC = () => {
       },
     );
 
-    // Animacja kwiatów unoszących się w tle
-    floatingFlowersRef.current.forEach((flower, index) => {
-      if (!flower) return;
-
-      // Początkowa randomizacja położenia
-      gsap.set(flower, {
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * 500,
-        rotation: Math.random() * 360,
-        scale: 0.5 + Math.random() * 1,
-        opacity: 0,
-      });
-
-      // Animacja pojawiania się i unoszenia
-      gsap.to(flower, {
-        opacity: 0.3 + Math.random() * 0.2, // Zwiększona widoczność
-        duration: 1 + Math.random() * 2,
-        delay: 0.5 + index * 0.2,
-        ease: 'power1.inOut',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 80%',
-        },
-      });
-
-      // Ciągła animacja unoszenia
-      gsap.to(flower, {
-        y: '-=' + (50 + Math.random() * 100),
-        x: '+=' + (Math.random() * 50 - 25),
-        rotation: '+=' + (Math.random() * 40 - 20),
-        duration: 15 + Math.random() * 15,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
-      });
-    });
-
     // Animacja tytułu
     gsap.fromTo(
       titleRef.current,
@@ -159,49 +122,22 @@ const WorkProcess: React.FC = () => {
       ref={sectionRef}
       className='relative py-16 md:py-24 overflow-hidden'
     >
-      {/* Tło z kwiatowym wzorem */}
+      {/* Tło z gradientem zamiast kwiatów */}
       <div
         ref={backgroundRef}
-        className='absolute inset-0 bg-white/70 z-0'
-        style={{
-          backgroundImage:
-            'url(/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_49aa16d2-bca9-49f0-892e-c45372365ece_3-removebg-preview.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+        className='absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-[var(--primary-color)]/90 z-0 opacity-90'
       ></div>
 
-      {/* Unoszące się kwiaty */}
-      {[...Array(12)].map((_, i) => (
-        <div
-          key={`flower-${i}`}
-          ref={(el) => {
-            if (floatingFlowersRef.current) {
-              floatingFlowersRef.current[i] = el;
-            }
-          }}
-          className='absolute z-10 pointer-events-none'
-        >
-          <Image
-            src='/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_49aa16d2-bca9-49f0-892e-c45372365ece_3-removebg-preview.png'
-            width={80}
-            height={80}
-            alt=''
-            className='object-contain'
-          />
-        </div>
-      ))}
-
       <div className='container relative mx-auto px-4 z-20'>
-        {/* Tytuł sekcji */}
+        {/* Tytuł sekcji - aktualizacja kolorów dla lepszej widoczności na ciemnym tle */}
         <div ref={titleRef} className='text-center mb-12 md:mb-16'>
-          <p className='text-[var(--primary-color)] uppercase tracking-widest mb-2 font-light'>
+          <p className='text-[var(--light-gold)] uppercase tracking-widest mb-2 font-light'>
             Proces produkcji
           </p>
-          <h2 className='text-3xl md:text-5xl font-light text-gray-800 mb-3'>
+          <h2 className='text-3xl md:text-5xl font-light text-white mb-3'>
             Jak pracujemy
           </h2>
-          <div className='w-20 h-0.5 bg-[var(--primary-color)]/60 mx-auto'></div>
+          <div className='w-20 h-0.5 bg-[var(--light-gold)]/80 mx-auto'></div>
         </div>
 
         {/* Karuzela z krokami procesu */}

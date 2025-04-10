@@ -1,0 +1,363 @@
+.quality-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  position: relative;
+  overflow: hidden;
+}
+
+.quality-header {
+  text-align: center;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 2;
+}
+
+.quality-header h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  position: relative;
+  display: inline-block;
+}
+
+.quality-header h2:after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 3px;
+  background-color: #3498db;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.quality-header p {
+  font-size: 18px;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+  margin-top: 25px;
+}
+
+/* Grid 1:3 Layout */
+.certificates-grid {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 30px;
+  margin: 40px 0;
+}
+
+.certificates-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  border-right: 2px dashed #ddd;
+}
+
+.certificates-label h3 {
+  font-size: 28px;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.flower-label-decoration {
+  height: 120px;
+  width: 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%233498db' d='M50 0 C55 25, 75 45, 100 50 C75 55, 55 75, 50 100 C45 75, 25 55, 0 50 C25 45, 45 25, 50 0'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+  margin-top: 20px;
+}
+
+.certificates-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.certificate-item {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  padding: 25px 20px;
+  text-align: center;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.certificate-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background-color: #3498db;
+  border-radius: 5px 5px 0 0;
+}
+
+.certificate-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-icon {
+  height: 140px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.certificate-item h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.certificate-item p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #777;
+}
+
+.quality-footer {
+  text-align: center;
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid #eaeaea;
+  position: relative;
+  z-index: 2;
+}
+
+.quality-footer .btn {
+  display: inline-block;
+  background-color: #3498db;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.quality-footer .btn:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+  box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* Dekoracyjne elementy kwiatowe */
+.flower-decoration {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23f8d7da' d='M50 0 C55 25, 75 45, 100 50 C75 55, 55 75, 50 100 C45 75, 25 55, 0 50 C25 45, 45 25, 50 0'/%3E%3Ccircle cx='50' cy='50' r='15' fill='%23f1aeb5'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.flower-top-left {
+  top: 40px;
+  left: 10px;
+  transform: rotate(45deg) scale(0.8);
+}
+
+.flower-top-right {
+  top: 30px;
+  right: 30px;
+  transform: rotate(15deg);
+}
+
+.flower-bottom-left {
+  bottom: 50px;
+  left: 40px;
+  transform: rotate(-30deg) scale(1.2);
+}
+
+.flower-bottom-right {
+  bottom: 70px;
+  right: 20px;
+  transform: rotate(-15deg) scale(0.9);
+}
+
+/* Ikony certyfikatów */
+.poland-shape {
+  width: 100px;
+  height: 100px;
+  background-color: #dc3545;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+.poland-shape::after {
+  content: 'PL';
+  color: white;
+  font-weight: bold;
+  font-size: 32px;
+}
+
+.warranty-card {
+  width: 80px;
+  height: 120px;
+  background-color: #f8f9fa;
+  border: 2px solid #495057;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.warranty-card::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 1px dashed #adb5bd;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.warranty-card-text {
+  font-size: 8px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.warranty-seal {
+  width: 20px;
+  height: 20px;
+  background-color: #ffc107;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
+}
+
+.eco-icon {
+  width: 100px;
+  height: 100px;
+  background-color: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+.eco-icon::after {
+  content: 'ECO';
+  color: white;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.eco-icon::before {
+  content: '';
+  position: absolute;
+  width: 85%;
+  height: 85%;
+  border: 2px dashed white;
+  border-radius: 50%;
+}
+
+/* Responsywność */
+@media (max-width: 992px) {
+  .certificates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .certificates-label {
+    border-right: none;
+    border-bottom: 2px dashed #ddd;
+    margin-bottom: 20px;
+    padding-bottom: 30px;
+  }
+
+  .certificates-label h3 {
+    writing-mode: horizontal-tb;
+    transform: none;
+    margin-bottom: 15px;
+  }
+
+  .flower-label-decoration {
+    margin-top: 0;
+  }
+
+  .certificates-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .certificates-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quality-header h2 {
+    font-size: 30px;
+  }
+
+  .flower-decoration {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 576px) {
+  .certificates-container {
+    grid-template-columns: 1fr;
+  }
+
+  .certificate-item {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .quality-header h2 {
+    font-size: 26px;
+  }
+
+  .quality-header p {
+    font-size: 16px;
+  }
+}
+
+.certificate-item,
+.certificates-container,
+.certificates-label {
+  /* Zapewnia, że elementy są zawsze widoczne po załadowaniu */
+  opacity: 1 !important;
+}

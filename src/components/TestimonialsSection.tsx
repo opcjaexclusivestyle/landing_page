@@ -3,6 +3,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import TestimonialForm from './TestimonialForm';
+import { fetchTestimonials } from '@/lib/supabase';
 
 const TestimonialsSection: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
@@ -11,37 +12,8 @@ const TestimonialsSection: React.FC = () => {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const testimonialRefs = useRef<(HTMLDivElement | null)[]>([]);
   const floatingFlowersRef = useRef<(HTMLDivElement | null)[]>([]);
-  const [testimonials, setTestimonials] = useState([
-    {
-      name: 'Hrabina Eleonora z Bluszczowa',
-      role: 'Kolekcjonerka ekscentrycznych tkanin',
-      image: '/images/testimonials/testimonial1.jpg',
-      quote:
-        'Moje koty i ja jesteśmy zachwyceni! Te zasłony doskonale maskują moją kolekcję wypchanych sów, które obserwują wszystkich gości z dezaprobatą. Na materiał nie przyczepiają się nawet włosy z moich siedemnastu perskich kotów!',
-      rating: 5,
-    },
-    {
-      name: 'Pan Teodor Zagubiony',
-      role: 'Emerytowany badacz zjawisk paranormalnych',
-      image: '/images/testimonials/testimonial2.jpg',
-      quote:
-        'Przez pięćdziesiąt lat badałem paranormalne zjawiska, ale dopiero te zasłony skutecznie blokują telepatyczne sygnały z kosmosu! Gdy je zamykam, moje aluminiowe nakrycie głowy mogę wreszcie odłożyć do szafy. Polecam z czystym sumieniem!',
-    },
-    {
-      name: 'Kunegunda Tajemnicza',
-      role: 'Wróżbitka i hodowczyni storczyków',
-      image: '/images/testimonials/testimonial3.jpg',
-      quote:
-        'Moje storczyki drżały z zachwytu, gdy wniesiono te zasłony do pokoju wróżb! Klienci są teraz bardziej skupieni podczas seansów, a moja kryształowa kula odbija piękne wzory materiału. Nawet duchy przodków chwalą ich elegancję!',
-    },
-    {
-      name: 'Baron Modest von Elegancki',
-      role: 'Koneser win i właściciel siedmiu fortepianów',
-      image: '/images/testimonials/testimonial4.jpg',
-      quote:
-        'Czy zasłony mogą poprawić akustykę? Tak! Moje fortepiany brzmią idealnie, odkąd zawiesiłem te cudeńka. Moje winnice również wydają się bardziej produktywne, choć może to nie mieć związku. W każdym razie, gdy gram nokturny Chopina o świcie, materiał faluje w rytm muzyki!',
-    },
-  ]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -163,35 +135,110 @@ const TestimonialsSection: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
+    const loadTestimonials = async () => {
+      setIsLoading(true);
       try {
-        // const fetchedTestimonials = await getTestimonials();
-        // setTestimonials(fetchedTestimonials);
+        const data = await fetchTestimonials();
+        if (data && data.length > 0) {
+          setTestimonials(data);
+        } else {
+          // Fallback na przykładowe dane, gdy nie ma opinii w bazie
+          setTestimonials([
+            {
+              name: 'Hrabina Eleonora z Bluszczowa',
+              role: 'Kolekcjonerka ekscentrycznych tkanin',
+              image: '/images/testimonials/testimonial1.jpg',
+              quote:
+                'Moje koty i ja jesteśmy zachwyceni! Te zasłony doskonale maskują moją kolekcję wypchanych sów, które obserwują wszystkich gości z dezaprobatą. Na materiał nie przyczepiają się nawet włosy z moich siedemnastu perskich kotów!',
+              rating: 5,
+            },
+            {
+              name: 'Pan Teodor Zagubiony',
+              role: 'Emerytowany badacz zjawisk paranormalnych',
+              image: '/images/testimonials/testimonial2.jpg',
+              quote:
+                'Przez pięćdziesiąt lat badałem paranormalne zjawiska, ale dopiero te zasłony skutecznie blokują telepatyczne sygnały z kosmosu! Gdy je zamykam, moje aluminiowe nakrycie głowy mogę wreszcie odłożyć do szafy. Polecam z czystym sumieniem!',
+            },
+            {
+              name: 'Kunegunda Tajemnicza',
+              role: 'Wróżbitka i hodowczyni storczyków',
+              image: '/images/testimonials/testimonial3.jpg',
+              quote:
+                'Moje storczyki drżały z zachwytu, gdy wniesiono te zasłony do pokoju wróżb! Klienci są teraz bardziej skupieni podczas seansów, a moja kryształowa kula odbija piękne wzory materiału. Nawet duchy przodków chwalą ich elegancję!',
+            },
+            {
+              name: 'Baron Modest von Elegancki',
+              role: 'Koneser win i właściciel siedmiu fortepianów',
+              image: '/images/testimonials/testimonial4.jpg',
+              quote:
+                'Czy zasłony mogą poprawić akustykę? Tak! Moje fortepiany brzmią idealnie, odkąd zawiesiłem te cudeńka. Moje winnice również wydają się bardziej produktywne, choć może to nie mieć związku. W każdym razie, gdy gram nokturny Chopina o świcie, materiał faluje w rytm muzyki!',
+            },
+          ]);
+        }
       } catch (error) {
         console.error('Błąd podczas pobierania opinii:', error);
+        // Ustaw przykładowe dane w przypadku błędu
+        setTestimonials([
+          {
+            name: 'Hrabina Eleonora z Bluszczowa',
+            role: 'Kolekcjonerka ekscentrycznych tkanin',
+            image: '/images/testimonials/testimonial1.jpg',
+            quote:
+              'Moje koty i ja jesteśmy zachwyceni! Te zasłony doskonale maskują moją kolekcję wypchanych sów, które obserwują wszystkich gości z dezaprobatą. Na materiał nie przyczepiają się nawet włosy z moich siedemnastu perskich kotów!',
+            rating: 5,
+          },
+          {
+            name: 'Pan Teodor Zagubiony',
+            role: 'Emerytowany badacz zjawisk paranormalnych',
+            image: '/images/testimonials/testimonial2.jpg',
+            quote:
+              'Przez pięćdziesiąt lat badałem paranormalne zjawiska, ale dopiero te zasłony skutecznie blokują telepatyczne sygnały z kosmosu! Gdy je zamykam, moje aluminiowe nakrycie głowy mogę wreszcie odłożyć do szafy. Polecam z czystym sumieniem!',
+          },
+          {
+            name: 'Kunegunda Tajemnicza',
+            role: 'Wróżbitka i hodowczyni storczyków',
+            image: '/images/testimonials/testimonial3.jpg',
+            quote:
+              'Moje storczyki drżały z zachwytu, gdy wniesiono te zasłony do pokoju wróżb! Klienci są teraz bardziej skupieni podczas seansów, a moja kryształowa kula odbija piękne wzory materiału. Nawet duchy przodków chwalą ich elegancję!',
+          },
+          {
+            name: 'Baron Modest von Elegancki',
+            role: 'Koneser win i właściciel siedmiu fortepianów',
+            image: '/images/testimonials/testimonial4.jpg',
+            quote:
+              'Czy zasłony mogą poprawić akustykę? Tak! Moje fortepiany brzmią idealnie, odkąd zawiesiłem te cudeńka. Moje winnice również wydają się bardziej produktywne, choć może to nie mieć związku. W każdym razie, gdy gram nokturny Chopina o świcie, materiał faluje w rytm muzyki!',
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchTestimonials();
+    loadTestimonials();
   }, []);
 
   const handleFormSuccess = () => {
     setShowForm(false);
 
-    const fetchTestimonials = async () => {
+    // Odświeżenie listy opinii po dodaniu nowej
+    const loadTestimonials = async () => {
+      setIsLoading(true);
       try {
-        // const fetchedTestimonials = await getTestimonials();
-        // setTestimonials(fetchedTestimonials);
+        const data = await fetchTestimonials();
+        if (data && data.length > 0) {
+          setTestimonials(data);
+        }
       } catch (error) {
         console.error('Błąd podczas pobierania opinii:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchTestimonials();
+    loadTestimonials();
   };
 
   const handleFormCancel = () => {
-    // Anulowanie formularza - powrót do widoku opinii
     setShowForm(false);
   };
 
@@ -280,64 +327,101 @@ const TestimonialsSection: React.FC = () => {
         </div>
       ) : (
         <div className='relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto'>
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              ref={(el) => {
-                testimonialRefs.current[index] = el;
-              }}
-              className='bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-md border border-[var(--light-gold)] transition-transform duration-500 hover:shadow-lg hover:-translate-y-2'
-            >
-              <div className='flex items-start mb-6'>
-                <div className='relative'>
-                  <div className='w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--primary-color)]'>
-                    <Image
-                      src={testimonial.image}
-                      width={64}
-                      height={64}
-                      alt={testimonial.name}
-                      className='object-cover'
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          '/images/testimonials/default.jpg';
-                      }}
-                    />
+          {isLoading ? (
+            // Loader podczas ładowania opinii
+            <div className='col-span-2 flex justify-center items-center py-20'>
+              <div className='animate-pulse flex flex-col items-center'>
+                <div className='h-10 w-10 bg-[var(--primary-color)] opacity-60 rounded-full'></div>
+                <p className='mt-4 text-gray-600'>Ładowanie opinii...</p>
+              </div>
+            </div>
+          ) : testimonials.length === 0 ? (
+            // Komunikat, gdy nie ma opinii
+            <div className='col-span-2 text-center py-10'>
+              <p className='text-gray-600'>
+                Bądź pierwszą osobą, która doda opinię!
+              </p>
+              <button
+                onClick={() => setShowForm(true)}
+                className='mt-4 px-6 py-2 bg-[var(--primary-color)] text-white rounded-md hover:bg-opacity-90 transition-colors'
+              >
+                Dodaj swoją opinię
+              </button>
+            </div>
+          ) : (
+            // Wyświetlanie opinii
+            testimonials.map((testimonial, index) => (
+              <div
+                key={testimonial.id || index}
+                ref={(el) => {
+                  testimonialRefs.current[index] = el;
+                }}
+                className='bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-md border border-[var(--light-gold)] transition-transform duration-500 hover:shadow-lg hover:-translate-y-2'
+              >
+                <div className='flex items-start mb-6'>
+                  <div className='relative'>
+                    <div className='w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--primary-color)]'>
+                      <Image
+                        src={
+                          testimonial.image ||
+                          '/images/testimonials/default.jpg'
+                        }
+                        width={64}
+                        height={64}
+                        alt={testimonial.name}
+                        className='object-cover'
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            '/images/testimonials/default.jpg';
+                        }}
+                      />
+                    </div>
+                    <div className='absolute -bottom-1 -right-1 w-6 h-6 bg-[var(--primary-color)] rounded-full flex items-center justify-center'>
+                      <span className='text-white text-xl'>"</span>
+                    </div>
                   </div>
-                  <div className='absolute -bottom-1 -right-1 w-6 h-6 bg-[var(--primary-color)] rounded-full flex items-center justify-center'>
-                    <span className='text-white text-xl'>"</span>
+                  <div className='ml-4'>
+                    <h3 className='text-lg font-medium text-gray-800'>
+                      {testimonial.name}
+                    </h3>
+                    <p className='text-sm text-gray-600 italic'>
+                      {testimonial.role || testimonial.location || ''}
+                    </p>
                   </div>
                 </div>
-                <div className='ml-4'>
-                  <h3 className='text-lg font-medium text-gray-800'>
-                    {testimonial.name}
-                  </h3>
-                  <p className='text-sm text-gray-600 italic'>
-                    {testimonial.role}
+                <p className='text-gray-700 leading-relaxed'>
+                  {testimonial.quote ||
+                    testimonial.content ||
+                    testimonial.message}
+                </p>
+                <div className='mt-4 flex'>
+                  {[...Array(5)].map((_, i) => (
+                    <svg
+                      key={i}
+                      xmlns='http://www.w3.org/2000/svg'
+                      className={`h-5 w-5 ${
+                        i < (testimonial.rating || 5)
+                          ? 'text-yellow-500'
+                          : 'text-gray-300'
+                      }`}
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
+                    </svg>
+                  ))}
+                </div>
+                {/* Data dodania opinii */}
+                <div className='mt-3 text-right'>
+                  <p className='text-xs text-gray-500'>
+                    {new Date(testimonial.created_at).toLocaleDateString(
+                      'pl-PL',
+                    )}
                   </p>
                 </div>
               </div>
-              <p className='text-gray-700 leading-relaxed'>
-                {testimonial.quote}
-              </p>
-              <div className='mt-4 flex'>
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    xmlns='http://www.w3.org/2000/svg'
-                    className={`h-5 w-5 ${
-                      i < (testimonial.rating || 5)
-                        ? 'text-yellow-500'
-                        : 'text-gray-300'
-                    }`}
-                    viewBox='0 0 20 20'
-                    fill='currentColor'
-                  >
-                    <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-                  </svg>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 

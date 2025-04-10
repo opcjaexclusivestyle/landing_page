@@ -4,12 +4,8 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SimpleHeader from '../components/SimpleHeader';
-import About from '../../components/About';
-import TypesSection from '../../components/TypesSection';
-import KeyFactorsSection from '../../components/KeyFactorsSection';
-import CommercialResidentialSection from '../../components/CommercialResidentialSection';
 import OrderForm from '../../components/OrderForm';
-import InquiryForm from '../../components/InquiryForm';
+import Certification from '../../components/Certification';
 import MeasuringGuide from '../../components/MeasuringGuide';
 import TestimonialsSection from '../../components/TestimonialsSection';
 import WorkProcess from '../../components/WorkProcess';
@@ -78,8 +74,8 @@ export default function Firany() {
 
         <div>
           {/* Sekcja About */}
-          <About />
-
+          {/* <About /> */}
+          <Certification />
           {/* Sekcja typów zasłon */}
           {/* <TypesSection /> */}
 

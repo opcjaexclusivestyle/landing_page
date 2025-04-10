@@ -14,6 +14,18 @@ module.exports = {
         gold: '#FFD700',
         primary: '#3b82f6',
       },
+      animation: {
+        ripple: 'ripple 0.8s linear forwards',
+      },
+      keyframes: {
+        ripple: {
+          '0%': { transform: 'scale(0)', opacity: '0.5' },
+          '100%': { transform: 'scale(4)', opacity: '0' },
+        },
+      },
+      scale: {
+        98: '0.98',
+      },
     },
   },
   plugins: [],
