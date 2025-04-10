@@ -33,7 +33,6 @@ export interface Testimonial {
   quote?: string; // pole alternatywne dla content
   image?: string;
   created_at?: string;
-  approved?: boolean;
 }
 
 // Interfejs dla danych z formularza
@@ -60,7 +59,6 @@ export async function fetchTestimonials(): Promise<Testimonial[]> {
   const { data, error } = await supabase
     .from('testimonials')
     .select('*')
-    .eq('approved', true) // pobieramy tylko zatwierdzone opinie
     .order('created_at', { ascending: false });
 
   if (error) {

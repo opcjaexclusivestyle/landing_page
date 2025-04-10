@@ -1,0 +1,6 @@
+<Image 
+  src="/images/background-flower/nazwa-obrazu.png"
+  fill
+  style={{ objectFit: "cover" }}
+  // ...
+/> 

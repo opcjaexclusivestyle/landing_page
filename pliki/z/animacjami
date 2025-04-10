@@ -1,0 +1,28 @@
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+
+const Animacje: React.FC = () => {
+  const headerRef = useRef<HTMLHeadingElement | null>(null);
+  const messageRef = useRef<HTMLParagraphElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  useEffect(() => {
+    if (headerRef.current && messageRef.current && formRef.current) {
+      const tl = gsap.timeline();
+      
+      tl.from(headerRef.current, {
+        // animacja
+      });
+      
+      // reszta animacji
+    }
+  }, []);
+
+  return (
+    <div>
+      {/* Renderowanie komponentów */}
+    </div>
+  );
+};
+
+export default Animacje; 

@@ -141,6 +141,7 @@ const TestimonialsSection: React.FC = () => {
         const data = await fetchTestimonials();
         if (data && data.length > 0) {
           setTestimonials(data);
+          console.log('data', data);
         } else {
           // Fallback na przykładowe dane, gdy nie ma opinii w bazie
           setTestimonials([
@@ -226,6 +227,7 @@ const TestimonialsSection: React.FC = () => {
       try {
         const data = await fetchTestimonials();
         if (data && data.length > 0) {
+          console.log('data', data);
           setTestimonials(data);
         }
       } catch (error) {
