@@ -47,9 +47,9 @@ export default function Firany() {
       {/* Używamy nowego komponentu SimpleHeader */}
       <SimpleHeader
         videoSrc='/video/curtains.mp4'
-        title='Firany'
+        title='Zasłony'
         subtitle='Elegancja i styl'
-        description='Odkryj kolekcję luksusowych firan'
+        description='Odkryj kolekcję luksusowych zasłon'
         height='60vh'
       />
 
