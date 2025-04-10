@@ -256,5 +256,3 @@ const TestimonialForm = ({ onSuccess, onCancel }: TestimonialFormProps) => {
 };
 
 export default TestimonialForm;
-
-export default TestimonialForm;
