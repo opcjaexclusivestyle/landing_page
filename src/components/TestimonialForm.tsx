@@ -7,6 +7,11 @@ interface TestimonialFormProps {
   onCancel: () => void;
 }
 
+interface ErrorWithMessage {
+  message: string;
+  // inne właściwości błędu, jeśli są znane
+}
+
 const TestimonialForm = ({ onSuccess, onCancel }: TestimonialFormProps) => {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
@@ -55,7 +60,7 @@ const TestimonialForm = ({ onSuccess, onCancel }: TestimonialFormProps) => {
         } else {
           setConnectionStatus(
             `Problem z połączeniem: ${
-              result.error?.message || 'Nieznany błąd'
+              (result.error as ErrorWithMessage)?.message || 'Nieznany błąd'
             }`,
           );
         }
@@ -249,5 +254,7 @@ const TestimonialForm = ({ onSuccess, onCancel }: TestimonialFormProps) => {
     </div>
   );
 };
+
+export default TestimonialForm;
 
 export default TestimonialForm;
