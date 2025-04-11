@@ -97,7 +97,7 @@ const NewProductsSection = () => {
   }, []);
 
   // Funkcja do dodawania kart do referencji
-  const addToRefs = (el) => {
+  const addToRefs = (el: HTMLDivElement | null) => {
     if (el && !cardsRef.current.includes(el)) {
       cardsRef.current.push(el);
     }
