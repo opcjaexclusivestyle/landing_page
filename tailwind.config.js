@@ -1,30 +1,35 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        'deep-navy': '#152354',
+        'yellow-primary': '#FCBA04',
+        'yellow-hover': '#FFD54F',
+        'yellow-dark': '#D19D00',
+        'black-rich': '#1A1A1A',
+        'black-soft': '#333333',
+        'white-pure': '#FFFFFF',
+        'white-off': '#F8F8F8',
+        'gray-light': '#E5E5E5',
+        'gray-medium': '#9E9E9E',
+        'deep-navy': '#0f1d45',
         'royal-gold': '#D4AF37',
-        'deep-gold': '#B8860B',
-        gold: '#FFD700',
-        primary: '#3b82f6',
       },
-      animation: {
-        ripple: 'ripple 0.8s linear forwards',
+      fontFamily: {
+        display: ['"Playfair Display"', 'serif'],
+        body: ['Roboto', 'sans-serif'],
       },
-      keyframes: {
-        ripple: {
-          '0%': { transform: 'scale(0)', opacity: '0.5' },
-          '100%': { transform: 'scale(4)', opacity: '0' },
-        },
-      },
-      scale: {
-        98: '0.98',
+      fontSize: {
+        xs: '0.75rem' /* 12px */,
+        sm: '0.875rem' /* 14px */,
+        base: '1rem' /* 16px */,
+        lg: '1.125rem' /* 18px */,
+        xl: '1.25rem' /* 20px */,
+        '2xl': '1.5rem' /* 24px */,
+        '3xl': '1.875rem' /* 30px */,
+        '4xl': '2.25rem' /* 36px */,
+        '5xl': '3rem' /* 48px */,
       },
     },
   },

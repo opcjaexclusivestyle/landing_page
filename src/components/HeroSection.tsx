@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { gsap } from 'gsap';
+import Button from './Button';
 
 const HeroSection = () => {
   const sectionRef = useRef(null);
@@ -60,7 +61,7 @@ const HeroSection = () => {
   return (
     <section
       ref={sectionRef}
-      className='hero-section w-full py-16 md:py-20 lg:py-24 flex items-center relative overflow-hidden'
+      className='w-full py-16 md:py-20 lg:py-24 flex items-center relative overflow-hidden'
     >
       {/* Tło z obrazem */}
       <div className='absolute inset-0 z-0 overflow-hidden'>
@@ -73,40 +74,37 @@ const HeroSection = () => {
         />
         <div
           ref={overlayRef}
-          className='absolute inset-0 bg-gradient-to-r from-green-50/85 to-green-100/70 backdrop-blur-[2px]'
+          className='absolute inset-0 bg-gradient-to-r from-white-off/85 to-white-off/70 backdrop-blur-[2px]'
         ></div>
       </div>
 
       <div className='relative z-10 container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10'>
-          {/* Lewa sekcja - zajmuje 2/5 szerokości na dużych ekranach */}
+          {/* Lewa sekcja */}
           <div
             ref={leftPanelRef}
-            className='col-span-1 lg:col-span-2 bg-white/90 rounded-3xl p-8 md:p-10 shadow-xl flex flex-col justify-center backdrop-blur-sm border border-green-100'
+            className='col-span-1 lg:col-span-2 bg-white-pure/90 rounded-3xl p-8 md:p-10 shadow-xl flex flex-col justify-center backdrop-blur-sm border border-gray-light'
           >
-            <h2 className='text-3xl md:text-4xl font-bold text-green-700 mb-6'>
+            <h2 className='text-3xl md:text-4xl font-medium text-black-rich mb-6 text-display'>
               Odmień swoje wnętrze i zyskaj 20% rabatu!
             </h2>
-            <p className='text-gray-700 text-lg mb-4'>
+            <p className='text-black-soft text-lg mb-4'>
               Pochwal się metamorfozą Twojego wnętrza. Prześlij nam zdjęcia
-              pomieszczenia przed i po zawieszeniu naszych firan lub zasłon, a
-              otrzymasz 20% zniżki na kolejny produkt.
+              pomieszczenia przed i po zawieszeniu naszych firan lub zasłon.
             </p>
-            <p className='text-gray-700 text-lg mb-8'>
+            <p className='text-black-soft text-lg mb-8'>
               Zainspiruj innych swoją aranżacją i zgarnij rabat na kolejne
               piękne dodatki do domu.
             </p>
-            <button className='bg-green-600 hover:bg-green-700 text-white text-lg font-medium py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-md w-fit'>
-              Skontaktuj się z nami
-            </button>
+            <Button size='lg'>Dowiedz się więcej</Button>
           </div>
 
-          {/* Prawa sekcja - zajmuje 3/5 szerokości na dużych ekranach */}
+          {/* Prawa sekcja */}
           <div className='col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 lg:gap-8'>
             {/* Box 1 */}
             <div
               ref={(el) => addToBoxesRef(el, 0)}
-              className='bg-white/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
+              className='bg-white-pure/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
             >
               <div className='relative h-28 overflow-hidden'>
                 <Image
@@ -117,10 +115,10 @@ const HeroSection = () => {
                 />
               </div>
               <div className='p-5 flex-grow flex flex-col justify-between'>
-                <h3 className='text-xl font-semibold text-green-700 mb-2'>
+                <h3 className='text-xl font-medium text-black-rich mb-2 text-display'>
                   Zamów próbki tkanin z dostawą gratis!
                 </h3>
-                <p className='text-gray-600'>
+                <p className='text-black-soft'>
                   Sprawdź, czy nasze produkty pasują do Twojego wnętrza – zamów
                   próbki i otrzymaj je z dostawą gratis!
                 </p>
@@ -130,7 +128,7 @@ const HeroSection = () => {
             {/* Box 2 */}
             <div
               ref={(el) => addToBoxesRef(el, 1)}
-              className='bg-white/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
+              className='bg-white-pure/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
             >
               <div className='relative h-28 overflow-hidden'>
                 <Image
@@ -141,10 +139,10 @@ const HeroSection = () => {
                 />
               </div>
               <div className='p-5 flex-grow flex flex-col justify-between'>
-                <h3 className='text-xl font-semibold text-green-700 mb-2'>
+                <h3 className='text-xl font-medium text-black-rich mb-2 text-display'>
                   Tkaniny szyte na wymiar
                 </h3>
-                <p className='text-gray-600'>
+                <p className='text-black-soft'>
                   Idealne dopasowanie do Twojego okna – oferujemy tkaniny szyte
                   dokładnie na wymiar!
                 </p>
@@ -154,7 +152,7 @@ const HeroSection = () => {
             {/* Box 3 */}
             <div
               ref={(el) => addToBoxesRef(el, 2)}
-              className='bg-white/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
+              className='bg-white-pure/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
             >
               <div className='relative h-28 overflow-hidden'>
                 <Image
@@ -165,10 +163,10 @@ const HeroSection = () => {
                 />
               </div>
               <div className='p-5 flex-grow flex flex-col justify-between'>
-                <h3 className='text-xl font-semibold text-green-700 mb-2'>
+                <h3 className='text-xl font-medium text-black-rich mb-2 text-display'>
                   Darmowa dostawa od 399 zł
                 </h3>
-                <p className='text-gray-600'>
+                <p className='text-black-soft'>
                   Zrób zakupy już teraz i skorzystaj z darmowej dostawy przy
                   zamówieniu od 399 zł!
                 </p>
@@ -178,7 +176,7 @@ const HeroSection = () => {
             {/* Box 4 */}
             <div
               ref={(el) => addToBoxesRef(el, 3)}
-              className='bg-gradient-to-br from-green-50 to-green-100/90 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all h-60 sm:h-auto cursor-pointer group relative'
+              className='bg-gradient-to-br from-white-off to-white-off/90 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all h-60 sm:h-auto cursor-pointer group relative'
             >
               <div className='relative h-full w-full flex items-center justify-center p-6'>
                 <div className='absolute inset-0 overflow-hidden opacity-20'>
@@ -189,12 +187,12 @@ const HeroSection = () => {
                     className='object-cover object-center'
                   />
                 </div>
-                <div className='bg-white/60 backdrop-blur-sm rounded-xl p-6 w-full h-full flex items-center justify-center'>
+                <div className='bg-white-pure/60 backdrop-blur-sm rounded-xl p-6 w-full h-full flex items-center justify-center'>
                   <div className='text-center'>
-                    <span className='font-semibold text-xl text-green-800 block mb-2 group-hover:scale-105 transition-transform'>
+                    <span className='font-semibold text-xl text-black-800 block mb-2 group-hover:scale-105 transition-transform'>
                       Nowa kolekcja!
                     </span>
-                    <span className='text-green-700'>
+                    <span className='text-black-700'>
                       Już wkrótce nowa oferta - zapisz się, aby otrzymać
                       powiadomienie!
                     </span>

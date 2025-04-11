@@ -29,7 +29,7 @@
 
   --color-beige: #f5f5dc;
   --color-cream: #fffdd0;
-  --color-deep-navy: #152354;
+  --color-deep-navy: #0f1d45;
   --color-royal-gold: #d4af37;
   --color-deep-gold: #b8860b;
   --color-gold: #ffd700;
@@ -58,6 +58,14 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .bg-deep-navy {
+    background-color: var(--color-deep-navy);
+  }
+
+  .border-royal-gold {
+    border-color: var(--color-royal-gold);
   }
 }
 
@@ -659,6 +667,11 @@ html {
   box-shadow: 0 4px 8px rgba(212, 175, 55, 0.15);
 }
 
+.form-input-focus:hover {
+  @apply border-royal-gold;
+  box-shadow: 0 4px 6px rgba(212, 175, 55, 0.1);
+}
+
 .checkbox-gold {
   @apply text-royal-gold border-gray-300 rounded focus:ring-royal-gold/20;
   transition: all 0.3s ease;
@@ -770,7 +783,7 @@ html {
 /* Pasek kontaktowy */
 .contact-bar {
   @apply fixed top-0 left-0 right-0 bg-deep-navy text-white py-2 px-4 z-50;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, var(--color-deep-navy), #1a2b6b);
 }
 
 .contact-bar::before {
@@ -782,7 +795,7 @@ html {
   height: 100%;
   background: linear-gradient(
     90deg,
-    var(--deep-navy) 0%,
+    var(--color-deep-navy) 0%,
     var(--navy-blue) 100%
   );
   opacity: 0.9;
@@ -866,7 +879,7 @@ html {
   }
 
   .contact-bar {
-    @apply fixed top-0 left-0 right-0 bg-deep-navy text-white py-2 px-4 z-50;
+    @apply fixed top-0 left-0 right-0 text-white py-2 px-4 z-50;
     background: linear-gradient(to right, var(--color-deep-navy), #1a2b6b);
   }
 

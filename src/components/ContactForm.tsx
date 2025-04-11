@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import Button from './Button';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
-export default function ContactForm() {
+const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -83,72 +84,51 @@ export default function ContactForm() {
         </div>
       ) : null}
 
-      <form onSubmit={handleSubmit}>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-          <div>
-            <label htmlFor='name' className='block text-gray-700 mb-1'>
-              Imię i nazwisko *
-            </label>
-            <input
-              type='text'
-              id='name'
-              name='name'
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            />
-          </div>
-
-          <div>
-            <label htmlFor='email' className='block text-gray-700 mb-1'>
-              Email *
-            </label>
-            <input
-              type='email'
-              id='email'
-              name='email'
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            />
-          </div>
+      <form onSubmit={handleSubmit} className='space-y-6'>
+        <div>
+          <label
+            htmlFor='name'
+            className='block text-black-rich font-medium mb-1'
+          >
+            Imię i nazwisko
+          </label>
+          <input
+            type='text'
+            id='name'
+            name='name'
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className='w-full px-4 py-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-primary/50 transition-all'
+            placeholder='Twoje imię i nazwisko'
+          />
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
-          <div>
-            <label htmlFor='phone' className='block text-gray-700 mb-1'>
-              Numer telefonu
-            </label>
-            <input
-              type='tel'
-              id='phone'
-              name='phone'
-              value={formData.phone}
-              onChange={handleChange}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            />
-          </div>
-
-          <div>
-            <label htmlFor='subject' className='block text-gray-700 mb-1'>
-              Temat
-            </label>
-            <input
-              type='text'
-              id='subject'
-              name='subject'
-              value={formData.subject}
-              onChange={handleChange}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            />
-          </div>
+        <div>
+          <label
+            htmlFor='email'
+            className='block text-black-rich font-medium mb-1'
+          >
+            Adres email
+          </label>
+          <input
+            type='email'
+            id='email'
+            name='email'
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className='w-full px-4 py-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-primary/50 transition-all'
+            placeholder='Twój adres email'
+          />
         </div>
 
-        <div className='mb-4'>
-          <label htmlFor='message' className='block text-gray-700 mb-1'>
-            Wiadomość *
+        <div>
+          <label
+            htmlFor='message'
+            className='block text-black-rich font-medium mb-1'
+          >
+            Wiadomość
           </label>
           <textarea
             id='message'
@@ -157,20 +137,17 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             rows={5}
-            className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+            className='w-full px-4 py-2 border border-gray-light rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-primary/50 transition-all resize-none'
+            placeholder='Twoja wiadomość...'
           />
         </div>
 
-        <div className='text-center'>
-          <button
-            type='submit'
-            disabled={status === 'submitting'}
-            className='px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400'
-          >
-            {status === 'submitting' ? 'Wysyłanie...' : 'Wyślij wiadomość'}
-          </button>
-        </div>
+        <Button type='submit' size='lg' width='full'>
+          Wyślij wiadomość
+        </Button>
       </form>
     </div>
   );
-}
+};
+
+export default ContactForm;
