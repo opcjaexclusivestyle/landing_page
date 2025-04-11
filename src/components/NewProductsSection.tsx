@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 const NewProductsSection = () => {
   const sectionRef = useRef(null);
   const titleRef = useRef(null);
-  const cardsRef = useRef([]);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   // Dane produktów - warto przenieść do osobnego pliku w przyszłości
   const products = [
@@ -81,15 +81,18 @@ const NewProductsSection = () => {
 
     // Animacja hover dla kart
     cardsRef.current.forEach((card) => {
-      const image = card.querySelector('.card-image');
+      if (card) {
+        const image = card.querySelector('.card-image');
+        if (image) {
+          card.addEventListener('mouseenter', () => {
+            gsap.to(image, { scale: 1.08, duration: 0.5, ease: 'power1.out' });
+          });
 
-      card.addEventListener('mouseenter', () => {
-        gsap.to(image, { scale: 1.08, duration: 0.5, ease: 'power1.out' });
-      });
-
-      card.addEventListener('mouseleave', () => {
-        gsap.to(image, { scale: 1, duration: 0.5, ease: 'power1.out' });
-      });
+          card.addEventListener('mouseleave', () => {
+            gsap.to(image, { scale: 1, duration: 0.5, ease: 'power1.out' });
+          });
+        }
+      }
     });
   }, []);
 
@@ -117,8 +120,12 @@ const NewProductsSection = () => {
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10'>
           {products.map((product, index) => (
             <div
-              key={product.id}
-              ref={addToRefs}
+              key={index}
+              ref={(el) => {
+                if (cardsRef.current) {
+                  cardsRef.current[index] = el;
+                }
+              }}
               className='border border-gray-100 rounded-2xl shadow-md overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-xl'
             >
               <div className='relative'>
