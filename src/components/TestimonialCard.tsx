@@ -1,34 +1,41 @@
 import { Testimonial } from '@/lib/firebase';
 import StarRating from './StarRating';
+import { Timestamp } from 'firebase/firestore';
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
 }
 
+// Alternatywnie, możesz zdefiniować własny interfejs Timestamp
+interface FirestoreTimestamp {
+  toDate: () => Date;
+  seconds: number;
+  nanoseconds: number;
+}
+
 const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
-  // Funkcja formatująca datę z formatu ISO string
-  const formatDate = (dateString: string | Date | null | undefined) => {
+  // Funkcja formatująca datę
+  const formatDate = (
+    dateString: Date | FirestoreTimestamp | string | null | undefined,
+  ) => {
     if (!dateString) return '';
 
-    try {
-      const date =
-        typeof dateString === 'string'
-          ? new Date(dateString)
-          : dateString instanceof Date
-          ? dateString
-          : dateString.toDate?.();
+    const date =
+      dateString instanceof Date
+        ? dateString
+        : typeof dateString === 'object' &&
+          dateString !== null &&
+          'toDate' in dateString
+        ? dateString.toDate()
+        : new Date(String(dateString));
 
-      if (!date || isNaN(date.getTime())) return '';
+    if (!date || isNaN(date.getTime())) return '';
 
-      return date.toLocaleDateString('pl-PL', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-    } catch (error) {
-      console.error('Błąd podczas formatowania daty:', error);
-      return '';
-    }
+    return date.toLocaleDateString('pl-PL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
   };
 
   // Pobierz sformatowaną datę
@@ -62,5 +69,7 @@ const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
     </div>
   );
 };
+
+export default TestimonialCard;
 
 export default TestimonialCard;
