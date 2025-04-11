@@ -206,7 +206,12 @@ export default function BlogSection({
           {posts.map((post, index) => (
             <div
               key={post.id}
-              ref={(el) => (cardsRef.current[index] = el)}
+              ref={(el) => {
+                if (cardsRef.current) {
+                  cardsRef.current[index] = el;
+                }
+                return null;
+              }}
               className='group relative'
               onMouseEnter={() => setHoveredCard(post.id)}
               onMouseLeave={() => setHoveredCard(null)}
