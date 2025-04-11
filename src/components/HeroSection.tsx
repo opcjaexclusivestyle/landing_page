@@ -7,8 +7,15 @@ import { gsap } from 'gsap';
 const HeroSection = () => {
   const sectionRef = useRef(null);
   const leftPanelRef = useRef(null);
-  const boxesRef = useRef([]);
+  const boxesRef = useRef<Array<HTMLDivElement | null>>([]);
   const overlayRef = useRef(null);
+
+  // Funkcja do przypisywania referencji
+  const addToBoxesRef = (el: HTMLDivElement | null, index: number) => {
+    if (el) {
+      boxesRef.current[index] = el;
+    }
+  };
 
   useEffect(() => {
     // Animacja tła
@@ -34,17 +41,19 @@ const HeroSection = () => {
 
     // Animacja boxów - pojawianie się jeden po drugim z efektem sprężystości
     boxesRef.current.forEach((box, index) => {
-      gsap.fromTo(
-        box,
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.7,
-          delay: 0.5 + index * 0.15,
-          ease: 'back.out(1.2)',
-        },
-      );
+      if (box) {
+        gsap.fromTo(
+          box,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            delay: 0.5 + index * 0.15,
+            ease: 'back.out(1.2)',
+          },
+        );
+      }
     });
   }, []);
 
@@ -96,7 +105,7 @@ const HeroSection = () => {
           <div className='col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 lg:gap-8'>
             {/* Box 1 */}
             <div
-              ref={(el) => (boxesRef.current[0] = el)}
+              ref={(el) => addToBoxesRef(el, 0)}
               className='bg-white/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
             >
               <div className='relative h-28 overflow-hidden'>
@@ -120,7 +129,7 @@ const HeroSection = () => {
 
             {/* Box 2 */}
             <div
-              ref={(el) => (boxesRef.current[1] = el)}
+              ref={(el) => addToBoxesRef(el, 1)}
               className='bg-white/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
             >
               <div className='relative h-28 overflow-hidden'>
@@ -144,7 +153,7 @@ const HeroSection = () => {
 
             {/* Box 3 */}
             <div
-              ref={(el) => (boxesRef.current[2] = el)}
+              ref={(el) => addToBoxesRef(el, 2)}
               className='bg-white/90 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all h-60 sm:h-auto flex flex-col group'
             >
               <div className='relative h-28 overflow-hidden'>
@@ -168,7 +177,7 @@ const HeroSection = () => {
 
             {/* Box 4 */}
             <div
-              ref={(el) => (boxesRef.current[3] = el)}
+              ref={(el) => addToBoxesRef(el, 3)}
               className='bg-gradient-to-br from-green-50 to-green-100/90 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all h-60 sm:h-auto cursor-pointer group relative'
             >
               <div className='relative h-full w-full flex items-center justify-center p-6'>
