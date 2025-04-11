@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import HeroSection from '@/components/HeroSection';
 
 export default function Home() {
   const containerRef = useRef(null);
@@ -191,26 +192,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className='hero-section w-full min-h-[600px] flex items-center'>
-        <div className='container mx-auto px-4 py-20'>
-          <div className='max-w-2xl'>
-            <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-6'>
-              Eleganckie dekoracje okienne i tekstylia domowe
-            </h1>
-            <p className='text-lg text-gray-700 mb-8'>
-              Tworzymy wyjątkowe wnętrza z najwyższej jakości rolet, zasłon,
-              firan i pościeli. Nadaj swojemu domowi niepowtarzalny charakter z
-              naszymi produktami szytymi na miarę.
-            </p>
-            <a
-              href='#kontakt'
-              className='bg-primary text-white px-8 py-3 font-medium rounded-button shadow-lg hover:bg-blue-600 transition-colors whitespace-nowrap'
-            >
-              Zamów konsultację
-            </a>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Grid paneli 2x2 */}
       <div

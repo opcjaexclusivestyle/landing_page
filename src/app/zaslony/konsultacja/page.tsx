@@ -47,12 +47,50 @@ export default function Konsultacja() {
     );
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Tutaj będzie obsługa wysyłania formularza
-    alert(
-      'Dziękujemy za przesłanie formularza! Nasz specjalista skontaktuje się z Tobą wkrótce.',
-    );
+
+    try {
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email: 'brak@email.com', // Jeśli nie zbierasz maila, dodaj placeholder
+          phone,
+          message: 'Prośba o konsultację w sprawie zasłon',
+          formType: 'Formularz konsultacji zasłon',
+          // Dodatkowe dane specyficzne dla formularza
+          decorationType,
+          rodWidth,
+          height,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Wystąpił błąd');
+      }
+
+      alert(
+        'Dziękujemy za przesłanie formularza! Nasz specjalista skontaktuje się z Tobą wkrótce.',
+      );
+
+      // Resetuj formularz
+      setDecorationType('');
+      setRodWidth('');
+      setHeight('');
+      setName('');
+      setPhone('');
+    } catch (error) {
+      console.error('Błąd:', error);
+      alert(
+        'Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie później.',
+      );
+    }
   };
 
   return (

@@ -19,6 +19,7 @@ interface Product {
 
 interface OrderFormProps {
   productName?: string;
+  productType?: string;
 }
 
 interface FormData {
@@ -35,6 +36,10 @@ interface FormData {
   houseNumber: string;
   postalCode: string;
   city: string;
+  name: string;
+  address: string;
+  comments: string;
+  quantity: number;
 }
 
 interface CartItem {
@@ -56,7 +61,10 @@ const TAPE_TYPES = [
   { id: 'dragon-5', name: 'Taśma smok 5 cm (Marszczenie 1:2)', ratio: 2 },
 ];
 
-export default function OrderForm({ productName }: OrderFormProps) {
+export default function OrderForm({
+  productName,
+  productType,
+}: OrderFormProps) {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +87,10 @@ export default function OrderForm({ productName }: OrderFormProps) {
     houseNumber: '',
     postalCode: '',
     city: '',
+    name: '',
+    address: '',
+    comments: '',
+    quantity: 1,
   });
 
   // Znajdź aktualnie wybrany produkt
@@ -132,7 +144,9 @@ export default function OrderForm({ productName }: OrderFormProps) {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -158,7 +172,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
     setShowImageModal(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
@@ -187,7 +201,7 @@ export default function OrderForm({ productName }: OrderFormProps) {
         id: productId,
         name: formData.selectedProduct,
         price,
-        quantity: 1,
+        quantity: formData.quantity,
         options: {
           width: formData.rodWidth,
           height: formData.height,
@@ -699,6 +713,57 @@ export default function OrderForm({ productName }: OrderFormProps) {
                   onChange={handleChange}
                   className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
                   required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* NOWA KOLEJNOŚĆ: 6. Szczegóły zamówienia */}
+          <div className='space-y-6 mb-8'>
+            <h2 className='text-xl font-light text-deep-navy mb-4'>
+              Szczegóły zamówienia
+            </h2>
+            <div className='grid grid-cols-1 gap-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Produkt / szczegóły *
+                </label>
+                <input
+                  type='text'
+                  name='productDetails'
+                  value={formData.productDetails}
+                  onChange={handleChange}
+                  required
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                />
+                <p className='text-sm text-gray-500 mt-1'>
+                  Podaj nazwę i szczegóły zamawianego produktu
+                </p>
+              </div>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Ilość *
+                </label>
+                <input
+                  type='number'
+                  name='quantity'
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  required
+                  min='1'
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                />
+              </div>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Dodatkowe uwagi
+                </label>
+                <textarea
+                  name='comments'
+                  value={formData.comments}
+                  onChange={handleChange}
+                  rows={3}
+                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
                 />
               </div>
             </div>
