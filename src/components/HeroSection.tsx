@@ -88,7 +88,7 @@ const HeroSection = () => {
               piękne dodatki do domu.
             </p>
             <button className='bg-green-600 hover:bg-green-700 text-white text-lg font-medium py-3 px-8 rounded-full transition-all transform hover:scale-105 shadow-md w-fit'>
-              Dowiedz się więcej
+              Skontaktuj się z nami
             </button>
           </div>
 
