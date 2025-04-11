@@ -174,11 +174,9 @@ export default function BlogSection({
         <div className='absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2'></div>
         <div className='absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2'></div>
       </div>
-
       {/* Ozdobne linie w tle */}
       <div className='absolute left-1/4 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent decorative-line'></div>
       <div className='absolute left-3/4 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent decorative-line'></div>
-
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative'>
         {/* Nagłówek sekcji */}
         <div className='text-center max-w-3xl mx-auto mb-20'>
@@ -187,7 +185,7 @@ export default function BlogSection({
           </div>
           <h2
             ref={headingRef}
-            className='text-black text-4xl md:text-5xl   mb-6 tracking-tight '
+            className='text-black text-4xl md:text-5xl mb-6 tracking-tight '
           >
             Inspiracje i porady
           </h2>
@@ -200,7 +198,6 @@ export default function BlogSection({
             stylu.
           </p>
         </div>
-
         {/* Siatka artykułów blogowych */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
           {posts.map((post, index) => (
@@ -210,7 +207,7 @@ export default function BlogSection({
                 if (cardsRef.current) {
                   cardsRef.current[index] = el;
                 }
-                return null;
+                // Removing the 'return null' statement fixes the issue
               }}
               className='group relative'
               onMouseEnter={() => setHoveredCard(post.id)}
@@ -226,7 +223,6 @@ export default function BlogSection({
                     className='object-cover transition-transform duration-1000 group-hover:scale-110'
                   />
                   <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent'></div>
-
                   {/* Kategoria na górze zdjęcia - z linkiem do kategorii */}
                   <Link
                     href={`/blog/kategoria/${post.category.toLowerCase()}`}
@@ -235,7 +231,6 @@ export default function BlogSection({
                     {post.category}
                   </Link>
                 </div>
-
                 {/* Treść */}
                 <div className='p-6 bg-white relative z-10'>
                   <div className='flex items-center text-xs text-gray-500 mb-3 space-x-4'>
@@ -245,7 +240,6 @@ export default function BlogSection({
                     </div>
                     <div>{post.readTime} min czytania</div>
                   </div>
-
                   <Link href={`/blog/${post.id}`}>
                     <h3 className='text-xl font-medium text-gray-900 mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-primary'>
                       {post.title}
@@ -254,7 +248,6 @@ export default function BlogSection({
                   <p className='text-gray-600 text-sm mb-4 line-clamp-3'>
                     {post.excerpt}
                   </p>
-
                   {/* Autor */}
                   <div className='flex items-center mt-6 pt-4 border-t border-gray-100'>
                     <div className='relative h-10 w-10 rounded-full overflow-hidden mr-3'>
@@ -268,7 +261,6 @@ export default function BlogSection({
                     <span className='text-sm font-medium text-gray-700'>
                       {post.author.name}
                     </span>
-
                     <div className='ml-auto'>
                       <Link
                         href={`/blog/${post.id}`}
@@ -293,7 +285,6 @@ export default function BlogSection({
                   </div>
                 </div>
               </div>
-
               {/* Element dekoracyjny widoczny przy hover */}
               <div
                 className={`absolute -bottom-3 -right-3 h-24 w-24 rounded-full bg-primary/10 blur-xl transition-opacity duration-500 ${
@@ -303,7 +294,6 @@ export default function BlogSection({
             </div>
           ))}
         </div>
-
         {/* Przycisk "Więcej artykułów" */}
         <div className='flex justify-center mt-16'>
           <Link
@@ -330,11 +320,9 @@ export default function BlogSection({
           </Link>
         </div>
       </div>
-
       {/* Dodatkowy element animowany na końcu strony */}
       <div className='mt-16 relative'>
         <div className='absolute inset-0 bg-gradient-to-b from-transparent to-gray-100/50'></div>
-
         <div className='container mx-auto text-center relative z-10 pt-10 pb-4'>
           <div className='flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8'>
             <div className='w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent'></div>
@@ -345,7 +333,6 @@ export default function BlogSection({
           </div>
         </div>
       </div>
-
       {/* Dekoracyjny element na dole */}
       <div className='absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
     </section>

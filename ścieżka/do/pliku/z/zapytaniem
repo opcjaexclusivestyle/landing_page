@@ -1,2 +1,0 @@
-const testimonialsResult = await sql`
-  SELECT * FROM testimonials ORDER BY created_at DESC LIMIT ${limit}`; 
