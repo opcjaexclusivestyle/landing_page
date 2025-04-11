@@ -17,9 +17,70 @@ export default function MainPageNavigation() {
 
   // Efekt dla animacji paneli przy przewijaniu
   useEffect(() => {
+    // Importujemy ScrollTrigger
+    const ScrollTrigger = require('gsap/ScrollTrigger').ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+
     const panels = document.querySelectorAll('.panel-section');
 
-    panels.forEach((panel) => {
+    // Animacja wejściowa dla całego kontenera oparta na scroll
+    gsap.fromTo(
+      containerRef.current,
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top bottom-=100',
+          end: 'top center',
+          scrub: 0.5,
+          // markers: true, // Usuń w wersji produkcyjnej
+        },
+      },
+    );
+
+    // Animacja wejściowa dla każdego panelu osobno, aktywowana podczas scrollowania
+    panels.forEach((panel, index) => {
+      // Tworzymy timeline dla każdego panelu
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: panel,
+          start: 'top bottom-=100',
+          end: 'top center+=100',
+          scrub: 0.5,
+          // markers: true, // Usuń w wersji produkcyjnej
+        },
+      });
+
+      // Dodajemy sekwencję animacji do timeline
+      tl.fromTo(
+        panel,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5 },
+      )
+        .fromTo(
+          panel.querySelector('h2'),
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.3 },
+          '-=0.2',
+        )
+        .fromTo(
+          panel.querySelector('p'),
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.3 },
+          '-=0.1',
+        )
+        .fromTo(
+          panel.querySelector('.premium-button'),
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.3 },
+          '-=0.1',
+        );
+
+      // Animacja efektu parallax przy przewijaniu (zostawiamy istniejącą)
       gsap.to(panel.querySelector('.panel-image'), {
         scrollTrigger: {
           trigger: panel,
@@ -36,7 +97,7 @@ export default function MainPageNavigation() {
   return (
     <div
       ref={containerRef}
-      className='grid grid-cols-1 md:grid-cols-2 mt-16 md:mt-20 min-h-screen'
+      className='grid grid-cols-1 md:grid-cols-2 mt-16 md:mt-20 min-h-screen opacity-0'
     >
       {/* Panel 1: Firany */}
       <section
