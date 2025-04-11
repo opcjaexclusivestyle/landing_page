@@ -1,6 +1,6 @@
-import BlogLayout from '@/components/BlogLayout';
-import BlogPostCard from '@/components/BlogPostCard';
-import { getPostsByCategory } from '@/lib/api';
+import BlogLayout from '../../../../components/BlogLayout';
+import BlogPostCard from '../../../../components/BlogPostCard';
+import { getPostsByCategory } from '../../../../lib/api';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata({

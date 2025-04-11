@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import BlogLayout from '@/components/BlogLayout';
+import BlogLayout from '../../components/BlogLayout';
 
 export default function NotFound() {
   return (
