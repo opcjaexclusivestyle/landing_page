@@ -35,7 +35,7 @@ export default function RecommendedProducts({
   buttonText = 'DODAJ DO KOSZYKA',
   className = '',
 }: RecommendedProductsProps) {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const cardsRef = useRef([]);
 
   // Ustawiamy klasy tła w zależności od wybranej opcji
