@@ -36,7 +36,7 @@ export default function RecommendedProducts({
   className = '',
 }: RecommendedProductsProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const cardsRef = useRef([]);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   // Ustawiamy klasy tła w zależności od wybranej opcji
   const getBgClass = () => {
@@ -118,10 +118,8 @@ export default function RecommendedProducts({
           {products.map((product, index) => (
             <div
               key={product.id}
-              ref={(el) => {
-                if (cardsRef.current) {
-                  cardsRef.current[index] = el;
-                }
+              ref={(el: HTMLDivElement | null) => {
+                cardsRef.current[index] = el;
               }}
               className='rounded-lg overflow-hidden shadow-lg border border-gray-100 transform transition-transform duration-300 hover:-translate-y-2 bg-white'
             >

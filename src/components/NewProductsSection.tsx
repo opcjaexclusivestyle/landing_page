@@ -121,10 +121,8 @@ const NewProductsSection = () => {
           {products.map((product, index) => (
             <div
               key={index}
-              ref={(el) => {
-                if (cardsRef.current) {
-                  cardsRef.current[index] = el;
-                }
+              ref={(el: HTMLDivElement | null) => {
+                cardsRef.current[index] = el;
               }}
               className='border border-gray-100 rounded-2xl shadow-md overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-xl'
             >

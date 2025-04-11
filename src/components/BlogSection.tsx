@@ -203,11 +203,8 @@ export default function BlogSection({
           {posts.map((post, index) => (
             <div
               key={post.id}
-              ref={(el) => {
-                if (cardsRef.current) {
-                  cardsRef.current[index] = el;
-                }
-                // Removing the 'return null' statement fixes the issue
+              ref={(el: HTMLDivElement | null) => {
+                cardsRef.current[index] = el;
               }}
               className='group relative'
               onMouseEnter={() => setHoveredCard(post.id)}
