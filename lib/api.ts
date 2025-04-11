@@ -1,5 +1,27 @@
-import { BlogPost } from '@/components/BlogSection';
-import { getPlaceholderImage, getAvatarPlaceholder } from '@/utils/imageUtils';
+import { BlogPost } from '../components/BlogSection';
+
+// Funkcja generująca obrazy-placeholdery
+function getPlaceholderImage(
+  width: number,
+  height: number,
+  text: string = 'Blog',
+): string {
+  return `https://placehold.co/${width}x${height}/E0E0E0/808080?text=${text.replace(
+    /\s+/g,
+    '+',
+  )}`;
+}
+
+// Funkcja generująca placeholdery awatarów
+function getAvatarPlaceholder(name: string): string {
+  const initials = name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+
+  return `https://placehold.co/100x100/4F46E5/FFFFFF?text=${initials}`;
+}
 
 // Przykładowe dane do bloga
 const blogPosts: BlogPost[] = [
@@ -38,11 +60,11 @@ const blogPosts: BlogPost[] = [
     excerpt:
       'Poznaj najnowsze prognozy dotyczące kolorów, które będą dominować we wnętrzach w 2024 roku. Sprawdź, jak wprowadzić je do swojego domu.',
     category: 'Trendy',
-    image: '/images/blog/color-trends.jpg',
+    image: getPlaceholderImage(800, 600, 'Trendy kolorystyczne'),
     publishDate: '29 października 2023',
     author: {
       name: 'Anna Wiśniewska',
-      avatar: '/images/blog/authors/anna.jpg',
+      avatar: getAvatarPlaceholder('Anna Wiśniewska'),
     },
     readTime: 5,
   },
@@ -52,11 +74,11 @@ const blogPosts: BlogPost[] = [
     excerpt:
       'Styl boho to kwintesencja przytulności i swobody. Dowiedz się, jak wprowadzić ten styl do swojej sypialni i cieszyć się wyjątkowym klimatem.',
     category: 'Inspiracje',
-    image: '/images/blog/boho-bedroom.jpg',
+    image: getPlaceholderImage(800, 600, 'Sypialnia boho'),
     publishDate: '22 października 2023',
     author: {
       name: 'Magda Nowak',
-      avatar: '/images/blog/authors/magda.jpg',
+      avatar: getAvatarPlaceholder('Magda Nowak'),
     },
     readTime: 7,
   },
@@ -66,11 +88,11 @@ const blogPosts: BlogPost[] = [
     excerpt:
       'Nawet na małej przestrzeni można stworzyć funkcjonalne i estetyczne wnętrze. Sprawdź nasze porady dotyczące aranżacji małych pomieszczeń.',
     category: 'Porady',
-    image: '/images/blog/small-apartment.jpg',
+    image: getPlaceholderImage(800, 600, 'Małe mieszkanie'),
     publishDate: '15 października 2023',
     author: {
       name: 'Jan Kowalski',
-      avatar: '/images/blog/authors/jan.jpg',
+      avatar: getAvatarPlaceholder('Jan Kowalski'),
     },
     readTime: 9,
   },
@@ -80,11 +102,11 @@ const blogPosts: BlogPost[] = [
     excerpt:
       'Styl industrialny w kuchni to połączenie surowości, funkcjonalności i niepowtarzalnego charakteru. Poznaj kluczowe elementy tego stylu.',
     category: 'Inspiracje',
-    image: '/images/blog/industrial-kitchen.jpg',
+    image: getPlaceholderImage(800, 600, 'Kuchnia industrialna'),
     publishDate: '8 października 2023',
     author: {
       name: 'Anna Wiśniewska',
-      avatar: '/images/blog/authors/anna.jpg',
+      avatar: getAvatarPlaceholder('Anna Wiśniewska'),
     },
     readTime: 6,
   },

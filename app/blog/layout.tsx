@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function BlogLayout({ children }: { children: ReactNode }) {
   return (
-    <div className='blog-layout'>
+    <div className='blog-root-layout'>
       {/* Możesz dodać tutaj nagłówek bloga, menu kategorii itp. */}
       <main>{children}</main>
       {/* Możesz dodać tutaj stopkę specyficzną dla bloga */}

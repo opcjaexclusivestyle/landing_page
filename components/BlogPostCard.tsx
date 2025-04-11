@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { BlogPost } from '@/components/BlogSection';
+import { BlogPost } from './BlogSection';
 
 interface BlogPostCardProps {
   post: BlogPost;
