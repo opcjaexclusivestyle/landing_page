@@ -1,6 +1,5 @@
 import { Testimonial } from '@/lib/firebase';
 import StarRating from './StarRating';
-import { FaUser } from 'react-icons/fa';
 
 interface TestimonialCardProps {
   testimonial: Testimonial;
@@ -40,8 +39,10 @@ const TestimonialCard = ({ testimonial }: TestimonialCardProps) => {
   return (
     <div className='bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 transition-transform duration-300'>
       <div className='flex items-center mb-4'>
-        <div className='w-12 h-12 bg-gray-200 rounded-full overflow-hidden mr-4 flex items-center justify-center'>
-          <FaUser className='text-gray-500 text-xl' />
+        <div className='w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-4'>
+          <span className='text-gray-600 font-bold'>
+            {testimonial.name.charAt(0)}
+          </span>
         </div>
         <div>
           <h3 className='font-bold text-gray-900'>{testimonial.name}</h3>
