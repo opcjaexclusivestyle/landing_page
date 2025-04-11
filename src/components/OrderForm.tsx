@@ -40,6 +40,8 @@ interface FormData {
   address: string;
   comments: string;
   quantity: number;
+  productDetails: string;
+  message: string;
 }
 
 interface CartItem {
@@ -91,6 +93,8 @@ export default function OrderForm({
     address: '',
     comments: '',
     quantity: 1,
+    productDetails: '',
+    message: '',
   });
 
   // Znajdź aktualnie wybrany produkt
