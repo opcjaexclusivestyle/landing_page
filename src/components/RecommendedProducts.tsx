@@ -118,7 +118,11 @@ export default function RecommendedProducts({
           {products.map((product, index) => (
             <div
               key={product.id}
-              ref={(el) => (cardsRef.current[index] = el)}
+              ref={(el) => {
+                if (cardsRef.current) {
+                  cardsRef.current[index] = el;
+                }
+              }}
               className='rounded-lg overflow-hidden shadow-lg border border-gray-100 transform transition-transform duration-300 hover:-translate-y-2 bg-white'
             >
               <div className='relative h-72 overflow-hidden'>
