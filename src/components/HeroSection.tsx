@@ -83,22 +83,32 @@ const HeroSection = () => {
           {/* Lewa sekcja */}
           <div
             ref={leftPanelRef}
-            className='col-span-1 lg:col-span-2 bg-white-pure/90 rounded-3xl p-8 md:p-10 shadow-xl flex flex-col justify-center backdrop-blur-sm border border-gray-light'
+            className='col-span-1 lg:col-span-2 bg-white-pure/90 rounded-3xl p-8 md:p-10 shadow-xl flex flex-col justify-center backdrop-blur-sm border border-gray-light relative overflow-hidden'
           >
-            <h2 className='text-3xl md:text-4xl font-medium text-black-rich mb-6 text-display'>
-              Odmień swoje wnętrze i zyskaj 20% rabatu!
-            </h2>
-            <p className='text-black-soft text-lg mb-4'>
-              Pochwal się metamorfozą Twojego wnętrza. Prześlij nam zdjęcia
-              pomieszczenia przed i po zawieszeniu naszych firan lub zasłon.
-            </p>
-            <p className='text-black-soft text-lg mb-8'>
-              Zainspiruj innych swoją aranżacją i zgarnij rabat na kolejne
-              piękne dodatki do domu.
-            </p>
-            <Button className='premium-button' size='lg'>
-              Dowiedz się więcej
-            </Button>
+            <div className='absolute inset-0 overflow-hidden opacity-50 z-0'>
+              <Image
+                src='/images/hero/new-collection.jpg'
+                alt='Tło z nowej kolekcji'
+                fill
+                className='object-cover object-center'
+              />
+            </div>
+            <div className='relative z-10'>
+              <h2 className='text-3xl md:text-4xl font-medium text-black-rich mb-6 text-display'>
+                Odmień swoje wnętrze i zyskaj 20% rabatu!
+              </h2>
+              <p className='text-black-soft text-lg mb-4'>
+                Pochwal się metamorfozą Twojego wnętrza. Prześlij nam zdjęcia
+                pomieszczenia przed i po zawieszeniu naszych firan lub zasłon.
+              </p>
+              <p className='text-black-soft text-lg mb-8'>
+                Zainspiruj innych swoją aranżacją i zgarnij rabat na kolejne
+                piękne dodatki do domu.
+              </p>
+              <Button className='premium-button' size='lg'>
+                Dowiedz się więcej
+              </Button>
+            </div>
           </div>
 
           {/* Prawa sekcja */}
