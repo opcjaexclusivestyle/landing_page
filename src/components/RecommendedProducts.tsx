@@ -54,22 +54,25 @@ export default function RecommendedProducts({
     gsap.registerPlugin(ScrollTrigger);
 
     // Animacja nagłówka
-    const headings = sectionRef.current.querySelectorAll('.section-heading');
-    headings.forEach((heading) => {
-      gsap.fromTo(
-        heading,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          scrollTrigger: {
-            trigger: heading,
-            start: 'top 85%',
+    const headings =
+      sectionRef.current?.querySelectorAll('.section-heading') || [];
+    if (headings.length > 0) {
+      headings.forEach((heading) => {
+        gsap.fromTo(
+          heading,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            scrollTrigger: {
+              trigger: heading,
+              start: 'top 85%',
+            },
           },
-        },
-      );
-    });
+        );
+      });
+    }
 
     // Animacja kart produktów
     cardsRef.current.forEach((card, index) => {
