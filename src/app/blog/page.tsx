@@ -1,6 +1,6 @@
-import BlogPostCard from '../../components/BlogPostCard';
-import BlogLayout from '../../components/BlogLayout';
-import { getAllPosts } from '../../lib/api';
+import BlogPostCard from '../components/BlogPostCard';
+import BlogLayout from '../components/BlogLayout';
+import { getAllPosts } from '../../../lib/api';
 
 export const metadata = {
   title: 'Blog - Inspiracje i porady wnętrzarskie',

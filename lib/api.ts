@@ -1,4 +1,4 @@
-import { BlogPost } from '../components/BlogSection';
+import { BlogPost } from '../src/app/components/BlogSection';
 
 // Funkcja generująca obrazy-placeholdery
 function getPlaceholderImage(

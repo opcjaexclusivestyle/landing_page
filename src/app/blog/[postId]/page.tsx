@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import BlogLayout from '../../../components/BlogLayout';
-import BlogPostCard from '../../../components/BlogPostCard';
-import { getPostById, getRelatedPosts } from '../../../lib/api';
+import BlogLayout from '../../components/BlogLayout';
+import BlogPostCard from '../../components/BlogPostCard';
+import { getPostById, getRelatedPosts } from '../../../../lib/api';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata({

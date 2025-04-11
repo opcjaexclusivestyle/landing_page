@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 
 /**
@@ -10,37 +12,24 @@ export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    // Sprawdzamy czy jesteśmy po stronie klienta (browser)
-    if (typeof window === 'undefined') return;
+    // Sprawdź, czy window jest dostępne (SSR check)
+    if (typeof window !== 'undefined') {
+      // Tworzymy MediaQueryList
+      const media = window.matchMedia(query);
 
-    // Tworzymy MediaQueryList
-    const media = window.matchMedia(query);
+      // Ustaw początkową wartość
+      setMatches(media.matches);
 
-    // Ustawiamy początkowy stan
-    setMatches(media.matches);
+      // Callback na zmiany
+      const listener = () => setMatches(media.matches);
 
-    // Funkcja nasłuchująca na zmiany rozmiaru ekranu
-    const listener = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-
-    // Dodajemy event listener
-    if (media.addEventListener) {
+      // Dodaj nasłuchiwanie na zmiany
       media.addEventListener('change', listener);
-    } else {
-      // Wsparcie dla starszych przeglądarek
-      media.addListener(listener);
-    }
 
-    // Cleanup po odmontowaniu komponentu
-    return () => {
-      if (media.removeEventListener) {
-        media.removeEventListener('change', listener);
-      } else {
-        // Wsparcie dla starszych przeglądarek
-        media.removeListener(listener);
-      }
-    };
+      // Cleanup
+      return () => media.removeEventListener('change', listener);
+    }
+    return undefined;
   }, [query]);
 
   return matches;

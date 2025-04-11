@@ -2,7 +2,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { BlogPost } from './BlogSection';
+
+// Zdefiniowanie interfejsu BlogPost bezpośrednio w tym pliku
+interface BlogPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  image: string;
+  publishDate: string;
+  readTime: number;
+  category: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+}
 
 interface BlogPostCardProps {
   post: BlogPost;

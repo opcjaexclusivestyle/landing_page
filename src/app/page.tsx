@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import HeroSection from '@/components/HeroSection';
 import NewProductsSection from '@/components/NewProductsSection';
@@ -129,11 +128,8 @@ const blogPosts = [
 
 export default function Home() {
   const navigationRef = useRef(null);
-  const mobileMenuRef = useRef(null);
   const contactButtonRef = useRef(null);
 
-  // Hook do sprawdzania czy widok jest mobilny
-  const isMobile = useMediaQuery('(max-width: 768px)');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -161,7 +157,7 @@ export default function Home() {
       { scale: 1, opacity: 1, duration: 0.8, ease: 'elastic.out(1, 0.5)' },
       '-=0.5',
     );
-  }, [isMobile]);
+  }, []);
 
   // Przełączanie mobilnego menu
   const toggleMobileMenu = () => {
