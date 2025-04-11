@@ -96,7 +96,9 @@ const HeroSection = () => {
               Zainspiruj innych swoją aranżacją i zgarnij rabat na kolejne
               piękne dodatki do domu.
             </p>
-            <Button size='lg'>Dowiedz się więcej</Button>
+            <Button className='premium-button' size='lg'>
+              Dowiedz się więcej
+            </Button>
           </div>
 
           {/* Prawa sekcja */}
