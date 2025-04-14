@@ -2,11 +2,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
+
+  // Pobieranie danych koszyka z Redux
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   // Obsługa animacji paska nawigacyjnego przy przewijaniu
   useEffect(() => {
@@ -66,12 +72,24 @@ export default function Navbar() {
             </div>
 
             {/* Nawigacja dla większych ekranów */}
-            <div className='hidden md:flex items-center space-x-8'>
+            <div className='hidden md:flex items-center space-x-6'>
+              <Link
+                href='/zaslony'
+                className='text-gray-700 hover:text-[var(--gold)] transition-colors'
+              >
+                Zasłony
+              </Link>
               <Link
                 href='/firany'
                 className='text-gray-700 hover:text-[var(--gold)] transition-colors'
               >
                 Firany
+              </Link>
+              <Link
+                href='/przescieradlo'
+                className='text-gray-700 hover:text-[var(--gold)] transition-colors'
+              >
+                Prześcieradło
               </Link>
               <Link
                 href='/rolety'
@@ -85,10 +103,63 @@ export default function Navbar() {
               >
                 Kontakt
               </Link>
+
+              {/* Koszyk */}
+              <Link
+                href='/cart'
+                className='relative flex items-center text-gray-700 hover:text-[var(--gold)] transition-colors'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-6 w-6'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
+                  />
+                </svg>
+                {itemCount > 0 && (
+                  <span className='absolute -top-2 -right-2 bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
+                    {itemCount}
+                  </span>
+                )}
+              </Link>
             </div>
 
             {/* Przycisk menu mobilnego */}
-            <div className='md:hidden flex items-center'>
+            <div className='md:hidden flex items-center space-x-4'>
+              {/* Ikona koszyka na urządzeniach mobilnych */}
+              <Link
+                href='/cart'
+                className='relative flex items-center text-gray-700 hover:text-[var(--gold)] transition-colors'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-6 w-6'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
+                  />
+                </svg>
+                {itemCount > 0 && (
+                  <span className='absolute -top-2 -right-2 bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
+                    {itemCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Przycisk menu */}
               <button
                 type='button'
                 className='text-gray-700 hover:text-[var(--gold)] focus:outline-none'
@@ -137,11 +208,25 @@ export default function Navbar() {
         <div className='mobile-menu md:hidden overflow-hidden h-0 opacity-0'>
           <div className='px-2 pt-2 pb-3 space-y-1 bg-white'>
             <Link
+              href='/zaslony'
+              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Zasłony
+            </Link>
+            <Link
               href='/firany'
               className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
               onClick={() => setIsMenuOpen(false)}
             >
               Firany
+            </Link>
+            <Link
+              href='/przescieradlo'
+              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Prześcieradło
             </Link>
             <Link
               href='/rolety'
@@ -156,6 +241,18 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(false)}
             >
               Kontakt
+            </Link>
+            <Link
+              href='/cart'
+              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)] flex items-center'
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className='mr-2'>Koszyk</span>
+              {itemCount > 0 && (
+                <span className='bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
+                  {itemCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>

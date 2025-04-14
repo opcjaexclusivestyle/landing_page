@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import ReduxProvider from '@/providers/ReduxProvider';
-// import Navbar from '@/components/Navbar';
+import Navbar from '@/components/Navbar';
 // import Footer from '@/components/Footer';
 import Script from 'next/script';
 
@@ -46,7 +46,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ReduxProvider>
-          {/* <Navbar /> */}
+          <Navbar />
           <main>{children}</main>
           {/* <Footer /> */}
         </ReduxProvider>

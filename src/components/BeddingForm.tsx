@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { addItem } from '../redux/cartSlice';
+import { addToCart } from '@/store/cartSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 
@@ -92,13 +92,17 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
       .join(', ');
 
     dispatch(
-      addItem({
+      addToCart({
         id: uuidv4(),
-        productName: `${productName} (${details})`,
-        width: selectedSet.beddingSize.split('x')[0],
-        height: selectedSet.beddingSize.split('x')[1],
-        amount: totalPrice.toFixed(2),
+        name: `${productName} (${details})`,
+        price: totalPrice,
         quantity: quantity,
+        options: {
+          width: selectedSet.beddingSize.split('x')[0],
+          height: selectedSet.beddingSize.split('x')[1],
+          embroidery: false,
+          curtainRod: false,
+        },
       }),
     );
 

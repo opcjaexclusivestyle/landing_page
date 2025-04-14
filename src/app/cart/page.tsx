@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity } from '../../redux/cartSlice';
+import { removeFromCart, updateQuantity } from '@/store/cartSlice';
 import Link from 'next/link';
-import type { CartItem } from '../../redux/cartSlice';
+import { RootState } from '@/store/store';
 import { loadStripe } from '@stripe/stripe-js';
 
 // Inicjalizacja Stripe
@@ -12,36 +12,12 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
 );
 
-interface RootState {
-  cart: {
-    items: CartItem[];
-    customerInfo: {
-      name: string;
-      email: string;
-      city?: string;
-      postalCode?: string;
-      street?: string;
-      houseNumber?: string;
-    } | null;
-    total: string;
-  };
-}
-
 const CartPage = () => {
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  const customerInfo = useSelector(
-    (state: RootState) => state.cart.customerInfo,
-  );
+  const totalAmount = useSelector((state: RootState) => state.cart.total);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
-
-  // Obliczanie całkowitej ceny
-  const totalPrice = cartItems.reduce(
-    (total: number, item: CartItem) =>
-      total + parseFloat(item.amount) * item.quantity,
-    0,
-  );
 
   // Obsługa zmiany ilości produktu
   const handleQuantityChange = (id: string, newQuantity: number) => {
@@ -52,16 +28,11 @@ const CartPage = () => {
 
   // Obsługa usuwania produktu
   const handleRemoveItem = (id: string) => {
-    dispatch(removeItem(id));
+    dispatch(removeFromCart(id));
   };
 
   // Obsługa procesu płatności
   const handleCheckout = async () => {
-    if (!customerInfo) {
-      setError('Proszę uzupełnić dane kontaktowe przed płatnością');
-      return;
-    }
-
     setIsProcessing(true);
     setError(null);
 
@@ -77,15 +48,14 @@ const CartPage = () => {
             price_data: {
               currency: 'pln',
               product_data: {
-                name: item.productName,
-                description: `Wymiary: ${item.width}cm × ${item.height}cm`,
+                name: item.name,
+                description: `Wymiary: ${item.options.width}cm × ${item.options.height}cm`,
               },
-              unit_amount: Math.round(parseFloat(item.amount) * 100),
+              unit_amount: Math.round(item.price * 100),
             },
             quantity: item.quantity,
           })),
-          customer: customerInfo,
-          total: totalPrice,
+          total: totalAmount,
         }),
       });
 
@@ -144,7 +114,7 @@ const CartPage = () => {
         </div>
 
         {/* Lista produktów */}
-        {cartItems.map((item: CartItem) => (
+        {cartItems.map((item) => (
           <div
             key={item.id}
             className='grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border-b border-gray-200'
@@ -152,11 +122,11 @@ const CartPage = () => {
             {/* Nazwa produktu */}
             <div className='col-span-5 flex flex-col'>
               <span className='font-medium text-[var(--deep-navy)]'>
-                {item.productName}
+                {item.name}
               </span>
               <span className='text-sm text-gray-500'>
-                {item.width && item.height
-                  ? `${item.width} cm × ${item.height} cm`
+                {item.options.width && item.options.height
+                  ? `${item.options.width} cm × ${item.options.height} cm`
                   : ''}
               </span>
             </div>
@@ -164,7 +134,7 @@ const CartPage = () => {
             {/* Cena jednostkowa */}
             <div className='col-span-2 text-center flex md:block items-center'>
               <span className='md:hidden font-medium mr-2'>Cena:</span>
-              <span>{parseFloat(item.amount).toFixed(2)} zł</span>
+              <span>{item.price.toFixed(2)} zł</span>
             </div>
 
             {/* Kontrolka ilości */}
@@ -197,7 +167,7 @@ const CartPage = () => {
               <span className='md:hidden font-medium'>Wartość:</span>
               <div className='flex items-center justify-end'>
                 <span className='font-medium mr-4'>
-                  {(parseFloat(item.amount) * item.quantity).toFixed(2)} zł
+                  {(item.price * item.quantity).toFixed(2)} zł
                 </span>
                 <button
                   onClick={() => handleRemoveItem(item.id)}
@@ -226,7 +196,7 @@ const CartPage = () => {
           <div className='flex justify-between items-center mb-2'>
             <span className='font-medium'>Podsumowanie</span>
             <span className='font-bold text-lg text-[var(--deep-navy)]'>
-              {totalPrice.toFixed(2)} zł
+              {totalAmount.toFixed(2)} zł
             </span>
           </div>
           <div className='text-sm text-gray-500 mb-4'>
@@ -249,47 +219,28 @@ const CartPage = () => {
           <div className='mb-4 md:mb-0 md:mr-4 text-center md:text-left'>
             <p className='text-sm text-gray-600'>Akceptujemy:</p>
             <div className='flex space-x-2 mt-2'>
-              <span className='bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs'>
-                BLIK
-              </span>
-              <span className='bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs'>
-                Visa
-              </span>
-              <span className='bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs'>
-                MasterCard
-              </span>
-              <span className='bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs'>
-                Przelew
-              </span>
+              <img src='/images/visa.svg' alt='Visa' className='h-8' />
+              <img
+                src='/images/mastercard.svg'
+                alt='Mastercard'
+                className='h-8'
+              />
+              <img src='/images/blik.svg' alt='BLIK' className='h-8' />
             </div>
           </div>
           <button
             onClick={handleCheckout}
             disabled={isProcessing}
-            className={`w-full md:w-auto mt-4 md:mt-0 px-6 py-3 rounded-md font-bold text-white ${
-              isProcessing
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[var(--gold)] hover:bg-[var(--deep-gold)] transition-colors'
-            }`}
+            className='w-full md:w-auto py-3 px-8 bg-[var(--gold)] text-white rounded-md hover:bg-[var(--deep-gold)] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed'
           >
             {isProcessing ? 'Przetwarzanie...' : 'Przejdź do płatności'}
           </button>
         </div>
         {error && (
-          <div className='mt-4 p-4 bg-red-50 text-red-600 rounded-md'>
+          <div className='mt-4 p-3 bg-red-100 text-red-700 rounded-md'>
             {error}
           </div>
         )}
-      </div>
-
-      {/* Link powrotu do sklepu */}
-      <div className='mt-8 text-center'>
-        <Link
-          href='/'
-          className='text-[var(--deep-navy)] hover:text-[var(--gold)] transition-colors'
-        >
-          ← Wróć do sklepu
-        </Link>
       </div>
     </div>
   );
