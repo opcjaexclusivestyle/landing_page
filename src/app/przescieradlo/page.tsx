@@ -1,0 +1,460 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { addItem } from '../../redux/cartSlice';
+import { v4 as uuidv4 } from 'uuid';
+import Link from 'next/link';
+import Image from 'next/image';
+import SimpleHeader from '../components/SimpleHeader';
+
+type ColorOption = 'white' | 'beige' | 'silver' | 'black';
+
+// Zdefiniowane gotowe zestawy pościeli (poszwa + poszewka) z cenami
+const beddingSets = [
+  {
+    id: 1,
+    label: '135x200 + 50x60',
+    beddingSize: '135x200',
+    pillowSize: '50x60',
+    price: 195.99,
+  },
+  {
+    id: 2,
+    label: '140x200 + 70x80',
+    beddingSize: '140x200',
+    pillowSize: '70x80',
+    price: 199.99,
+  },
+  {
+    id: 3,
+    label: '150x200 + 50x60',
+    beddingSize: '150x200',
+    pillowSize: '50x60',
+    price: 215.15,
+  },
+  {
+    id: 4,
+    label: '160x200 + 70x80',
+    beddingSize: '160x200',
+    pillowSize: '70x80',
+    price: 227.22,
+  },
+  {
+    id: 5,
+    label: '180x200 + 70x80',
+    beddingSize: '180x200',
+    pillowSize: '70x80',
+    price: 259.9,
+  },
+  {
+    id: 6,
+    label: '200x200 + 50x60',
+    beddingSize: '200x200',
+    pillowSize: '50x60',
+    price: 290.99,
+  },
+  {
+    id: 7,
+    label: '220x200 + 70x80',
+    beddingSize: '220x200',
+    pillowSize: '70x80',
+    price: 316.0,
+  },
+  {
+    id: 8,
+    label: '240x220 + 70x80',
+    beddingSize: '240x220',
+    pillowSize: '70x80',
+    price: 345.0,
+  },
+];
+
+// Cennik prześcieradeł
+const sheetPrices = {
+  '135x200': 91.0,
+  '140x200': 94.25,
+  '150x200': 199.9,
+  '160x200': 107.25,
+  '180x200': 120.25,
+  '200x200': 133.25,
+  '220x200': 146.25,
+  '240x220': 159.25,
+};
+
+// Dostępne rozmiary prześcieradeł
+const availableSheetSizes = Object.keys(sheetPrices);
+
+// Ścieżki obrazów dla różnych kolorów
+const colorImages = {
+  white: [
+    '/images/linen/white_1.jpg',
+    '/images/linen/white_6.jpg',
+    '/images/linen/white_7.jpg',
+    '/images/linen/white_9.jpg',
+  ],
+  beige: [
+    '/images/linen/beige_11.jpg',
+    '/images/linen/beige_14.jpg',
+    '/images/linen/beige_16.jpg',
+    '/images/linen/beige_19.jpg',
+  ],
+  silver: [
+    '/images/linen/silver_22.jpg',
+    '/images/linen/silver_24.jpg',
+    '/images/linen/silver_26.jpg',
+    '/images/linen/silver_28.jpg',
+  ],
+  black: [
+    '/images/linen/black_30.jpg',
+    '/images/linen/black_32.jpg',
+    '/images/linen/black_34.jpg',
+    '/images/linen/black_36.jpg',
+  ],
+};
+
+export default function PrzescieradloPage() {
+  const dispatch = useDispatch();
+  const [selectedSet, setSelectedSet] = useState(beddingSets[0]);
+  const [includeSheet, setIncludeSheet] = useState(false);
+  const [selectedSheetSize, setSelectedSheetSize] = useState(
+    availableSheetSizes[0],
+  );
+  const [selectedColor, setSelectedColor] = useState<ColorOption>('beige');
+  const [mainImage, setMainImage] = useState<string>(colorImages.beige[0]);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+
+  // Aktualizacja głównego obrazu po zmianie koloru
+  useEffect(() => {
+    setMainImage(colorImages[selectedColor][0]);
+  }, [selectedColor]);
+
+  // Aktualizacja domyślnego rozmiaru prześcieradła na podstawie wybranego rozmiaru pościeli
+  useEffect(() => {
+    if (selectedSet && availableSheetSizes.includes(selectedSet.beddingSize)) {
+      setSelectedSheetSize(selectedSet.beddingSize);
+    }
+  }, [selectedSet]);
+
+  // Obliczanie całkowitej ceny
+  const calculateTotalPrice = () => {
+    const beddingPrice = selectedSet.price;
+    const sheetPrice = includeSheet
+      ? sheetPrices[selectedSheetSize as keyof typeof sheetPrices]
+      : 0;
+    return (beddingPrice + sheetPrice) * quantity;
+  };
+
+  const totalPrice = calculateTotalPrice();
+
+  // Funkcja do dodania produktu do koszyka
+  const handleAddToCart = () => {
+    const colorLabel =
+      selectedColor === 'white'
+        ? 'biała'
+        : selectedColor === 'beige'
+        ? 'beżowa'
+        : selectedColor === 'silver'
+        ? 'srebrna'
+        : 'czarna';
+
+    const productName = `Pościel adamaszkowa SAN ANTONIO – ${colorLabel}`;
+
+    const details = [
+      `Komplet: poszwa ${selectedSet.beddingSize} i poszewka ${selectedSet.pillowSize}`,
+      includeSheet ? `Prześcieradło bez gumki ${selectedSheetSize}` : '',
+    ]
+      .filter(Boolean)
+      .join(', ');
+
+    dispatch(
+      addItem({
+        id: uuidv4(),
+        productName: `${productName} (${details})`,
+        width: selectedSet.beddingSize.split('x')[0],
+        height: selectedSet.beddingSize.split('x')[1],
+        amount: totalPrice.toFixed(2),
+        quantity: quantity,
+      }),
+    );
+
+    setIsAddedToCart(true);
+
+    // Resetowanie komunikatu po 3 sekundach
+    setTimeout(() => {
+      setIsAddedToCart(false);
+    }, 3000);
+  };
+
+  return (
+    <>
+      <SimpleHeader
+        videoSrc='/video/bedding.mp4'
+        title='Pościel i Prześcieradła'
+        subtitle='Komfort i elegancja'
+        description='Odkryj naszą kolekcję luksusowej pościeli'
+        height='60vh'
+      />
+
+      <div className='min-h-screen py-10 px-4 md:px-8 lg:px-16 bg-[var(--light-gold)]'>
+        {/* Nagłówek z przyciskiem powrotu */}
+        <div className='mb-8 flex justify-between items-center'>
+          <Link
+            href='/'
+            className='text-gray-600 hover:text-gray-800 transition-colors duration-300'
+          >
+            &larr; Powrót do strony głównej
+          </Link>
+          <h2 className='text-3xl md:text-4xl font-light text-gray-800'>
+            Pościel i Prześcieradła
+          </h2>
+          <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
+        </div>
+
+        <div className='max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 my-8'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+            {/* Lewa strona - Galeria */}
+            <div className='space-y-4'>
+              {/* Główny obraz */}
+              <div className='relative h-[400px] w-full rounded-lg overflow-hidden border border-gray-200'>
+                <Image
+                  src={mainImage}
+                  alt='Pościel'
+                  fill
+                  className='object-cover'
+                  priority
+                />
+              </div>
+
+              {/* Miniatury zdjęć */}
+              <div className='grid grid-cols-4 gap-2'>
+                {colorImages[selectedColor].map((img, idx) => (
+                  <div
+                    key={idx}
+                    className={`relative h-20 cursor-pointer rounded overflow-hidden border-2 ${
+                      mainImage === img
+                        ? 'border-[var(--gold)]'
+                        : 'border-gray-200'
+                    }`}
+                    onClick={() => setMainImage(img)}
+                  >
+                    <Image
+                      src={img}
+                      alt={`Pościel miniatura ${idx + 1}`}
+                      fill
+                      className='object-cover'
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Wybór koloru */}
+              <div className='mt-4'>
+                <h3 className='text-sm font-medium text-gray-700 mb-2'>
+                  Wybierz kolor:
+                </h3>
+                <div className='flex space-x-3'>
+                  <button
+                    className={`w-8 h-8 rounded-full bg-white border ${
+                      selectedColor === 'white'
+                        ? 'ring-2 ring-[var(--gold)]'
+                        : 'border-gray-300'
+                    }`}
+                    onClick={() => setSelectedColor('white')}
+                    aria-label='Biały'
+                  />
+                  <button
+                    className={`w-8 h-8 rounded-full bg-[#E8DCCA] border ${
+                      selectedColor === 'beige'
+                        ? 'ring-2 ring-[var(--gold)]'
+                        : 'border-gray-300'
+                    }`}
+                    onClick={() => setSelectedColor('beige')}
+                    aria-label='Beżowy'
+                  />
+                  <button
+                    className={`w-8 h-8 rounded-full bg-[#C0C0C0] border ${
+                      selectedColor === 'silver'
+                        ? 'ring-2 ring-[var(--gold)]'
+                        : 'border-gray-300'
+                    }`}
+                    onClick={() => setSelectedColor('silver')}
+                    aria-label='Srebrny'
+                  />
+                  <button
+                    className={`w-8 h-8 rounded-full bg-[#333333] border ${
+                      selectedColor === 'black'
+                        ? 'ring-2 ring-[var(--gold)]'
+                        : 'border-gray-300'
+                    }`}
+                    onClick={() => setSelectedColor('black')}
+                    aria-label='Czarny'
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Prawa strona - Informacje o produkcie i formularz */}
+            <div className='space-y-6'>
+              <h1 className='text-2xl font-bold text-[var(--deep-navy)]'>
+                Pościel adamaszkowa SAN ANTONIO –{' '}
+                {selectedColor === 'white'
+                  ? 'biała'
+                  : selectedColor === 'beige'
+                  ? 'beżowa'
+                  : selectedColor === 'silver'
+                  ? 'srebrna'
+                  : 'czarna'}
+              </h1>
+
+              <div className='text-xl font-semibold text-[var(--gold)]'>
+                {totalPrice.toFixed(2)} zł
+              </div>
+
+              <p className='text-gray-600'>
+                Luksusowa pościel adamaszkowa wykonana z najwyższej jakości
+                bawełny satynowej. Elegancki wzór i wykończenie zapewniają
+                zarówno estetykę, jak i komfort snu.
+              </p>
+
+              <div className='space-y-4'>
+                {/* Wybór zestawu pościeli */}
+                <div>
+                  <label className='block mb-2 font-medium text-gray-700'>
+                    Wybierz komplet:
+                  </label>
+                  <select
+                    value={selectedSet.id}
+                    onChange={(e) => {
+                      const setId = parseInt(e.target.value);
+                      const newSet = beddingSets.find(
+                        (set) => set.id === setId,
+                      );
+                      if (newSet) setSelectedSet(newSet);
+                    }}
+                    className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                  >
+                    {beddingSets.map((set) => (
+                      <option key={set.id} value={set.id}>
+                        {set.label} - {set.price.toFixed(2)} zł
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Opcja prześcieradła */}
+                <div>
+                  <div className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      id='includeSheet'
+                      checked={includeSheet}
+                      onChange={(e) => setIncludeSheet(e.target.checked)}
+                      className='h-4 w-4 text-[var(--gold)] focus:ring-[var(--gold)] border-gray-300 rounded'
+                    />
+                    <label
+                      htmlFor='includeSheet'
+                      className='ml-2 block text-gray-700'
+                    >
+                      Dodaj prześcieradło bez gumki
+                    </label>
+                  </div>
+
+                  {/* Wybór rozmiaru prześcieradła - pojawia się tylko gdy checkbox jest zaznaczony */}
+                  {includeSheet && (
+                    <div className='mt-3 ml-6'>
+                      <label className='block mb-2 text-sm text-gray-700'>
+                        Wybierz rozmiar prześcieradła:
+                      </label>
+                      <select
+                        value={selectedSheetSize}
+                        onChange={(e) => setSelectedSheetSize(e.target.value)}
+                        className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                      >
+                        {availableSheetSizes.map((size) => (
+                          <option key={size} value={size}>
+                            {size} (+
+                            {sheetPrices[
+                              size as keyof typeof sheetPrices
+                            ].toFixed(2)}{' '}
+                            zł)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Wybór ilości */}
+                <div>
+                  <label className='block mb-2 font-medium text-gray-700'>
+                    Ilość:
+                  </label>
+                  <div className='flex items-center'>
+                    <button
+                      className='px-3 py-1 border border-gray-300 rounded-l-md bg-gray-100'
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    >
+                      -
+                    </button>
+                    <input
+                      type='number'
+                      min='1'
+                      value={quantity}
+                      onChange={(e) =>
+                        setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+                      }
+                      className='w-16 text-center border-y border-gray-300 py-1'
+                    />
+                    <button
+                      className='px-3 py-1 border border-gray-300 rounded-r-md bg-gray-100'
+                      onClick={() => setQuantity(quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Przycisk dodania do koszyka */}
+                <div className='pt-4'>
+                  <button
+                    onClick={handleAddToCart}
+                    className='w-full bg-[var(--gold)] hover:bg-[var(--deep-gold)] text-white py-3 px-4 rounded-md transition-colors'
+                  >
+                    Dodaj do koszyka
+                  </button>
+
+                  {isAddedToCart && (
+                    <div className='mt-3 p-2 bg-green-100 text-green-700 text-center rounded-md'>
+                      Produkt dodany do koszyka!
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Szczegóły produktu */}
+              <div className='border-t border-gray-200 pt-4 mt-6'>
+                <h3 className='font-medium text-gray-800 mb-2'>
+                  Szczegóły produktu:
+                </h3>
+                <ul className='list-disc list-inside space-y-1 text-gray-600'>
+                  <li>Materiał: 100% bawełna satynowa</li>
+                  <li>Wzór: adamaszek</li>
+                  <li>Zapięcie: na zamek</li>
+                  <li>
+                    Zestaw zawiera: poszwę na kołdrę {selectedSet.beddingSize} i
+                    poszewkę na poduszkę {selectedSet.pillowSize}
+                    {includeSheet &&
+                      `, prześcieradło bez gumki ${selectedSheetSize}`}
+                  </li>
+                  <li>Możliwość prania w 60°C</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
