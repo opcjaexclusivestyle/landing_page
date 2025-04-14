@@ -213,7 +213,7 @@ export default function MainPageNavigation() {
             Komfort snu i elegancka oprawa Twojej sypialni.
           </p>
 
-          <Link href='/posciel' className='premium-button'>
+          <Link href='/przescieradlo' className='premium-button'>
             ODKRYJ KOMFORT
           </Link>
         </div>
