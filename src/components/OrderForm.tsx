@@ -7,6 +7,7 @@ import { setCustomerInfo } from '@/store/customerSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import productsConfig from '@/config/products.json';
+import { fetchCalculatorProducts, CalcProduct } from '@/lib/supabase';
 
 interface Product {
   name: string;
@@ -70,7 +71,8 @@ export default function OrderForm({
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [products, setProducts] = useState<Product[]>(productsConfig.products);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
 
@@ -82,8 +84,7 @@ export default function OrderForm({
     rodWidth: '',
     height: '',
     tapeType: TAPE_TYPES[0].id,
-    selectedProduct:
-      productName || (products.length > 0 ? products[0].name : ''),
+    selectedProduct: productName || '',
     selectedImageIndex: 0,
     street: '',
     houseNumber: '',
@@ -96,6 +97,65 @@ export default function OrderForm({
     productDetails: '',
     message: '',
   });
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setProductsLoading(true);
+        const productsData = await fetchCalculatorProducts();
+
+        console.log('Surowe dane produktów z bazy:', productsData);
+
+        // Sprawdźmy format obrazów
+        if (productsData.length > 0) {
+          console.log('Format danych obrazów:', {
+            product: productsData[0],
+          });
+        }
+
+        // Mapowanie pól z Supabase na interfejs Product
+        const mappedProducts: Product[] = productsData.map((product) => ({
+          name: product.name,
+          fabricPricePerMB:
+            product.fabricPricePerMB || product.fabric_price_per_mb || 0,
+          sewingPricePerMB:
+            product.sewingPricePerMB || product.sewing_price_per_mb || 0,
+          base: product.base,
+          imagePath: product.imagePath || product.image_path || '',
+          images: Array.isArray(product.images) ? product.images : [],
+        }));
+
+        console.log('Zmapowane produkty:', mappedProducts);
+        setProducts(mappedProducts);
+
+        // Jeśli nie ma aktualnie wybranego produktu, a mamy produkty, wybierz pierwszy
+        if (!formData.selectedProduct && mappedProducts.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            selectedProduct: mappedProducts[0].name,
+          }));
+        }
+      } catch (err) {
+        console.error('Błąd podczas ładowania produktów:', err);
+        setError('Nie udało się załadować produktów. Używam danych lokalnych.');
+
+        // Fallback do danych z pliku JSON - użyjemy ich bez modyfikacji
+        setProducts(productsConfig.products);
+
+        // Jeśli nie ma aktualnie wybranego produktu, wybierz pierwszy z fallbacku
+        if (!formData.selectedProduct && productsConfig.products.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            selectedProduct: productsConfig.products[0].name,
+          }));
+        }
+      } finally {
+        setProductsLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   // Znajdź aktualnie wybrany produkt
   const selectedProduct = products.find(
@@ -112,13 +172,13 @@ export default function OrderForm({
 
   useEffect(() => {
     // Ustawienie productName jako domyślnego produktu jeśli został przekazany
-    if (productName) {
+    if (productName && products.length > 0) {
       setFormData((prev) => ({
         ...prev,
         selectedProduct: productName,
       }));
     }
-  }, [productName]);
+  }, [productName, products]);
 
   const calculatePrice = () => {
     const rodWidth = parseFloat(formData.rodWidth) || 0;
@@ -144,7 +204,13 @@ export default function OrderForm({
     const sewingCostPerHalfMeter = SEWING_PRICE_PER_METER / 2;
     const sewingCost = halfMeters * sewingCostPerHalfMeter;
 
-    return Math.round(materialCost + sewingCost);
+    // Zaokrąglenie do 2 miejsc po przecinku
+    return Math.round((materialCost + sewingCost) * 100) / 100;
+  };
+
+  // Funkcja pomocnicza do formatowania kwoty
+  const formatPrice = (price: number) => {
+    return price.toFixed(2).replace('.', ',');
   };
 
   const handleChange = (
@@ -168,6 +234,13 @@ export default function OrderForm({
   };
 
   const openImageModal = (imageSrc: string) => {
+    console.log('Otwieranie modalu z obrazem:', imageSrc);
+
+    if (!imageSrc) {
+      console.error('Próba otwarcia modalu z pustym adresem obrazu');
+      return;
+    }
+
     setModalImageSrc(imageSrc);
     setShowImageModal(true);
   };
@@ -307,93 +380,136 @@ export default function OrderForm({
             <h2 className='text-xl font-light text-deep-navy mb-4'>
               Wybór produktu
             </h2>
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Typ materiału
-              </label>
-              <select
-                name='selectedProduct'
-                value={formData.selectedProduct}
-                onChange={handleChange}
-                className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                required
-              >
-                {products.map((product) => (
-                  <option key={product.name} value={product.name}>
-                    {product.name} - {(product.fabricPricePerMB / 2).toFixed(2)}{' '}
-                    zł/0,5mb
-                  </option>
-                ))}
-              </select>
-              {selectedProduct?.base && (
-                <p className='mt-1 text-sm text-gray-500'>
-                  Bazuje na: {selectedProduct.base}
-                </p>
-              )}
-            </div>
 
-            {/* Sekcja z miniaturkami materiałów */}
-            {selectedProduct && (
-              <div className='mt-4'>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  Przeglądaj materiał
-                </label>
-                <div className='flex space-x-2 mb-4'>
-                  {selectedProduct.images.map((img, index) => (
-                    <div
-                      key={index}
-                      className={`
-                        cursor-pointer border-2 rounded overflow-hidden w-16 h-16 relative
-                        ${
-                          formData.selectedImageIndex === index
-                            ? 'border-royal-gold'
-                            : 'border-gray-200'
-                        }
-                      `}
-                      onClick={() => handleThumbnailClick(index)}
-                    >
-                      <Image
-                        src={`${selectedProduct.imagePath}/${img}`}
-                        alt={`${selectedProduct.name} - miniatura ${index + 1}`}
-                        fill
-                        sizes='64px'
-                        className='object-cover'
-                        priority={index === 0}
-                        quality={60}
-                      />
-                    </div>
-                  ))}
+            {error && (
+              <div className='bg-red-50 text-red-700 p-4 rounded-lg mb-4'>
+                {error}
+              </div>
+            )}
+
+            {productsLoading ? (
+              <div className='flex items-center justify-center p-6'>
+                <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-royal-gold'></div>
+                <span className='ml-3 text-gray-600'>
+                  Ładowanie produktów...
+                </span>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Typ materiału
+                  </label>
+                  <select
+                    name='selectedProduct'
+                    value={formData.selectedProduct}
+                    onChange={handleChange}
+                    className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
+                    required
+                  >
+                    {products.map((product) => (
+                      <option key={product.name} value={product.name}>
+                        {product.name} -{' '}
+                        {formatPrice(product.fabricPricePerMB / 2)} zł/0,5mb
+                      </option>
+                    ))}
+                  </select>
+                  {selectedProduct?.base && (
+                    <p className='mt-1 text-sm text-gray-500'>
+                      Bazuje na: {selectedProduct.base}
+                    </p>
+                  )}
                 </div>
 
-                {selectedProduct.images.length > 0 && (
-                  <div
-                    className='relative w-full h-64 rounded-lg overflow-hidden cursor-pointer'
-                    onClick={() =>
-                      openImageModal(
-                        `${selectedProduct.imagePath}/${
-                          selectedProduct.images[formData.selectedImageIndex]
-                        }`,
-                      )
-                    }
-                  >
-                    <Image
-                      src={`${selectedProduct.imagePath}/${
-                        selectedProduct.images[formData.selectedImageIndex]
-                      }`}
-                      alt={`${selectedProduct.name} - duży podgląd`}
-                      fill
-                      sizes='(max-width: 768px) 100vw, 50vw'
-                      className='object-contain'
-                      quality={80}
-                      placeholder='blur'
-                      blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-                    />
-                    <div className='absolute bottom-2 right-2 bg-deep-navy/70 text-white text-xs px-2 py-1 rounded'>
-                      Kliknij, aby powiększyć
+                {/* Sekcja z miniaturkami materiałów */}
+                {selectedProduct &&
+                  selectedProduct.images &&
+                  Array.isArray(selectedProduct.images) &&
+                  selectedProduct.images.length > 0 && (
+                    <div className='mt-4'>
+                      <label className='block text-sm font-medium text-gray-700 mb-2'>
+                        Przeglądaj materiał
+                      </label>
+                      <div className='flex space-x-2 mb-4'>
+                        {selectedProduct.images.map((img, index) => {
+                          // Łączymy ścieżkę bazową z nazwą pliku
+                          const imageUrl = `${selectedProduct.imagePath}/${img}`;
+                          console.log(
+                            `Miniatura ${index + 1}, pełny URL:`,
+                            imageUrl,
+                          );
+
+                          return (
+                            <div
+                              key={index}
+                              className={`
+                              cursor-pointer border-2 rounded overflow-hidden w-16 h-16 relative
+                              ${
+                                formData.selectedImageIndex === index
+                                  ? 'border-royal-gold'
+                                  : 'border-gray-200'
+                              }
+                            `}
+                              onClick={() => handleThumbnailClick(index)}
+                            >
+                              <Image
+                                src={imageUrl}
+                                alt={`${selectedProduct.name} - miniatura ${
+                                  index + 1
+                                }`}
+                                fill
+                                sizes='64px'
+                                className='object-cover'
+                                priority={index === 0}
+                                quality={60}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {selectedProduct.images.length > 0 &&
+                        selectedProduct.images[formData.selectedImageIndex] && (
+                          <div
+                            className='relative w-full h-64 rounded-lg overflow-hidden cursor-pointer'
+                            onClick={() => {
+                              // Łączymy ścieżkę bazową z nazwą pliku dla modalu
+                              const currentImage = `${
+                                selectedProduct.imagePath
+                              }/${
+                                selectedProduct.images[
+                                  formData.selectedImageIndex
+                                ]
+                              }`;
+                              console.log(
+                                'Otwieranie modalu z obrazem:',
+                                currentImage,
+                              );
+                              openImageModal(currentImage);
+                            }}
+                          >
+                            <Image
+                              src={`${selectedProduct.imagePath}/${
+                                selectedProduct.images[
+                                  formData.selectedImageIndex
+                                ]
+                              }`}
+                              alt={`${selectedProduct.name} - duży podgląd`}
+                              fill
+                              sizes='(max-width: 768px) 100vw, 50vw'
+                              className='object-contain'
+                              quality={80}
+                              placeholder='blur'
+                              blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+                            />
+                            <div className='absolute bottom-2 right-2 bg-deep-navy/70 text-white text-xs px-2 py-1 rounded'>
+                              Kliknij, aby powiększyć
+                            </div>
+                          </div>
+                        )}
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+              </>
             )}
           </div>
 
@@ -469,8 +585,8 @@ export default function OrderForm({
                   </span>
                   <span className='font-medium'>
                     {selectedProduct
-                      ? `${(selectedProduct.fabricPricePerMB / 2).toFixed(
-                          2,
+                      ? `${formatPrice(
+                          selectedProduct.fabricPricePerMB / 2,
                         )} zł/0,5mb`
                       : '-'}
                   </span>
@@ -479,8 +595,8 @@ export default function OrderForm({
                   <span className='text-gray-600'>Koszt szycia (za 0,5m):</span>
                   <span className='font-medium'>
                     {selectedProduct
-                      ? `${(selectedProduct.sewingPricePerMB / 2).toFixed(
-                          2,
+                      ? `${formatPrice(
+                          selectedProduct.sewingPricePerMB / 2,
                         )} zł/0,5mb`
                       : '-'}
                   </span>
@@ -497,13 +613,13 @@ export default function OrderForm({
                   <span className='text-gray-600'>Ilość półmetrów:</span>
                   <span className='font-medium'>
                     {formData.rodWidth && formData.height
-                      ? `${(
+                      ? `${formatPrice(
                           ((parseFloat(formData.rodWidth) *
                             2 *
                             parseFloat(formData.height)) /
                             10000) *
-                          2
-                        ).toFixed(2)} x 0,5m²`
+                            2,
+                        )} x 0,5m²`
                       : '-'}
                   </span>
                 </div>
@@ -511,13 +627,13 @@ export default function OrderForm({
                   <span className='text-gray-600'>Koszt materiału:</span>
                   <span className='font-medium'>
                     {formData.rodWidth && formData.height && selectedProduct
-                      ? `${(
+                      ? `${formatPrice(
                           ((parseFloat(formData.rodWidth) *
                             2 *
                             parseFloat(formData.height)) /
                             10000) *
-                          selectedProduct.fabricPricePerMB
-                        ).toFixed(2)} zł`
+                            selectedProduct.fabricPricePerMB,
+                        )} zł`
                       : '-'}
                   </span>
                 </div>
@@ -525,13 +641,13 @@ export default function OrderForm({
                   <span className='text-gray-600'>Koszt szycia:</span>
                   <span className='font-medium'>
                     {formData.rodWidth && formData.height && selectedProduct
-                      ? `${(
+                      ? `${formatPrice(
                           ((parseFloat(formData.rodWidth) *
                             2 *
                             parseFloat(formData.height)) /
                             10000) *
-                          selectedProduct.sewingPricePerMB
-                        ).toFixed(2)} zł`
+                            selectedProduct.sewingPricePerMB,
+                        )} zł`
                       : '-'}
                   </span>
                 </div>
@@ -542,7 +658,7 @@ export default function OrderForm({
                     Razem:
                   </span>
                   <span className='text-xl font-bold text-deep-navy'>
-                    {calculatePrice()} zł
+                    {formatPrice(calculatePrice())} zł
                   </span>
                 </div>
               </div>
@@ -859,15 +975,30 @@ export default function OrderForm({
               </svg>
             </button>
             <div className='relative w-full h-full'>
-              <Image
-                src={modalImageSrc}
-                alt='Powiększony podgląd materiału'
-                fill
-                sizes='(max-width: 1200px) 100vw, 1200px'
-                className='object-contain'
-                quality={90}
-                priority
-              />
+              {/* Dodanie obsługi błędów ładowania obrazu */}
+              {modalImageSrc && (
+                <div className='relative w-full h-full'>
+                  <Image
+                    src={modalImageSrc}
+                    alt='Powiększony podgląd materiału'
+                    fill
+                    sizes='(max-width: 1200px) 100vw, 1200px'
+                    className='object-contain'
+                    quality={90}
+                    priority
+                    onError={(e) => {
+                      console.error('Błąd ładowania obrazu:', modalImageSrc);
+                      alert(`Nie można załadować obrazu: ${modalImageSrc}`);
+                      closeImageModal();
+                    }}
+                  />
+                </div>
+              )}
+              {!modalImageSrc && (
+                <div className='flex items-center justify-center w-full h-full text-white'>
+                  Nie można załadować obrazu
+                </div>
+              )}
             </div>
           </div>
         </div>

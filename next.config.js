@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['i.imgur.com', 'www.eurofirany.com.pl', 'placehold.co'],
+    domains: [
+      'i.imgur.com',
+      'www.eurofirany.com.pl',
+      'placehold.co',
+      'siyavnvmbwjhwgjwunjr.supabase.co',
+    ],
   },
   env: {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder',

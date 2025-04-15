@@ -1,0 +1,65 @@
+{
+  "products": [
+    {
+      "name": "Haftowana forycja",
+      "fabricPricePerMB": 60,
+      "sewingPricePerMB": 8,
+      "imagePath": "/images/calculator/haftowanaforsycja",
+      "images": [
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Haftowana forycja/1.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Haftowana forycja/2.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Haftowana forycja/3.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Haftowana forycja/4.webp"
+      ]
+    },
+    {
+      "name": "Gipiura w krawacie",
+      "fabricPricePerMB": 75,
+      "sewingPricePerMB": 8,
+      "imagePath": "/images/calculator/gipiurawkrawacie",
+      "images": [
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Gipiura w krawacie/1.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Gipiura w krawacie/2.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Gipiura w krawacie/3.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Gipiura w krawacie/4.webp"
+      ]
+    },
+    {
+      "name": "Kwiatowe Love",
+      "base": "Kwiaty żakardu",
+      "fabricPricePerMB": 83,
+      "sewingPricePerMB": 6,
+      "imagePath": "/images/calculator/kwiatowelove",
+      "images": [
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiatowe Love/1.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiatowe Love/2.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiatowe Love/3.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiatowe Love/4.webp"
+      ]
+    },
+    {
+      "name": "Kwiaty żakardu",
+      "fabricPricePerMB": 39.9,
+      "sewingPricePerMB": 8,
+      "imagePath": "/images/calculator/kwiatyakardu",
+      "images": [
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiaty żakardu/1.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiaty żakardu/2.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiaty żakardu/3.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Kwiaty żakardu/4.webp"
+      ]
+    },
+    {
+      "name": "Listkowa elegancja",
+      "fabricPricePerMB": 41.99,
+      "sewingPricePerMB": 8,
+      "imagePath": "/images/calculator/listkowaelegancja",
+      "images": [
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Listkowa elegancja/1.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Listkowa elegancja/2.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Listkowa elegancja/3.webp",
+        "https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/calculator/Listkowa elegancja/4.webp"
+      ]
+    }
+  ]
+}

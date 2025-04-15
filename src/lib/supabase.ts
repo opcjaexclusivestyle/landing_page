@@ -54,6 +54,21 @@ export interface TestimonialData {
   created_at: string;
 }
 
+// Interfejs dla produktów kalkulatora
+export interface CalcProduct {
+  id?: number | string;
+  name: string;
+  fabric_price_per_mb?: number;
+  fabricPricePerMB?: number;
+  sewing_price_per_mb?: number;
+  sewingPricePerMB?: number;
+  base?: string;
+  image_path?: string;
+  imagePath?: string;
+  images: string[];
+  created_at?: string;
+}
+
 // Pobierz wszystkie zatwierdzone opinie
 export async function fetchTestimonials(): Promise<Testimonial[]> {
   const { data, error } = await supabase
@@ -233,4 +248,43 @@ export async function testConnection() {
     console.error('Błąd podczas testowania połączenia:', error);
     return { error };
   }
+}
+
+// Funkcja do pobierania produktów do kalkulatora
+export async function fetchCalculatorProducts(): Promise<CalcProduct[]> {
+  console.log('Pobieranie produktów do kalkulatora...');
+
+  try {
+    const { data, error } = await supabase
+      .from('calculator_products')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Błąd podczas pobierania produktów do kalkulatora:', error);
+      throw new Error(`Błąd Supabase: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      console.warn('Brak produktów w bazie danych calculator_products');
+    } else {
+      console.log(`Pobrano ${data.length} produktów do kalkulatora`);
+
+      // Wyświetlamy surowe dane bez modyfikacji
+      data.forEach((product, index) => {
+        console.log(`Produkt #${index + 1}:`, product);
+      });
+    }
+
+    // Zwracamy dokładnie to, co przyszło z backendu
+    return data || [];
+  } catch (err) {
+    console.error('Wyjątek podczas pobierania produktów kalkulatora:', err);
+    throw err;
+  }
+}
+
+// Funkcja pomocnicza do tworzenia publicznych URL-i dla Supabase Storage
+export function getPublicStorageUrl(bucket: string, path: string): string {
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
