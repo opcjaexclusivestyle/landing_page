@@ -1,5 +1,5 @@
 {
-  "name": "Pościel adamaszkowa SAN ANTONIO",
+  "name": "Pościel sezamkowa SAN ANTONIO",
   "description": "Luksusowa pościel adamaszkowa wykonana z najwyższej jakości bawełny satynowej. Elegancki wzór i wykończenie zapewniają zarówno estetykę, jak i komfort snu.",
   "baseProduct": "bedding",
   "defaultColor": "beige",
@@ -7,7 +7,7 @@
   "colors": {
     "white": {
       "images": [
-        "/images/bedding/white/1.jpg",
+        "/images/linen/white_1.jpg",
         "/images/bedding/white/2.jpg",
         "/images/bedding/white/3.jpg",
         "/images/bedding/white/4.jpg"

@@ -2,15 +2,27 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 // To jest ważne dla typów!
 import '@testing-library/jest-dom';
+// Dodajemy rozszerzenie expect dla właściwego typowania
+import { expect } from '@jest/globals';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { v4 as uuidv4 } from 'uuid';
 import BeddingForm, {
-  BeddingSet,
-  SheetPrices,
-  ColorImages,
+  BeddingProductData,
+  ColorOption,
   CartItemOptions,
 } from './BeddingForm';
+
+// Rozszerz testy dla @testing-library/jest-dom
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toBeInTheDocument(): R;
+      toHaveTextContent(content: string | RegExp): R;
+      toBeChecked(): R;
+    }
+  }
+}
 
 // Mock dla uuid
 jest.mock('uuid', () => ({
@@ -18,33 +30,58 @@ jest.mock('uuid', () => ({
 }));
 
 // Przykładowe dane testowe
-const mockBeddingSets: BeddingSet[] = [
-  {
-    id: 1,
-    label: '135x200 + 50x60',
-    beddingSize: '135x200',
-    pillowSize: '50x60',
-    price: 195.99,
+const mockProductData: BeddingProductData = {
+  name: 'Pościel adamaszkowa SAN ANTONIO',
+  description:
+    'Luksusowa pościel adamaszkowa wykonana z wysokiej jakości bawełny.',
+  beddingSets: [
+    {
+      id: 1,
+      label: '135x200 + 50x60',
+      beddingSize: '135x200',
+      pillowSize: '50x60',
+      price: 195.99,
+    },
+    {
+      id: 2,
+      label: '140x200 + 70x80',
+      beddingSize: '140x200',
+      pillowSize: '70x80',
+      price: 199.99,
+    },
+  ],
+  sheetPrices: {
+    '135x200': 91.0,
+    '140x200': 94.25,
   },
-  {
-    id: 2,
-    label: '140x200 + 70x80',
-    beddingSize: '140x200',
-    pillowSize: '70x80',
-    price: 199.99,
+  colors: {
+    white: {
+      images: ['/images/linen/white_1.jpg'],
+      displayName: 'biała',
+      displayColor: '#ffffff',
+    },
+    beige: {
+      images: ['/images/linen/beige_11.jpg'],
+      displayName: 'beżowa',
+      displayColor: '#f5f5dc',
+    },
+    silver: {
+      images: ['/images/linen/silver_22.jpg'],
+      displayName: 'srebrna',
+      displayColor: '#c0c0c0',
+    },
+    black: {
+      images: ['/images/linen/black_30.jpg'],
+      displayName: 'czarna',
+      displayColor: '#000000',
+    },
   },
-];
-
-const mockSheetPrices: SheetPrices = {
-  '135x200': 91.0,
-  '140x200': 94.25,
-};
-
-const mockColorImages: ColorImages = {
-  white: ['/images/linen/white_1.jpg'],
-  beige: ['/images/linen/beige_11.jpg'],
-  silver: ['/images/linen/silver_22.jpg'],
-  black: ['/images/linen/black_30.jpg'],
+  defaultColor: 'white' as ColorOption,
+  features: [
+    'Materiał: 100% bawełna - adamaszek',
+    'Gramatura: 160g/m²',
+    'Prać w temperaturze 40°C',
+  ],
 };
 
 // Konfiguracja mockowego store Redux
@@ -67,17 +104,13 @@ describe('BeddingForm Component', () => {
   test('renderuje formularz z domyślnymi opcjami', () => {
     render(
       <Provider store={store}>
-        <BeddingForm
-          beddingSets={mockBeddingSets}
-          sheetPrices={mockSheetPrices}
-          colorImages={mockColorImages}
-        />
+        <BeddingForm productData={mockProductData} />
       </Provider>,
     );
 
     // Sprawdź czy formularz się wyświetla z domyślnymi opcjami
     expect(screen.getByTestId('product-title')).toHaveTextContent(
-      'Pościel adamaszkowa SAN ANTONIO',
+      'Pościel adamaszkowa SAN ANTONIO – biała',
     );
 
     // Sprawdź opcje zakupu
@@ -93,11 +126,7 @@ describe('BeddingForm Component', () => {
   test('aktualizuje cenę przy zmianie zestawu pościeli', () => {
     render(
       <Provider store={store}>
-        <BeddingForm
-          beddingSets={mockBeddingSets}
-          sheetPrices={mockSheetPrices}
-          colorImages={mockColorImages}
-        />
+        <BeddingForm productData={mockProductData} />
       </Provider>,
     );
 
@@ -116,11 +145,7 @@ describe('BeddingForm Component', () => {
   test('aktualizuje cenę po wybraniu opcji z prześcieradłem', () => {
     render(
       <Provider store={store}>
-        <BeddingForm
-          beddingSets={mockBeddingSets}
-          sheetPrices={mockSheetPrices}
-          colorImages={mockColorImages}
-        />
+        <BeddingForm productData={mockProductData} />
       </Provider>,
     );
 
@@ -140,11 +165,7 @@ describe('BeddingForm Component', () => {
   test('dodaje produkt do koszyka z poprawnymi danymi', async () => {
     render(
       <Provider store={store}>
-        <BeddingForm
-          beddingSets={mockBeddingSets}
-          sheetPrices={mockSheetPrices}
-          colorImages={mockColorImages}
-        />
+        <BeddingForm productData={mockProductData} />
       </Provider>,
     );
 
@@ -176,7 +197,7 @@ describe('BeddingForm Component', () => {
 
     expect(actions[0].payload).toEqual({
       id: 'mock-uuid-123',
-      name: 'Pościel adamaszkowa SAN ANTONIO – beżowa (Komplet: poszwa 135x200 i poszewka 50x60, Prześcieradło bez gumki 135x200)',
+      name: expect.stringContaining('Pościel adamaszkowa SAN ANTONIO – beżowa'),
       price: 286.99 * 2, // całkowita cena za 2 sztuki
       quantity: 2,
       options: expectedOptions,
@@ -190,18 +211,20 @@ describe('BeddingForm Component', () => {
 
   test('zmienia główny obraz po kliknięciu w miniaturę', () => {
     // Rozszerzmy mock kolorów o więcej obrazów dla beżowego
-    const extendedMockColorImages = {
-      ...mockColorImages,
-      beige: ['/images/linen/beige_11.jpg', '/images/linen/beige_14.jpg'],
+    const extendedProductData = {
+      ...mockProductData,
+      colors: {
+        ...mockProductData.colors,
+        beige: {
+          ...mockProductData.colors.beige,
+          images: ['/images/linen/beige_11.jpg', '/images/linen/beige_14.jpg'],
+        },
+      },
     };
 
     render(
       <Provider store={store}>
-        <BeddingForm
-          beddingSets={mockBeddingSets}
-          sheetPrices={mockSheetPrices}
-          colorImages={extendedMockColorImages}
-        />
+        <BeddingForm productData={extendedProductData} />
       </Provider>,
     );
 

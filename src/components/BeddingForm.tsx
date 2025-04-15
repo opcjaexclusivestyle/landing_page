@@ -47,27 +47,40 @@ export interface CartItemOptions {
   additionalOptions?: Record<string, string>;
 }
 
-interface BeddingFormProps {
+export interface BeddingProductData {
+  name: string;
+  description: string;
   beddingSets: BeddingSet[];
   sheetPrices: SheetPrices;
-  colorImages: ColorImages;
+  colors: {
+    [key: string]: {
+      images: string[];
+      displayName: string;
+      displayColor: string;
+    };
+  };
+  defaultColor: ColorOption;
+  features: string[];
   comments?: Comment[];
 }
 
-const BeddingForm: React.FC<BeddingFormProps> = ({
-  beddingSets,
-  sheetPrices,
-  colorImages,
-  comments = [],
-}) => {
+interface BeddingFormProps {
+  productData: BeddingProductData;
+}
+
+const BeddingForm: React.FC<BeddingFormProps> = ({ productData }) => {
   const dispatch = useDispatch();
-  const [selectedSet, setSelectedSet] = useState<BeddingSet>(beddingSets[0]);
+  const [selectedSet, setSelectedSet] = useState<BeddingSet>(
+    productData.beddingSets[0],
+  );
   const [includeSheet, setIncludeSheet] = useState(false);
   const [selectedSheetSize, setSelectedSheetSize] = useState<string>(
-    Object.keys(sheetPrices)[0],
+    Object.keys(productData.sheetPrices)[0],
   );
-  const [selectedColor, setSelectedColor] = useState<ColorOption>('beige');
-  const [mainImage, setMainImage] = useState<string>(colorImages.beige[0]);
+  const [selectedColor, setSelectedColor] = useState<ColorOption>(
+    productData.defaultColor,
+  );
+  const [mainImage, setMainImage] = useState<string>('');
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [purchaseType, setPurchaseType] =
@@ -76,20 +89,22 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
   const [hasCustomSize, setHasCustomSize] = useState(false);
   const [customerComment, setCustomerComment] = useState('');
 
-  // Aktualizacja głównego obrazu po zmianie koloru
+  // Ustawienie domyślnego obrazu po załadowaniu komponentu
   useEffect(() => {
-    setMainImage(colorImages[selectedColor][0]);
-  }, [selectedColor, colorImages]);
+    if (productData.colors[selectedColor]?.images?.length > 0) {
+      setMainImage(productData.colors[selectedColor].images[0]);
+    }
+  }, [selectedColor, productData.colors]);
 
   // Aktualizacja domyślnego rozmiaru prześcieradła na podstawie wybranego rozmiaru pościeli
   useEffect(() => {
     if (
       selectedSet &&
-      Object.keys(sheetPrices).includes(selectedSet.beddingSize)
+      Object.keys(productData.sheetPrices).includes(selectedSet.beddingSize)
     ) {
       setSelectedSheetSize(selectedSet.beddingSize);
     }
-  }, [selectedSet, sheetPrices]);
+  }, [selectedSet, productData.sheetPrices]);
 
   // Aktualizacja checkboxa prześcieradła na podstawie wybranego typu zakupu
   useEffect(() => {
@@ -103,10 +118,12 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
   // Obliczanie całkowitej ceny
   const calculateTotalPrice = () => {
     if (purchaseType === 'sheet-only') {
-      return sheetPrices[selectedSheetSize] * quantity;
+      return productData.sheetPrices[selectedSheetSize] * quantity;
     } else {
       const beddingPrice = selectedSet.price;
-      const sheetPrice = includeSheet ? sheetPrices[selectedSheetSize] || 0 : 0;
+      const sheetPrice = includeSheet
+        ? productData.sheetPrices[selectedSheetSize] || 0
+        : 0;
       return (beddingPrice + sheetPrice) * quantity;
     }
   };
@@ -115,14 +132,8 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
 
   // Funkcja do dodania produktu do koszyka
   const handleAddToCart = () => {
-    const colorLabel =
-      selectedColor === 'white'
-        ? 'biała'
-        : selectedColor === 'beige'
-        ? 'beżowa'
-        : selectedColor === 'silver'
-        ? 'srebrna'
-        : 'czarna';
+    const colorInfo = productData.colors[selectedColor];
+    const colorLabel = colorInfo.displayName;
 
     let productName = '';
     let details = '';
@@ -131,7 +142,7 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
       productName = `Prześcieradło adamaszkowe – ${colorLabel}`;
       details = `Rozmiar: ${selectedSheetSize}`;
     } else {
-      productName = `Pościel adamaszkowa SAN ANTONIO – ${colorLabel}`;
+      productName = `${productData.name} – ${colorLabel}`;
       details = [
         `Komplet: poszwa ${selectedSet.beddingSize} i poszewka ${selectedSet.pillowSize}`,
         includeSheet ? `Prześcieradło bez gumki ${selectedSheetSize}` : '',
@@ -256,19 +267,21 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
             className='relative h-[400px] w-full rounded-lg overflow-hidden border border-gray-200'
             data-testid='main-image-container'
           >
-            <Image
-              src={mainImage}
-              alt='Pościel'
-              fill
-              className='object-cover'
-              priority
-              data-testid='main-product-image'
-            />
+            {mainImage && (
+              <Image
+                src={mainImage}
+                alt='Pościel'
+                fill
+                className='object-cover'
+                priority
+                data-testid='main-product-image'
+              />
+            )}
           </div>
 
           {/* Miniatury zdjęć */}
           <div className='grid grid-cols-4 gap-2'>
-            {colorImages[selectedColor].map((img, idx) => (
+            {productData.colors[selectedColor]?.images.map((img, idx) => (
               <div
                 key={idx}
                 className={`relative h-20 cursor-pointer rounded overflow-hidden border-2 ${
@@ -293,46 +306,22 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
               Wybierz kolor:
             </h3>
             <div className='flex space-x-3'>
-              <button
-                className={`w-8 h-8 rounded-full bg-white border ${
-                  selectedColor === 'white'
-                    ? 'ring-2 ring-[var(--gold)]'
-                    : 'border-gray-300'
-                }`}
-                onClick={() => setSelectedColor('white')}
-                aria-label='Biały'
-                data-testid='color-white'
-              />
-              <button
-                className={`w-8 h-8 rounded-full bg-[#E8DCCA] border ${
-                  selectedColor === 'beige'
-                    ? 'ring-2 ring-[var(--gold)]'
-                    : 'border-gray-300'
-                }`}
-                onClick={() => setSelectedColor('beige')}
-                aria-label='Beżowy'
-                data-testid='color-beige'
-              />
-              <button
-                className={`w-8 h-8 rounded-full bg-[#C0C0C0] border ${
-                  selectedColor === 'silver'
-                    ? 'ring-2 ring-[var(--gold)]'
-                    : 'border-gray-300'
-                }`}
-                onClick={() => setSelectedColor('silver')}
-                aria-label='Srebrny'
-                data-testid='color-silver'
-              />
-              <button
-                className={`w-8 h-8 rounded-full bg-[#333333] border ${
-                  selectedColor === 'black'
-                    ? 'ring-2 ring-[var(--gold)]'
-                    : 'border-gray-300'
-                }`}
-                onClick={() => setSelectedColor('black')}
-                aria-label='Czarny'
-                data-testid='color-black'
-              />
+              {Object.entries(productData.colors).map(
+                ([colorKey, colorData]) => (
+                  <button
+                    key={colorKey}
+                    className={`w-8 h-8 rounded-full border ${
+                      selectedColor === colorKey
+                        ? 'ring-2 ring-[var(--gold)]'
+                        : 'border-gray-300'
+                    }`}
+                    onClick={() => setSelectedColor(colorKey as ColorOption)}
+                    aria-label={colorData.displayName}
+                    data-testid={`color-${colorKey}`}
+                    style={{ backgroundColor: colorData.displayColor }}
+                  />
+                ),
+              )}
             </div>
           </div>
         </div>
@@ -344,24 +333,8 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
             data-testid='product-title'
           >
             {purchaseType === 'sheet-only'
-              ? `Prześcieradło adamaszkowe – ${
-                  selectedColor === 'white'
-                    ? 'białe'
-                    : selectedColor === 'beige'
-                    ? 'beżowe'
-                    : selectedColor === 'silver'
-                    ? 'srebrne'
-                    : 'czarne'
-                }`
-              : `Pościel adamaszkowa SAN ANTONIO – ${
-                  selectedColor === 'white'
-                    ? 'biała'
-                    : selectedColor === 'beige'
-                    ? 'beżowa'
-                    : selectedColor === 'silver'
-                    ? 'srebrna'
-                    : 'czarna'
-                }`}
+              ? `Prześcieradło adamaszkowe – ${productData.colors[selectedColor]?.displayName}`
+              : `${productData.name} – ${productData.colors[selectedColor]?.displayName}`}
           </h1>
 
           <div
@@ -371,11 +344,7 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
             {totalPrice.toFixed(2)} zł
           </div>
 
-          <p className='text-gray-600'>
-            {purchaseType === 'sheet-only'
-              ? 'Luksusowe prześcieradło wykonane z najwyższej jakości bawełny satynowej. Eleganckie wykończenie zapewnia zarówno estetykę, jak i komfort użytkowania.'
-              : 'Luksusowa pościel adamaszkowa wykonana z najwyższej jakości bawełny satynowej. Elegancki wzór i wykończenie zapewniają zarówno estetykę, jak i komfort snu.'}
-          </p>
+          <p className='text-gray-600'>{productData.description}</p>
 
           <div className='space-y-4'>
             {/* Opcje zakupu */}
@@ -391,13 +360,15 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
                   value={selectedSet.id}
                   onChange={(e) => {
                     const setId = parseInt(e.target.value);
-                    const newSet = beddingSets.find((set) => set.id === setId);
+                    const newSet = productData.beddingSets.find(
+                      (set) => set.id === setId,
+                    );
                     if (newSet) setSelectedSet(newSet);
                   }}
                   className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
                   data-testid='bedding-set-select'
                 >
-                  {beddingSets.map((set) => (
+                  {productData.beddingSets.map((set) => (
                     <option
                       key={set.id}
                       value={set.id}
@@ -441,13 +412,14 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
                       className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
                       data-testid='sheet-size-select'
                     >
-                      {Object.keys(sheetPrices).map((size) => (
+                      {Object.keys(productData.sheetPrices).map((size) => (
                         <option
                           key={size}
                           value={size}
                           data-testid={`option-sheet-${size}`}
                         >
-                          {size} (+{sheetPrices[size].toFixed(2)} zł)
+                          {size} (+{productData.sheetPrices[size].toFixed(2)}{' '}
+                          zł)
                         </option>
                       ))}
                     </select>
@@ -468,13 +440,13 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
                   className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
                   data-testid='sheet-size-select'
                 >
-                  {Object.keys(sheetPrices).map((size) => (
+                  {Object.keys(productData.sheetPrices).map((size) => (
                     <option
                       key={size}
                       value={size}
                       data-testid={`option-sheet-${size}`}
                     >
-                      {size} ({sheetPrices[size].toFixed(2)} zł)
+                      {size} ({productData.sheetPrices[size].toFixed(2)} zł)
                     </option>
                   ))}
                 </select>
@@ -605,8 +577,11 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
               Szczegóły produktu:
             </h3>
             <ul className='list-disc list-inside space-y-1 text-gray-600'>
-              <li>Materiał: 100% bawełna satynowa</li>
-              <li>Wzór: adamaszek</li>
+              {productData.features.map((feature, index) => (
+                <li key={index} data-testid={`product-feature-${index}`}>
+                  {feature}
+                </li>
+              ))}
               {purchaseType !== 'sheet-only' && <li>Zapięcie: na zamek</li>}
               <li data-testid='product-details'>
                 {purchaseType === 'sheet-only'
@@ -620,7 +595,6 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
                          : ''
                      }`}
               </li>
-              <li>Możliwość prania w 60°C</li>
             </ul>
           </div>
         </div>
@@ -632,9 +606,9 @@ const BeddingForm: React.FC<BeddingFormProps> = ({
           Komentarze klientów
         </h2>
 
-        {comments.length > 0 ? (
+        {productData.comments && productData.comments.length > 0 ? (
           <div className='space-y-6'>
-            {comments.map((comment) => (
+            {productData.comments.map((comment) => (
               <div key={comment.id} className='border-b border-gray-200 pb-6'>
                 <div className='flex justify-between items-center mb-2'>
                   <div className='font-medium'>{comment.author}</div>

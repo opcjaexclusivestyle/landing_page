@@ -4,110 +4,67 @@ import React from 'react';
 import Link from 'next/link';
 import SimpleHeader from '../components/SimpleHeader';
 import BeddingForm, {
+  BeddingProductData,
+  ColorOption,
   BeddingSet,
-  SheetPrices,
-  ColorImages,
 } from '../../components/BeddingForm';
+import productDataJson from '../../data/productData.json';
 
-// Zdefiniowane gotowe zestawy pościeli (poszwa + poszewka) z cenami
-const beddingSets: BeddingSet[] = [
-  {
-    id: 1,
-    label: '135x200 + 50x60',
-    beddingSize: '135x200',
-    pillowSize: '50x60',
-    price: 195.99,
-  },
-  {
-    id: 2,
-    label: '140x200 + 70x80',
-    beddingSize: '140x200',
-    pillowSize: '70x80',
-    price: 199.99,
-  },
-  {
-    id: 3,
-    label: '150x200 + 50x60',
-    beddingSize: '150x200',
-    pillowSize: '50x60',
-    price: 215.15,
-  },
-  {
-    id: 4,
-    label: '160x200 + 70x80',
-    beddingSize: '160x200',
-    pillowSize: '70x80',
-    price: 227.22,
-  },
-  {
-    id: 5,
-    label: '180x200 + 70x80',
-    beddingSize: '180x200',
-    pillowSize: '70x80',
-    price: 259.9,
-  },
-  {
-    id: 6,
-    label: '200x200 + 50x60',
-    beddingSize: '200x200',
-    pillowSize: '50x60',
-    price: 290.99,
-  },
-  {
-    id: 7,
-    label: '220x200 + 70x80',
-    beddingSize: '220x200',
-    pillowSize: '70x80',
-    price: 316.0,
-  },
-  {
-    id: 8,
-    label: '240x220 + 70x80',
-    beddingSize: '240x220',
-    pillowSize: '70x80',
-    price: 345.0,
-  },
-];
+// Transformacja danych z JSON do formatu BeddingProductData
+const mapProductDataToBeddingForm = (): BeddingProductData => {
+  // Mapowanie wariantów z JSON na BeddingSets
+  const beddingSets: BeddingSet[] = productDataJson.variants.map((variant) => {
+    // Wyodrębniamy rozmiar poszwy i poszewki z opisu
+    const sizeParts = variant.additionalInfo.split(' i ');
+    const beddingSize = variant.size; // Z JSONa
+    const pillowSize =
+      sizeParts.length > 1
+        ? sizeParts[1]
+            .replace('poszewka ', '')
+            .replace('poszewki ', '')
+            .split(' ')[0]
+        : '70x80'; // Domyślny rozmiar, jeśli nie można wyodrębnić
 
-// Cennik prześcieradeł
-const sheetPrices: SheetPrices = {
-  '135x200': 91.0,
-  '140x200': 94.25,
-  '150x200': 199.9,
-  '160x200': 107.25,
-  '180x200': 120.25,
-  '200x200': 133.25,
-  '220x200': 146.25,
-  '240x220': 159.25,
+    return {
+      id: variant.id,
+      label: `${beddingSize} + ${pillowSize}`,
+      beddingSize: beddingSize,
+      pillowSize: pillowSize,
+      price: variant.price,
+    };
+  });
+
+  // Tworzymy cennik prześcieradeł z opcji dodatkowych
+  const sheetOption = productDataJson.additionalOptions.find(
+    (option) => option.name === 'sheet',
+  );
+  const sheetPrices = sheetOption?.sizes || {};
+
+  // Mapowanie kolorów
+  const colors = Object.entries(productDataJson.colors).reduce(
+    (acc, [colorKey, colorData]) => {
+      acc[colorKey] = {
+        images: colorData.images,
+        displayName: colorData.displayName,
+        displayColor: colorData.displayColor,
+      };
+      return acc;
+    },
+    {} as BeddingProductData['colors'],
+  );
+
+  return {
+    name: productDataJson.name,
+    description: productDataJson.description,
+    beddingSets: beddingSets,
+    sheetPrices: sheetPrices,
+    colors: colors,
+    defaultColor: productDataJson.defaultColor as ColorOption,
+    features: productDataJson.features,
+  };
 };
 
-// Ścieżki obrazów dla różnych kolorów
-const colorImages: ColorImages = {
-  white: [
-    '/images/linen/white_1.jpg',
-    '/images/linen/white_6.jpg',
-    '/images/linen/white_7.jpg',
-    '/images/linen/white_9.jpg',
-  ],
-  beige: [
-    '/images/linen/beige_11.jpg',
-    '/images/linen/beige_14.jpg',
-    '/images/linen/beige_16.jpg',
-    '/images/linen/beige_19.jpg',
-  ],
-  silver: [
-    '/images/linen/silver_22.jpg',
-    '/images/linen/silver_24.jpg',
-    '/images/linen/silver_26.jpg',
-    '/images/linen/silver_28.jpg',
-  ],
-  black: [
-    '/images/linen/black_30.jpg',
-    '/images/linen/black_32.jpg',
-    '/images/linen/black_34.jpg',
-    '/images/linen/black_36.jpg',
-  ],
-};
+const productData = mapProductDataToBeddingForm();
 
 export default function PrzescieradloPage() {
   return (
@@ -136,12 +93,8 @@ export default function PrzescieradloPage() {
         </div>
 
         <div className='max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 my-8'>
-          {/* Komponent formularza pościeli */}
-          <BeddingForm
-            beddingSets={beddingSets}
-            sheetPrices={sheetPrices}
-            colorImages={colorImages}
-          />
+          {/* Komponent formularza pościeli z danymi z pliku JSON */}
+          <BeddingForm productData={productData} />
         </div>
       </div>
     </>
