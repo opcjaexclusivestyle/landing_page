@@ -9,6 +9,7 @@ import BeddingForm, {
   BeddingSet,
   SheetPrices,
   ColorImages,
+  CartItemOptions,
 } from './BeddingForm';
 
 // Mock dla uuid
@@ -78,8 +79,15 @@ describe('BeddingForm Component', () => {
     expect(screen.getByTestId('product-title')).toHaveTextContent(
       'Pościel adamaszkowa SAN ANTONIO',
     );
+
+    // Sprawdź opcje zakupu
+    expect(screen.getByTestId('bedding-with-sheet-radio')).toBeChecked();
+
+    // Zmień na opcję "Tylko pościel"
+    fireEvent.click(screen.getByLabelText('Tylko pościel'));
+
+    // Teraz cena powinna być za samą pościel (bez prześcieradła)
     expect(screen.getByTestId('product-price')).toHaveTextContent('195.99 zł');
-    expect(screen.getByTestId('bedding-set-select')).toBeInTheDocument();
   });
 
   test('aktualizuje cenę przy zmianie zestawu pościeli', () => {
@@ -93,6 +101,9 @@ describe('BeddingForm Component', () => {
       </Provider>,
     );
 
+    // Przełącz na opcję "Tylko pościel"
+    fireEvent.click(screen.getByLabelText('Tylko pościel'));
+
     // Zmień zestaw pościeli
     fireEvent.change(screen.getByTestId('bedding-set-select'), {
       target: { value: '2' },
@@ -102,7 +113,7 @@ describe('BeddingForm Component', () => {
     expect(screen.getByTestId('product-price')).toHaveTextContent('199.99 zł');
   });
 
-  test('aktualizuje cenę po dodaniu prześcieradła', () => {
+  test('aktualizuje cenę po wybraniu opcji z prześcieradłem', () => {
     render(
       <Provider store={store}>
         <BeddingForm
@@ -113,11 +124,14 @@ describe('BeddingForm Component', () => {
       </Provider>,
     );
 
-    // Sprawdź początkową cenę
+    // Najpierw przełącz na opcję "Tylko pościel"
+    fireEvent.click(screen.getByLabelText('Tylko pościel'));
+
+    // Sprawdź początkową cenę (tylko pościel)
     expect(screen.getByTestId('product-price')).toHaveTextContent('195.99 zł');
 
-    // Dodaj prześcieradło
-    fireEvent.click(screen.getByTestId('sheet-checkbox'));
+    // Zmień na opcję "Pościel z prześcieradłem"
+    fireEvent.click(screen.getByLabelText('Pościel z prześcieradłem'));
 
     // Sprawdź czy cena zawiera teraz również prześcieradło (195.99 + 91.0)
     expect(screen.getByTestId('product-price')).toHaveTextContent('286.99 zł');
@@ -137,9 +151,6 @@ describe('BeddingForm Component', () => {
     // Wybierz kolor
     fireEvent.click(screen.getByTestId('color-beige'));
 
-    // Dodaj prześcieradło
-    fireEvent.click(screen.getByTestId('sheet-checkbox'));
-
     // Ustaw ilość
     const quantityInput = screen.getByTestId('quantity-input');
     fireEvent.change(quantityInput, { target: { value: '2' } });
@@ -150,15 +161,25 @@ describe('BeddingForm Component', () => {
     // Sprawdź czy akcja została wysłana do store'a
     const actions = store.getActions();
     expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('cart/addItem');
-    expect(actions[0].payload).toEqual({
-      id: 'mock-uuid-123',
-      productName:
-        'Pościel adamaszkowa SAN ANTONIO – beżowa (Komplet: poszwa 135x200 i poszewka 50x60, Prześcieradło bez gumki 135x200)',
+    expect(actions[0].type).toBe('cart/addToCart');
+
+    const expectedOptions: CartItemOptions = {
       width: '135',
       height: '200',
-      amount: '573.98',
+      embroidery: false,
+      curtainRod: false,
+      purchaseType: 'bedding-with-sheet',
+      color: 'beige',
+      customSize: null,
+      comment: null,
+    };
+
+    expect(actions[0].payload).toEqual({
+      id: 'mock-uuid-123',
+      name: 'Pościel adamaszkowa SAN ANTONIO – beżowa (Komplet: poszwa 135x200 i poszewka 50x60, Prześcieradło bez gumki 135x200)',
+      price: 286.99 * 2, // całkowita cena za 2 sztuki
       quantity: 2,
+      options: expectedOptions,
     });
 
     // Sprawdź czy pojawia się komunikat o dodaniu do koszyka

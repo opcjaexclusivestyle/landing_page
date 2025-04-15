@@ -1,0 +1,95 @@
+{
+  "name": "Pościel adamaszkowa SAN ANTONIO",
+  "description": "Luksusowa pościel adamaszkowa wykonana z najwyższej jakości bawełny satynowej. Elegancki wzór i wykończenie zapewniają zarówno estetykę, jak i komfort snu.",
+  "baseProduct": "bedding",
+  "defaultColor": "beige",
+  "defaultVariant": 1,
+  "colors": {
+    "white": {
+      "images": [
+        "/images/bedding/white/1.jpg",
+        "/images/bedding/white/2.jpg",
+        "/images/bedding/white/3.jpg",
+        "/images/bedding/white/4.jpg"
+      ],
+      "displayName": "biała",
+      "code": "white",
+      "displayColor": "#FFFFFF"
+    },
+    "beige": {
+      "images": [
+        "/images/bedding/beige/1.jpg",
+        "/images/bedding/beige/2.jpg",
+        "/images/bedding/beige/3.jpg",
+        "/images/bedding/beige/4.jpg"
+      ],
+      "displayName": "beżowa",
+      "code": "beige",
+      "displayColor": "#E8DCCA"
+    },
+    "silver": {
+      "images": [
+        "/images/bedding/silver/1.jpg",
+        "/images/bedding/silver/2.jpg",
+        "/images/bedding/silver/3.jpg",
+        "/images/bedding/silver/4.jpg"
+      ],
+      "displayName": "srebrna",
+      "code": "silver",
+      "displayColor": "#C0C0C0"
+    },
+    "black": {
+      "images": [
+        "/images/bedding/black/1.jpg",
+        "/images/bedding/black/2.jpg",
+        "/images/bedding/black/3.jpg",
+        "/images/bedding/black/4.jpg"
+      ],
+      "displayName": "czarna",
+      "code": "black",
+      "displayColor": "#333333"
+    }
+  },
+  "variants": [
+    {
+      "id": 1,
+      "label": "Komplet pojedynczy",
+      "size": "160x200",
+      "additionalInfo": "Poszwa 160x200 i poszewka 70x80",
+      "price": 299.99
+    },
+    {
+      "id": 2,
+      "label": "Komplet podwójny",
+      "size": "200x220",
+      "additionalInfo": "Poszwa 200x220 i dwie poszewki 70x80",
+      "price": 349.99
+    },
+    {
+      "id": 3,
+      "label": "Komplet premium",
+      "size": "240x260",
+      "additionalInfo": "Poszwa 240x260 i dwie poszewki 70x80",
+      "price": 399.99
+    }
+  ],
+  "additionalOptions": [
+    {
+      "name": "sheet",
+      "label": "Prześcieradło bez gumki",
+      "pricingKey": "sheet",
+      "sizes": {
+        "160x200": 79.99,
+        "200x220": 99.99,
+        "240x260": 119.99
+      }
+    }
+  ],
+  "features": [
+    "Materiał: 100% bawełna satynowa",
+    "Wzór: adamaszek",
+    "Zapięcie: na zamek",
+    "Możliwość prania w 60°C",
+    "Wyprodukowano w UE"
+  ]
+}

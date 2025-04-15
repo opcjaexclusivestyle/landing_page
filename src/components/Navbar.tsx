@@ -89,7 +89,7 @@ export default function Navbar() {
                 href='/przescieradlo'
                 className='text-gray-700 hover:text-[var(--gold)] transition-colors'
               >
-                Prześcieradło
+                Pościel
               </Link>
               <Link
                 href='/rolety'
@@ -226,7 +226,7 @@ export default function Navbar() {
               className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
               onClick={() => setIsMenuOpen(false)}
             >
-              Prześcieradło
+              Pościel
             </Link>
             <Link
               href='/rolety'
