@@ -43,6 +43,8 @@ export interface CartItemOptions {
   color?: ColorOption;
   customSize?: string | null;
   comment?: string | null;
+  variant?: number;
+  additionalOptions?: Record<string, string>;
 }
 
 interface BeddingFormProps {

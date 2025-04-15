@@ -5,9 +5,10 @@ import { useDispatch } from 'react-redux';
 import { addToCart } from '@/store/cartSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
+import { CartItemOptions } from './BeddingForm';
 
 // Typy
-export type ColorOption = string;
+export type ProductColorOption = string;
 
 export interface ProductVariant {
   id: number;
@@ -75,7 +76,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productData }) => {
       {},
     ),
   );
-  const [selectedColor, setSelectedColor] = useState<ColorOption>(
+  const [selectedColor, setSelectedColor] = useState<ProductColorOption>(
     productData.defaultColor,
   );
   const [mainImage, setMainImage] = useState<string>(
@@ -146,6 +147,31 @@ const ProductForm: React.FC<ProductFormProps> = ({ productData }) => {
       .filter(Boolean)
       .join(', ');
 
+    const additionalOptionsObject = Object.entries(additionalOptions)
+      .filter(([_, optionState]) => optionState.enabled)
+      .reduce(
+        (acc, [name, optionState]) => ({
+          ...acc,
+          [name]: optionState.selectedSize,
+        }),
+        {},
+      );
+
+    const options: CartItemOptions = {
+      width: selectedVariant.size.split('x')[0],
+      height: selectedVariant.size.split('x')[1],
+      embroidery: false,
+      curtainRod: false,
+      additionalOptions: additionalOptionsObject,
+    };
+
+    // Dodajemy wariant jako opcję do przekazania
+    if (selectedVariant) {
+      options.variant = selectedVariant.id;
+    }
+
+    // Dodajemy kolor jako string, ponieważ CartItemOptions.color oczekuje typu ColorOption lub undefined
+    // ale nie możemy bezpośrednio przypisać stringa do tego typu
     dispatch(
       addToCart({
         id: uuidv4(),
@@ -154,23 +180,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productData }) => {
         }`,
         price: totalPrice,
         quantity: quantity,
-        options: {
-          color: selectedColor,
-          variant: selectedVariant.id,
-          additionalOptions: Object.entries(additionalOptions)
-            .filter(([_, optionState]) => optionState.enabled)
-            .reduce(
-              (acc, [name, optionState]) => ({
-                ...acc,
-                [name]: optionState.selectedSize,
-              }),
-              {},
-            ),
-          width: selectedVariant.size.split('x')[0],
-          height: selectedVariant.size.split('x')[1],
-          embroidery: false,
-          curtainRod: false,
-        },
+        options,
       }),
     );
 
@@ -238,7 +248,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productData }) => {
                     ? 'ring-2 ring-[var(--gold)]'
                     : 'border-gray-300'
                 }`}
-                onClick={() => setSelectedColor(colorKey)}
+                onClick={() => setSelectedColor(colorKey as ProductColorOption)}
                 aria-label={colorData.displayName}
                 data-testid={`color-${colorKey}`}
                 style={{ backgroundColor: colorData.displayColor }}
