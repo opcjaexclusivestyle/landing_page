@@ -1,6 +1,6 @@
 import BlogPostCard from '../components/BlogPostCard';
 import BlogLayout from '../components/BlogLayout';
-import { getAllPosts } from '../../../lib/api';
+import { fetchBlogPosts } from '../../lib/supabase';
 
 export const metadata = {
   title: 'Blog - Inspiracje i porady wnętrzarskie',
@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = await getAllPosts();
+  const posts = await fetchBlogPosts(12); // Pobieramy maksymalnie 12 postów na stronę
 
   return (
     <BlogLayout>
@@ -48,41 +48,50 @@ export default async function BlogPage() {
           ))}
         </div>
 
-        {/* Paginacja */}
-        <div className='mt-16 flex justify-center'>
-          <nav className='inline-flex rounded-md shadow'>
-            <a
-              href='#'
-              className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-l-md hover:bg-gray-50'
-            >
-              Poprzednia
-            </a>
-            <a
-              href='#'
-              className='py-2 px-4 bg-primary text-white border border-primary'
-            >
-              1
-            </a>
-            <a
-              href='#'
-              className='py-2 px-4 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-            >
-              2
-            </a>
-            <a
-              href='#'
-              className='py-2 px-4 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-            >
-              3
-            </a>
-            <a
-              href='#'
-              className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-r-md hover:bg-gray-50'
-            >
-              Następna
-            </a>
-          </nav>
-        </div>
+        {/* Komunikat gdy brak postów */}
+        {posts.length === 0 && (
+          <div className='text-center py-16'>
+            <p className='text-gray-500'>Brak dostępnych postów.</p>
+          </div>
+        )}
+
+        {/* Paginacja - do rozbudowy w przyszłości */}
+        {posts.length > 0 && (
+          <div className='mt-16 flex justify-center'>
+            <nav className='inline-flex rounded-md shadow'>
+              <a
+                href='#'
+                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-l-md hover:bg-gray-50'
+              >
+                Poprzednia
+              </a>
+              <a
+                href='#'
+                className='py-2 px-4 bg-primary text-white border border-primary'
+              >
+                1
+              </a>
+              <a
+                href='#'
+                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+              >
+                2
+              </a>
+              <a
+                href='#'
+                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+              >
+                3
+              </a>
+              <a
+                href='#'
+                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-r-md hover:bg-gray-50'
+              >
+                Następna
+              </a>
+            </nav>
+          </div>
+        )}
       </div>
     </BlogLayout>
   );

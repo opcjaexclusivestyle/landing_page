@@ -4,29 +4,31 @@ import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { fetchBlogPosts, BlogPost } from '@/lib/supabase';
 
 // Interfejs dla artykułu blogowego
-export interface BlogPost {
-  id: number;
-  title: string;
-  excerpt: string;
-  category: string;
-  image: string;
-  publishDate: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  readTime: number;
-}
+// Można usunąć ten interfejs, ponieważ teraz importujemy go z lib/supabase.ts
+// export interface BlogPost {
+//   id: number;
+//   title: string;
+//   excerpt: string;
+//   category: string;
+//   image: string;
+//   publishDate: string;
+//   author: {
+//     name: string;
+//     avatar: string;
+//   };
+//   readTime: number;
+// }
 
 interface BlogSectionProps {
-  posts: BlogPost[];
+  posts?: BlogPost[];
   className?: string;
 }
 
 export default function BlogSection({
-  posts,
+  posts: initialPosts,
   className = '',
 }: BlogSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -34,6 +36,32 @@ export default function BlogSection({
   const subheadingRef = useRef<HTMLParagraphElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts || []);
+  const [loading, setLoading] = useState(!initialPosts);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pobieranie postów z Supabase, jeśli nie zostały dostarczone jako props
+  useEffect(() => {
+    // Jeśli mamy już posty z props, nie musimy ich pobierać
+    if (initialPosts && initialPosts.length > 0) {
+      return;
+    }
+
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        const blogPosts = await fetchBlogPosts(6); // Pobieramy maksymalnie 6 postów
+        setPosts(blogPosts);
+        setLoading(false);
+      } catch (err) {
+        console.error('Błąd podczas pobierania postów blogowych:', err);
+        setError('Nie udało się załadować postów. Spróbuj odświeżyć stronę.');
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, [initialPosts]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -162,7 +190,7 @@ export default function BlogSection({
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, []);
+  }, [posts]); // Uruchom ponownie animacje, gdy załadują się posty
 
   return (
     <section
@@ -198,140 +226,119 @@ export default function BlogSection({
             stylu.
           </p>
         </div>
+
+        {/* Status ładowania lub błędu */}
+        {loading && (
+          <div className='text-center py-20'>
+            <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4'></div>
+            <p className='text-gray-500'>Ładowanie postów...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className='text-center py-20'>
+            <div className='bg-red-50 text-red-600 p-4 rounded-lg inline-block'>
+              <p>{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className='mt-2 text-sm underline'
+              >
+                Odśwież stronę
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Siatka artykułów blogowych */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
-          {posts.map((post, index) => (
-            <div
-              key={post.id}
-              ref={(el: HTMLDivElement | null) => {
-                cardsRef.current[index] = el;
-              }}
-              className='group relative'
-              onMouseEnter={() => setHoveredCard(post.id)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div className='relative overflow-hidden rounded-2xl shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-2'>
-                {/* Zdjęcie posta */}
-                <div className='relative h-64 overflow-hidden'>
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className='object-cover transition-transform duration-1000 group-hover:scale-110'
-                  />
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent'></div>
-                  {/* Kategoria na górze zdjęcia - z linkiem do kategorii */}
-                  <Link
-                    href={`/blog/kategoria/${post.category.toLowerCase()}`}
-                    className='absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-800 hover:bg-white'
-                  >
-                    {post.category}
-                  </Link>
-                </div>
-                {/* Treść */}
-                <div className='p-6 bg-white relative z-10'>
-                  <div className='flex items-center text-xs text-gray-500 mb-3 space-x-4'>
-                    <div className='flex items-center'>
-                      <span className='inline-block h-3 w-3 rounded-full bg-primary mr-1'></span>
-                      <span>{post.publishDate}</span>
-                    </div>
-                    <div>{post.readTime} min czytania</div>
+        {!loading && !error && posts.length > 0 && (
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
+            {posts.map((post, index) => (
+              <div
+                key={post.id}
+                ref={(el: HTMLDivElement | null) => {
+                  cardsRef.current[index] = el;
+                }}
+                className='group relative'
+                onMouseEnter={() => setHoveredCard(post.id)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <div className='relative overflow-hidden rounded-2xl shadow-xl transition-all duration-500 transform hover:scale-[1.02] hover:-translate-y-2'>
+                  {/* Zdjęcie posta */}
+                  <div className='relative h-64 overflow-hidden'>
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                      className='object-cover transition-transform duration-1000 group-hover:scale-110'
+                    />
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent'></div>
+                    {/* Kategoria na górze zdjęcia - z linkiem do kategorii */}
+                    <Link
+                      href={`/blog/kategoria/${post.category.toLowerCase()}`}
+                      className='absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-800 hover:bg-white'
+                    >
+                      {post.category}
+                    </Link>
                   </div>
-                  <Link href={`/blog/${post.id}`}>
-                    <h3 className='text-xl font-medium text-gray-900 mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-primary'>
-                      {post.title}
-                    </h3>
-                  </Link>
-                  <p className='text-gray-600 text-sm mb-4 line-clamp-3'>
-                    {post.excerpt}
-                  </p>
-                  {/* Autor */}
-                  <div className='flex items-center mt-6 pt-4 border-t border-gray-100'>
-                    <div className='relative h-10 w-10 rounded-full overflow-hidden mr-3'>
-                      <Image
-                        src={post.author.avatar}
-                        alt={post.author.name}
-                        fill
-                        className='object-cover'
-                      />
+                  {/* Treść */}
+                  <div className='p-6 bg-white relative z-10'>
+                    <div className='flex items-center text-xs text-gray-500 mb-3 space-x-4'>
+                      <div className='flex items-center'>
+                        <span className='inline-block h-3 w-3 rounded-full bg-primary mr-1'></span>
+                        <span>{post.publishDate}</span>
+                      </div>
+                      <div>{post.readTime} min czytania</div>
                     </div>
-                    <span className='text-sm font-medium text-gray-700'>
-                      {post.author.name}
-                    </span>
-                    <div className='ml-auto'>
-                      <Link
-                        href={`/blog/${post.id}`}
-                        className='premium-button'
-                      >
-                        Czytaj więcej
-                        <svg
-                          className='w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1'
-                          fill='none'
-                          viewBox='0 0 24 24'
-                          stroke='currentColor'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M14 5l7 7m0 0l-7 7m7-7H3'
-                          />
-                        </svg>
-                      </Link>
+                    <Link href={`/blog/${post.id}`}>
+                      <h3 className='text-xl font-medium text-gray-900 mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-primary'>
+                        {post.title}
+                      </h3>
+                    </Link>
+                    <p className='text-gray-600 text-sm mb-4 line-clamp-3'>
+                      {post.excerpt}
+                    </p>
+                    {/* Autor */}
+                    <div className='flex items-center mt-6 pt-4 border-t border-gray-100'>
+                      <div className='relative h-10 w-10 rounded-full overflow-hidden mr-3'>
+                        <Image
+                          src={post.author.avatar}
+                          alt={post.author.name}
+                          fill
+                          sizes='40px'
+                          className='object-cover'
+                        />
+                      </div>
+                      <span className='text-sm font-medium text-gray-900'>
+                        {post.author.name}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
-              {/* Element dekoracyjny widoczny przy hover */}
-              <div
-                className={`absolute -bottom-3 -right-3 h-24 w-24 rounded-full bg-primary/10 blur-xl transition-opacity duration-500 ${
-                  hoveredCard === post.id ? 'opacity-100' : 'opacity-0'
-                }`}
-              ></div>
-            </div>
-          ))}
-        </div>
-        {/* Przycisk "Więcej artykułów" */}
-        <div className='flex justify-center mt-16'>
-          <Link
-            href='/blog'
-            className='read-more-button group relative inline-flex items-center justify-center px-8 py-4 overflow-hidden font-medium text-white bg-gradient-to-r from-primary to-secondary rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105'
-          >
-            <button className='premium-button'>
-              Więcej artykułów
-              <svg
-                className='w-5 h-5 ml-2 transform transition-transform duration-300 group-hover:translate-x-1'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M14 5l7 7m0 0l-7 7m7-7H3'
-                />
-              </svg>
-            </button>
-            <span className='absolute inset-0 z-0 bg-gradient-to-r from-primary/80 to-secondary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300'></span>
-          </Link>
-        </div>
-      </div>
-      {/* Dodatkowy element animowany na końcu strony */}
-      <div className='mt-16 relative'>
-        <div className='absolute inset-0 bg-gradient-to-b from-transparent to-gray-100/50'></div>
-        <div className='container mx-auto text-center relative z-10 pt-10 pb-4'>
-          <div className='flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8'>
-            <div className='w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent'></div>
-            <p className='text-gray-500 text-sm md:text-base italic'>
-              Projektujemy z pasją, tworzymy z miłością
-            </p>
-            <div className='w-24 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent'></div>
+            ))}
           </div>
-        </div>
+        )}
+
+        {/* Przycisk "Zobacz więcej" */}
+        {posts.length > 0 && (
+          <div className='text-center mt-16'>
+            <Link
+              href='/blog'
+              className='read-more-button inline-block px-8 py-3 bg-white border border-gray-200 rounded-full text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-300 hover:bg-primary hover:text-white hover:border-primary'
+            >
+              Zobacz więcej artykułów
+            </Link>
+          </div>
+        )}
+
+        {/* Gdy nie ma postów, a nie jest w trakcie ładowania */}
+        {!loading && !error && posts.length === 0 && (
+          <div className='text-center py-10'>
+            <p className='text-gray-500'>Brak dostępnych postów.</p>
+          </div>
+        )}
       </div>
-      {/* Dekoracyjny element na dole */}
-      <div className='absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
     </section>
   );
 }

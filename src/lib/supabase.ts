@@ -22,6 +22,29 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   },
 });
 
+// Funkcja generująca obrazy-placeholdery
+function getPlaceholderImage(
+  width: number,
+  height: number,
+  text: string = 'Blog',
+): string {
+  return `https://placehold.co/${width}x${height}/E0E0E0/808080?text=${text.replace(
+    /\s+/g,
+    '+',
+  )}`;
+}
+
+// Funkcja generująca placeholdery awatarów
+function getAvatarPlaceholder(name: string): string {
+  const initials = name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+
+  return `https://placehold.co/100x100/4F46E5/FFFFFF?text=${initials}`;
+}
+
 // Interfejs dla testimoniali
 export interface Testimonial {
   id?: number;
@@ -67,6 +90,21 @@ export interface CalcProduct {
   imagePath?: string;
   images: string[];
   created_at?: string;
+}
+
+// Interfejs dla posta blogowego
+export interface BlogPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  category: string;
+  image: string;
+  publishDate: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  readTime: number;
 }
 
 // Pobierz wszystkie zatwierdzone opinie
@@ -287,4 +325,182 @@ export async function fetchCalculatorProducts(): Promise<CalcProduct[]> {
 // Funkcja pomocnicza do tworzenia publicznych URL-i dla Supabase Storage
 export function getPublicStorageUrl(bucket: string, path: string): string {
   return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
+}
+
+// Funkcja do pobierania wszystkich postów blogowych
+export async function fetchBlogPosts(limit: number = 10): Promise<BlogPost[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .order('publish_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Błąd podczas pobierania postów blogowych:', error);
+      throw error;
+    }
+
+    // Mapowanie danych z Supabase na format interfejsu BlogPost
+    const formattedPosts: BlogPost[] = data.map((post: any) => {
+      // Formatowanie daty, używając pola publish_date
+      const date = new Date(post.publish_date || new Date());
+      const formattedDate = `${date.getDate()} ${getPolishMonth(
+        date.getMonth(),
+      )} ${date.getFullYear()}`;
+
+      return {
+        id: post.id,
+        title: post.title,
+        excerpt: post.excerpt || post.content?.substring(0, 150) + '...',
+        category: post.category || 'Ogólne',
+        image: post.image || getPlaceholderImage(800, 600, post.title),
+        publishDate: formattedDate,
+        author: {
+          name: post.author_name || 'Admin',
+          avatar:
+            post.author_avatar ||
+            getAvatarPlaceholder(post.author_name || 'Admin'),
+        },
+        readTime: post.read_time || calculateReadTime(post.content),
+      };
+    });
+
+    return formattedPosts;
+  } catch (error) {
+    console.error('Błąd podczas pobierania postów blogowych:', error);
+    // Zwracamy pustą tablicę w przypadku błędu, można też obsłużyć to inaczej
+    return [];
+  }
+}
+
+// Funkcja do pobierania pojedynczego posta blogowego po ID
+export async function fetchBlogPostById(id: number): Promise<BlogPost | null> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error(
+        `Błąd podczas pobierania posta blogowego o ID ${id}:`,
+        error,
+      );
+      throw error;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    // Formatowanie daty z publish_date
+    const date = new Date(data.publish_date || new Date());
+    const formattedDate = `${date.getDate()} ${getPolishMonth(
+      date.getMonth(),
+    )} ${date.getFullYear()}`;
+
+    return {
+      id: data.id,
+      title: data.title,
+      excerpt: data.excerpt || data.content?.substring(0, 150) + '...',
+      category: data.category || 'Ogólne',
+      image: data.image || getPlaceholderImage(800, 600, data.title),
+      publishDate: formattedDate,
+      author: {
+        name: data.author_name || 'Admin',
+        avatar:
+          data.author_avatar ||
+          getAvatarPlaceholder(data.author_name || 'Admin'),
+      },
+      readTime: data.read_time || calculateReadTime(data.content),
+    };
+  } catch (error) {
+    console.error(`Błąd podczas pobierania posta blogowego o ID ${id}:`, error);
+    return null;
+  }
+}
+
+// Funkcja do pobierania postów blogowych według kategorii
+export async function fetchBlogPostsByCategory(
+  category: string,
+  limit: number = 10,
+): Promise<BlogPost[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('category', category)
+      .order('publish_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error(
+        `Błąd podczas pobierania postów z kategorii ${category}:`,
+        error,
+      );
+      throw error;
+    }
+
+    // Mapowanie danych z Supabase na format interfejsu BlogPost
+    const formattedPosts: BlogPost[] = data.map((post: any) => {
+      // Formatowanie daty z publish_date
+      const date = new Date(post.publish_date || new Date());
+      const formattedDate = `${date.getDate()} ${getPolishMonth(
+        date.getMonth(),
+      )} ${date.getFullYear()}`;
+
+      return {
+        id: post.id,
+        title: post.title,
+        excerpt: post.excerpt || post.content?.substring(0, 150) + '...',
+        category: post.category || 'Ogólne',
+        image: post.image || getPlaceholderImage(800, 600, post.title),
+        publishDate: formattedDate,
+        author: {
+          name: post.author_name || 'Admin',
+          avatar:
+            post.author_avatar ||
+            getAvatarPlaceholder(post.author_name || 'Admin'),
+        },
+        readTime: post.read_time || calculateReadTime(post.content),
+      };
+    });
+
+    return formattedPosts;
+  } catch (error) {
+    console.error(
+      `Błąd podczas pobierania postów z kategorii ${category}:`,
+      error,
+    );
+    return [];
+  }
+}
+
+// Funkcja pomocnicza - zwraca nazwę miesiąca po polsku
+function getPolishMonth(month: number): string {
+  const months = [
+    'stycznia',
+    'lutego',
+    'marca',
+    'kwietnia',
+    'maja',
+    'czerwca',
+    'lipca',
+    'sierpnia',
+    'września',
+    'października',
+    'listopada',
+    'grudnia',
+  ];
+  return months[month];
+}
+
+// Funkcja pomocnicza - oblicza przybliżony czas czytania (1 minuta na 1000 znaków)
+function calculateReadTime(content: string): number {
+  if (!content) return 3; // Domyślny czas czytania
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / wordsPerMinute));
 }

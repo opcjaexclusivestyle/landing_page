@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import BlogLayout from '../../components/BlogLayout';
 import BlogPostCard from '../../components/BlogPostCard';
-import { getPostById, getRelatedPosts } from '../../../../lib/api';
+import { fetchBlogPostById, fetchBlogPostsByCategory } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata({
@@ -10,7 +10,7 @@ export async function generateMetadata({
 }: {
   params: { postId: string };
 }) {
-  const post = await getPostById(parseInt(params.postId));
+  const post = await fetchBlogPostById(parseInt(params.postId));
 
   if (!post) {
     return {
@@ -30,13 +30,19 @@ export default async function SinglePostPage({
 }: {
   params: { postId: string };
 }) {
-  const post = await getPostById(parseInt(params.postId));
+  const post = await fetchBlogPostById(parseInt(params.postId));
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = await getRelatedPosts(post.id, post.category);
+  // Pobieranie powiązanych postów z tej samej kategorii
+  const relatedPosts = await fetchBlogPostsByCategory(post.category, 3);
+
+  // Filtrujemy, aby usunąć bieżący post z powiązanych
+  const filteredRelatedPosts = relatedPosts.filter(
+    (relatedPost) => relatedPost.id !== post.id,
+  );
 
   return (
     <BlogLayout>
@@ -202,7 +208,7 @@ export default async function SinglePostPage({
       </article>
 
       {/* Powiązane artykuły */}
-      {relatedPosts.length > 0 && (
+      {filteredRelatedPosts.length > 0 && (
         <section className='mt-16 py-12 bg-gray-50'>
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
             <h2 className='text-3xl font-bold text-gray-900 mb-12 text-center'>
@@ -210,7 +216,7 @@ export default async function SinglePostPage({
             </h2>
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-              {relatedPosts.map((relatedPost) => (
+              {filteredRelatedPosts.map((relatedPost) => (
                 <BlogPostCard key={relatedPost.id} post={relatedPost} />
               ))}
             </div>
