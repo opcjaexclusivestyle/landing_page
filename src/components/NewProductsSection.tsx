@@ -112,10 +112,21 @@ const NewProductsSection = () => {
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <h2
           ref={titleRef}
-          className='text-3xl md:text-4xl lg:text-5xl font-light tracking-wide text-center text-gray-900 mb-16 luxury-heading'
+          className='text-3xl md:text-4xl lg:text-5xl font-light tracking-wide text-center text-black mb-16 luxury-heading'
         >
           Nowości — Zasłony szyte na wymiar
         </h2>
+        <h4
+          ref={titleRef}
+          className='text-3xl md:text-4xl lg:text-5xl font-light tracking-wide text-center text-black mb-16 luxury-heading'
+        >
+          Nasze produkty powstają w lokalnej szwalni, z najwyższej jakości
+          materiałów. Każde zamówienie traktujemy indywidualnie, z dbałością o
+          detale i potrzeby naszych klientów. Dzięki temu uszyliśmy już ponad
+          100 000 metrów bieżących zasłon i firan, które zdobią wnętrza w całej
+          Polsce. Klienci którzy nam zaufali, chętnie wracają – bo wiedzą, że w
+          Zasłonex liczy nie tylko piękno, ale i jakość.{' '}
+        </h4>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10'>
           {products.map((product, index) => (

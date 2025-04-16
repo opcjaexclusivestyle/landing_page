@@ -7,7 +7,7 @@ const PortfolioSection = () => {
     <section id='realizacje' className='py-20 bg-white'>
       <div className='container mx-auto px-4'>
         <h2 className='text-3xl font-bold text-center text-gray-900 mb-8'>
-          Nasze realizacje
+          Metamorfozy wnętrz naszych klientów
         </h2>
         <div className='flex justify-center mb-12'>
           <div className='inline-flex bg-gray-100 p-1 rounded-full'>
