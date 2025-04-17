@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '@/store/cartSlice';
 import { setCustomerInfo } from '@/store/customerSlice';
@@ -59,9 +59,28 @@ interface CartItem {
 }
 
 const TAPE_TYPES = [
-  { id: 'pencil-8', name: 'Taśma ołówek 8 cm (Marszczenie 1:2)', ratio: 2 },
-  { id: 'pencil-2-5', name: 'Taśma ołówek 2,5 cm (Marszczenie 1:2)', ratio: 2 },
-  { id: 'dragon-5', name: 'Taśma smok 5 cm (Marszczenie 1:2)', ratio: 2 },
+  { id: '', name: 'Wybierz rodzaj taśmy', ratio: 0, imagePath: '' },
+  {
+    id: 'pencil-8',
+    name: 'Taśma ołówek 8 cm (Marszczenie 1:2)',
+    ratio: 2,
+    imagePath:
+      'https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/tasma/tamymarszczce/OLOWEK%208%20cm.jpg',
+  },
+  {
+    id: 'pencil-2-5',
+    name: 'Taśma ołówek 2,5 cm (Marszczenie 1:2)',
+    ratio: 2,
+    imagePath:
+      'https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/tasma/tamymarszczce/OLOWEK%202,5%20cm.jpg',
+  },
+  {
+    id: 'dragon-5',
+    name: 'Taśma smok 5 cm (Marszczenie 1:2)',
+    ratio: 2,
+    imagePath:
+      'https://siyavnvmbwjhwgjwunjr.supabase.co/storage/v1/object/public/tasma/tamymarszczce/SMOK%205cm.jpg',
+  },
 ];
 
 export default function OrderForm({
@@ -75,6 +94,10 @@ export default function OrderForm({
   const [productsLoading, setProductsLoading] = useState(true);
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
+  const [tapeError, setTapeError] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showTapeImage, setShowTapeImage] = useState(false);
+  const [selectedTapeImage, setSelectedTapeImage] = useState('');
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -83,7 +106,7 @@ export default function OrderForm({
     phone: '',
     rodWidth: '',
     height: '',
-    tapeType: TAPE_TYPES[0].id,
+    tapeType: '', // Początkowa wartość neutralna
     selectedProduct: productName || '',
     selectedImageIndex: 0,
     street: '',
@@ -162,6 +185,9 @@ export default function OrderForm({
     (product) => product.name === formData.selectedProduct,
   );
 
+  // Znajdź aktualnie wybraną taśmę
+  const selectedTape = TAPE_TYPES.find((tape) => tape.id === formData.tapeType);
+
   // Ceny materiału i szycia bazujące na wybranym produkcie
   const MATERIAL_PRICE_PER_METER = selectedProduct
     ? selectedProduct.fabricPricePerMB
@@ -180,6 +206,33 @@ export default function OrderForm({
     }
   }, [productName, products]);
 
+  // Obliczanie ceny tylko materiału (bez szycia)
+  const calculateMaterialPrice = () => {
+    const rodWidth = parseFloat(formData.rodWidth) || 0;
+    const selectedTape = TAPE_TYPES.find(
+      (tape) => tape.id === formData.tapeType,
+    );
+
+    if (!selectedTape || !selectedTape.ratio || !rodWidth || !selectedProduct)
+      return 0;
+
+    // Obliczanie szerokości materiału po marszczeniu
+    const materialWidth = rodWidth * selectedTape.ratio;
+
+    // Dla kalkulacji samego materiału przyjmujemy wysokość 1 metra
+    const defaultHeight = 100; // 1 metr w cm
+
+    // Obliczanie metrów bieżących
+    const meters = (materialWidth * defaultHeight) / 10000; // konwersja z cm² na m²
+
+    // Obliczanie ceny materiału za metr bieżący
+    const materialCost = meters * MATERIAL_PRICE_PER_METER;
+
+    // Zaokrąglenie do 2 miejsc po przecinku
+    return Math.round(materialCost * 100) / 100;
+  };
+
+  // Pełna kalkulacja ceny (materiał + szycie)
   const calculatePrice = () => {
     const rodWidth = parseFloat(formData.rodWidth) || 0;
     const height = parseFloat(formData.height) || 0;
@@ -187,22 +240,26 @@ export default function OrderForm({
       (tape) => tape.id === formData.tapeType,
     );
 
-    if (!selectedTape || !rodWidth || !height || !selectedProduct) return 0;
+    if (
+      !selectedTape ||
+      !selectedTape.ratio ||
+      !rodWidth ||
+      !height ||
+      !selectedProduct
+    )
+      return 0;
 
     // Obliczanie szerokości materiału po marszczeniu
     const materialWidth = rodWidth * selectedTape.ratio;
 
     // Obliczanie metrów bieżących
     const meters = (materialWidth * height) / 10000; // konwersja z cm² na m²
-    const halfMeters = meters * 2; // ilość półmetrów
 
-    // Obliczanie ceny materiału za pół metra
-    const materialCostPerHalfMeter = MATERIAL_PRICE_PER_METER / 2;
-    const materialCost = halfMeters * materialCostPerHalfMeter;
+    // Obliczanie ceny materiału
+    const materialCost = meters * MATERIAL_PRICE_PER_METER;
 
-    // Obliczanie kosztu szycia za pół metra
-    const sewingCostPerHalfMeter = SEWING_PRICE_PER_METER / 2;
-    const sewingCost = halfMeters * sewingCostPerHalfMeter;
+    // Obliczanie kosztu szycia
+    const sewingCost = meters * SEWING_PRICE_PER_METER;
 
     // Zaokrąglenie do 2 miejsc po przecinku
     return Math.round((materialCost + sewingCost) * 100) / 100;
@@ -219,6 +276,25 @@ export default function OrderForm({
     >,
   ) => {
     const { name, value } = e.target;
+
+    // Sprawdzanie, czy taśma została wybrana przed wpisaniem wymiarów
+    if ((name === 'rodWidth' || name === 'height') && !formData.tapeType) {
+      setTapeError(
+        'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+      );
+      return;
+    } else if (name === 'tapeType' && value) {
+      setTapeError(null);
+      // Pokaż zdjęcie taśmy jeśli wybrano taśmę
+      const tape = TAPE_TYPES.find((t) => t.id === value);
+      if (tape && tape.imagePath) {
+        setSelectedTapeImage(tape.imagePath);
+        setShowTapeImage(true);
+      } else {
+        setShowTapeImage(false);
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -322,6 +398,40 @@ export default function OrderForm({
     }
   };
 
+  // Nawigacja po miniaturkach
+  const nextImage = () => {
+    if (
+      selectedProduct &&
+      selectedProduct.images &&
+      selectedProduct.images.length > 0
+    ) {
+      const newIndex =
+        (formData.selectedImageIndex + 1) % selectedProduct.images.length;
+      setFormData((prev) => ({
+        ...prev,
+        selectedImageIndex: newIndex,
+      }));
+    }
+  };
+
+  const prevImage = () => {
+    if (
+      selectedProduct &&
+      selectedProduct.images &&
+      selectedProduct.images.length > 0
+    ) {
+      const newIndex =
+        (formData.selectedImageIndex -
+          1 +
+          (selectedProduct.images.length || 1)) %
+        (selectedProduct.images.length || 1);
+      setFormData((prev) => ({
+        ...prev,
+        selectedImageIndex: newIndex,
+      }));
+    }
+  };
+
   return (
     <div className='order-form-container min-h-screen flex flex-col lg:flex-row'>
       {/* Pasek kontaktowy */}
@@ -409,8 +519,8 @@ export default function OrderForm({
                   >
                     {products.map((product) => (
                       <option key={product.name} value={product.name}>
-                        {product.name} -{' '}
-                        {formatPrice(product.fabricPricePerMB / 2)} zł/0,5mb
+                        {product.name} - {formatPrice(product.fabricPricePerMB)}{' '}
+                        zł/mb
                       </option>
                     ))}
                   </select>
@@ -421,53 +531,107 @@ export default function OrderForm({
                   )}
                 </div>
 
-                {/* Sekcja z miniaturkami materiałów */}
+                {/* Sekcja z miniaturkami materiałów - dostosowana logika wyświetlania */}
                 {selectedProduct &&
                   selectedProduct.images &&
-                  Array.isArray(selectedProduct.images) &&
-                  selectedProduct.images.length > 0 && (
+                  Array.isArray(selectedProduct.images) && (
                     <div className='mt-4'>
                       <label className='block text-sm font-medium text-gray-700 mb-2'>
                         Przeglądaj materiał
                       </label>
-                      <div className='flex space-x-2 mb-4'>
-                        {selectedProduct.images.map((img, index) => {
-                          // Łączymy ścieżkę bazową z nazwą pliku
-                          const imageUrl = `${selectedProduct.imagePath}/${img}`;
-                          console.log(
-                            `Miniatura ${index + 1}, pełny URL:`,
-                            imageUrl,
-                          );
 
-                          return (
-                            <div
-                              key={index}
-                              className={`
-                              cursor-pointer border-2 rounded overflow-hidden w-16 h-16 relative
-                              ${
-                                formData.selectedImageIndex === index
-                                  ? 'border-royal-gold'
-                                  : 'border-gray-200'
-                              }
-                            `}
-                              onClick={() => handleThumbnailClick(index)}
-                            >
-                              <Image
-                                src={imageUrl}
-                                alt={`${selectedProduct.name} - miniatura ${
-                                  index + 1
-                                }`}
-                                fill
-                                sizes='64px'
-                                className='object-cover'
-                                priority={index === 0}
-                                quality={60}
-                              />
+                      {/* Miniatury - wyświetlane tylko jeśli są dostępne */}
+                      {selectedProduct.images.length > 0 && (
+                        <div className='flex justify-between items-center mb-4'>
+                          <div className='flex space-x-2'>
+                            {/* Pokazuj tyle zdjęć ile jest dostępnych, maksymalnie 4 */}
+                            {selectedProduct.images
+                              .slice(
+                                0,
+                                Math.min(4, selectedProduct.images.length),
+                              )
+                              .map((img, index) => {
+                                // Łączymy ścieżkę bazową z nazwą pliku
+                                const imageUrl = `${selectedProduct.imagePath}/${img}`;
+
+                                return (
+                                  <div
+                                    key={index}
+                                    className={`
+                                  cursor-pointer border-2 rounded overflow-hidden w-16 h-16 relative
+                                  ${
+                                    formData.selectedImageIndex === index
+                                      ? 'border-royal-gold'
+                                      : 'border-gray-200'
+                                  }
+                                `}
+                                    onClick={() => handleThumbnailClick(index)}
+                                  >
+                                    <Image
+                                      src={imageUrl}
+                                      alt={`${
+                                        selectedProduct.name
+                                      } - miniatura ${index + 1}`}
+                                      fill
+                                      sizes='64px'
+                                      className='object-cover'
+                                      priority={index === 0}
+                                      quality={60}
+                                    />
+                                  </div>
+                                );
+                              })}
+                          </div>
+
+                          {/* Strzałki nawigacyjne, pokazujemy tylko gdy jest więcej niż 4 obrazy */}
+                          {selectedProduct.images.length > 4 && (
+                            <div className='flex space-x-2'>
+                              <button
+                                type='button'
+                                onClick={prevImage}
+                                className='bg-gray-200 hover:bg-gray-300 rounded-full p-2'
+                              >
+                                <svg
+                                  xmlns='http://www.w3.org/2000/svg'
+                                  className='h-5 w-5'
+                                  fill='none'
+                                  viewBox='0 0 24 24'
+                                  stroke='currentColor'
+                                >
+                                  <path
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    strokeWidth={2}
+                                    d='M15 19l-7-7 7-7'
+                                  />
+                                </svg>
+                              </button>
+                              <button
+                                type='button'
+                                onClick={nextImage}
+                                className='bg-gray-200 hover:bg-gray-300 rounded-full p-2'
+                              >
+                                <svg
+                                  xmlns='http://www.w3.org/2000/svg'
+                                  className='h-5 w-5'
+                                  fill='none'
+                                  viewBox='0 0 24 24'
+                                  stroke='currentColor'
+                                >
+                                  <path
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    strokeWidth={2}
+                                    d='M9 5l7 7-7 7'
+                                  />
+                                </svg>
+                              </button>
                             </div>
-                          );
-                        })}
-                      </div>
+                          )}
+                        </div>
+                      )}
 
+                      {/* Wyświetlanie dużego obrazu - tylko jeśli są jakieś zdjęcia */}
                       {selectedProduct.images.length > 0 &&
                         selectedProduct.images[formData.selectedImageIndex] && (
                           <div
@@ -481,10 +645,6 @@ export default function OrderForm({
                                   formData.selectedImageIndex
                                 ]
                               }`;
-                              console.log(
-                                'Otwieranie modalu z obrazem:',
-                                currentImage,
-                              );
                               openImageModal(currentImage);
                             }}
                           >
@@ -527,15 +687,49 @@ export default function OrderForm({
                   name='tapeType'
                   value={formData.tapeType}
                   onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
+                  className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                    tapeError ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 >
                   {TAPE_TYPES.map((tape) => (
-                    <option key={tape.id} value={tape.id}>
+                    <option
+                      key={tape.id}
+                      value={tape.id}
+                      disabled={tape.id === ''}
+                    >
                       {tape.name}
                     </option>
                   ))}
                 </select>
+                {tapeError && (
+                  <p className='mt-1 text-sm text-red-600'>{tapeError}</p>
+                )}
+
+                {/* Wyświetlanie zdjęcia taśmy */}
+                {showTapeImage && selectedTapeImage && (
+                  <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
+                    <p className='text-sm font-medium text-gray-700 mb-2'>
+                      Podgląd wybranej taśmy:
+                    </p>
+                    <div className='relative w-full h-48 rounded overflow-hidden'>
+                      <Image
+                        src={selectedTapeImage}
+                        alt={selectedTape?.name || 'Wybrana taśma'}
+                        fill
+                        sizes='(max-width: 768px) 100vw, 300px'
+                        className='object-contain'
+                        onError={(e) => {
+                          console.error(
+                            'Nie można załadować obrazu taśmy:',
+                            selectedTapeImage,
+                          );
+                          setShowTapeImage(false);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
@@ -547,9 +741,24 @@ export default function OrderForm({
                   value={formData.rodWidth}
                   onChange={handleChange}
                   min='1'
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
+                  className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                    !formData.tapeType ? 'bg-gray-100 cursor-not-allowed' : ''
+                  }`}
                   required
+                  disabled={!formData.tapeType}
                 />
+                {formData.tapeType && formData.rodWidth && (
+                  <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium'>
+                        Koszt materiału:
+                      </span>
+                      <span className='text-sm font-bold text-deep-navy'>
+                        {formatPrice(calculateMaterialPrice())} zł/mb
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
@@ -561,8 +770,11 @@ export default function OrderForm({
                   value={formData.height}
                   onChange={handleChange}
                   min='1'
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
+                  className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                    !formData.tapeType ? 'bg-gray-100 cursor-not-allowed' : ''
+                  }`}
                   required
+                  disabled={!formData.tapeType}
                 />
               </div>
             </div>
@@ -580,56 +792,55 @@ export default function OrderForm({
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>
-                    Cena materiału (za 0,5m):
-                  </span>
+                  <span className='text-gray-600'>Cena materiału (za mb):</span>
                   <span className='font-medium'>
                     {selectedProduct
-                      ? `${formatPrice(
-                          selectedProduct.fabricPricePerMB / 2,
-                        )} zł/0,5mb`
+                      ? `${formatPrice(selectedProduct.fabricPricePerMB)} zł/mb`
                       : '-'}
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Koszt szycia (za 0,5m):</span>
+                  <span className='text-gray-600'>Koszt szycia (za mb):</span>
                   <span className='font-medium'>
                     {selectedProduct
-                      ? `${formatPrice(
-                          selectedProduct.sewingPricePerMB / 2,
-                        )} zł/0,5mb`
+                      ? `${formatPrice(selectedProduct.sewingPricePerMB)} zł/mb`
                       : '-'}
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Szerokość materiału:</span>
                   <span className='font-medium'>
-                    {formData.rodWidth
-                      ? `${parseFloat(formData.rodWidth) * 2} cm`
+                    {formData.rodWidth && formData.tapeType
+                      ? `${
+                          parseFloat(formData.rodWidth) *
+                          (selectedTape?.ratio || 0)
+                        } cm`
                       : '-'}
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Ilość półmetrów:</span>
+                  <span className='text-gray-600'>Ilość metrów bieżących:</span>
                   <span className='font-medium'>
-                    {formData.rodWidth && formData.height
+                    {formData.rodWidth && formData.height && formData.tapeType
                       ? `${formatPrice(
-                          ((parseFloat(formData.rodWidth) *
-                            2 *
+                          (parseFloat(formData.rodWidth) *
+                            (selectedTape?.ratio || 0) *
                             parseFloat(formData.height)) /
-                            10000) *
-                            2,
-                        )} x 0,5m²`
+                            10000,
+                        )} mb`
                       : '-'}
                   </span>
                 </div>
                 <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Koszt materiału:</span>
                   <span className='font-medium'>
-                    {formData.rodWidth && formData.height && selectedProduct
+                    {formData.rodWidth &&
+                    formData.height &&
+                    selectedProduct &&
+                    formData.tapeType
                       ? `${formatPrice(
                           ((parseFloat(formData.rodWidth) *
-                            2 *
+                            (selectedTape?.ratio || 0) *
                             parseFloat(formData.height)) /
                             10000) *
                             selectedProduct.fabricPricePerMB,
@@ -640,10 +851,13 @@ export default function OrderForm({
                 <div className='flex justify-between items-center text-sm'>
                   <span className='text-gray-600'>Koszt szycia:</span>
                   <span className='font-medium'>
-                    {formData.rodWidth && formData.height && selectedProduct
+                    {formData.rodWidth &&
+                    formData.height &&
+                    selectedProduct &&
+                    formData.tapeType
                       ? `${formatPrice(
                           ((parseFloat(formData.rodWidth) *
-                            2 *
+                            (selectedTape?.ratio || 0) *
                             parseFloat(formData.height)) /
                             10000) *
                             selectedProduct.sewingPricePerMB,

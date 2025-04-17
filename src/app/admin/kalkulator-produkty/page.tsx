@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 
@@ -12,6 +12,21 @@ interface CalcProduct {
   sewing_price_per_mb: number | null;
   image_path: string | null;
   images: string[] | null;
+  description: string | null;
+  style_tags: string[] | null;
+  material: string | null;
+  composition: string | null;
+  pattern: string | null;
+  color: string | null;
+  height_cm: number | null;
+  width_type: string | null;
+  maintenance: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  alt_texts: string[] | null;
+  og_title: string | null;
+  og_description: string | null;
+  slug: string | null;
 }
 
 export default function CalculatorProductsPage() {
@@ -21,12 +36,28 @@ export default function CalculatorProductsPage() {
   const [editingProduct, setEditingProduct] = useState<CalcProduct | null>(
     null,
   );
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState<Partial<CalcProduct>>({
     name: '',
     base: '',
     fabric_price_per_mb: 0,
     sewing_price_per_mb: 0,
     images: [],
+    description: '',
+    style_tags: [],
+    material: '',
+    composition: '',
+    pattern: '',
+    color: '',
+    height_cm: null,
+    width_type: '',
+    maintenance: '',
+    meta_title: '',
+    meta_description: '',
+    alt_texts: [],
+    og_title: '',
+    og_description: '',
+    slug: '',
   });
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -67,6 +98,21 @@ export default function CalculatorProductsPage() {
         fabric_price_per_mb: product.fabric_price_per_mb || 0,
         sewing_price_per_mb: product.sewing_price_per_mb || 0,
         images: product.images || [],
+        description: product.description || '',
+        style_tags: product.style_tags || [],
+        material: product.material || '',
+        composition: product.composition || '',
+        pattern: product.pattern || '',
+        color: product.color || '',
+        height_cm: product.height_cm || null,
+        width_type: product.width_type || '',
+        maintenance: product.maintenance || '',
+        meta_title: product.meta_title || '',
+        meta_description: product.meta_description || '',
+        alt_texts: product.alt_texts || [],
+        og_title: product.og_title || '',
+        og_description: product.og_description || '',
+        slug: product.slug || '',
       });
     } else {
       setEditingProduct(null);
@@ -76,6 +122,21 @@ export default function CalculatorProductsPage() {
         fabric_price_per_mb: 0,
         sewing_price_per_mb: 0,
         images: [],
+        description: '',
+        style_tags: [],
+        material: '',
+        composition: '',
+        pattern: '',
+        color: '',
+        height_cm: null,
+        width_type: '',
+        maintenance: '',
+        meta_title: '',
+        meta_description: '',
+        alt_texts: [],
+        og_title: '',
+        og_description: '',
+        slug: '',
       });
     }
     setIsModalOpen(true);
@@ -90,6 +151,21 @@ export default function CalculatorProductsPage() {
       fabric_price_per_mb: 0,
       sewing_price_per_mb: 0,
       images: [],
+      description: '',
+      style_tags: [],
+      material: '',
+      composition: '',
+      pattern: '',
+      color: '',
+      height_cm: null,
+      width_type: '',
+      maintenance: '',
+      meta_title: '',
+      meta_description: '',
+      alt_texts: [],
+      og_title: '',
+      og_description: '',
+      slug: '',
     });
     setFile(null);
     if (fileInputRef.current) {
@@ -115,6 +191,26 @@ export default function CalculatorProductsPage() {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const handleArrayInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'style_tags' | 'alt_texts',
+  ) => {
+    const { value } = e.target;
+    // Konwertuje wartość wejściową oddzieloną przecinkami na tablicę
+    const arrayValue = value
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item !== '');
+    setFormData((prev) => ({ ...prev, [field]: arrayValue }));
+  };
+
+  const handleHeightInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    // Konwertujemy wartość na liczbę, obsługując też format z przecinkiem
+    const numericValue = value ? parseFloat(value.replace(',', '.')) : null;
+    setFormData((prev) => ({ ...prev, [e.target.name]: numericValue }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -266,6 +362,18 @@ export default function CalculatorProductsPage() {
     return price.toFixed(2).replace('.', ',') + ' zł';
   };
 
+  const toggleRowExpansion = (productId: string) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className='container mx-auto pb-10'>
       <div className='flex justify-between items-center mb-6'>
@@ -311,6 +419,12 @@ export default function CalculatorProductsPage() {
                   Cena szycia/mb
                 </th>
                 <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Materiał
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                  Kolor
+                </th>
+                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                   Obraz
                 </th>
                 <th className='px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center'>
@@ -322,7 +436,7 @@ export default function CalculatorProductsPage() {
               {products.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={8}
                     className='px-6 py-4 text-center text-gray-500'
                   >
                     Brak produktów do wyświetlenia
@@ -330,55 +444,241 @@ export default function CalculatorProductsPage() {
                 </tr>
               ) : (
                 products.map((product) => (
-                  <tr key={product.id}>
-                    <td className='px-6 py-4 whitespace-nowrap'>
-                      <div className='text-sm font-medium text-gray-900'>
-                        {product.name}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='text-sm text-gray-500'>
-                        {product.base || '-'}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='text-sm text-gray-500'>
-                        {formatPrice(product.fabric_price_per_mb)}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='text-sm text-gray-500'>
-                        {formatPrice(product.sewing_price_per_mb)}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      {product.image_path ? (
-                        <div className='w-16 h-16 relative'>
-                          <img
-                            src={product.image_path}
-                            alt={product.name}
-                            className='object-cover w-full h-full rounded'
-                          />
+                  <React.Fragment key={product.id}>
+                    <tr
+                      className='cursor-pointer hover:bg-gray-50'
+                      onClick={() => toggleRowExpansion(product.id)}
+                    >
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <div className='text-sm font-medium text-gray-900 flex items-center'>
+                          <span className='mr-2'>
+                            {expandedRows.has(product.id) ? (
+                              <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                className='h-4 w-4'
+                                fill='none'
+                                viewBox='0 0 24 24'
+                                stroke='currentColor'
+                              >
+                                <path
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  strokeWidth={2}
+                                  d='M19 9l-7 7-7-7'
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                className='h-4 w-4'
+                                fill='none'
+                                viewBox='0 0 24 24'
+                                stroke='currentColor'
+                              >
+                                <path
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  strokeWidth={2}
+                                  d='M9 5l7 7-7 7'
+                                />
+                              </svg>
+                            )}
+                          </span>
+                          {product.name}
                         </div>
-                      ) : (
-                        <div className='text-sm text-gray-500'>-</div>
-                      )}
-                    </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-center'>
-                      <button
-                        onClick={() => openModal(product)}
-                        className='text-indigo-600 hover:text-indigo-900 mr-3'
-                      >
-                        Edytuj
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className='text-red-600 hover:text-red-900'
-                      >
-                        Usuń
-                      </button>
-                    </td>
-                  </tr>
+                        {product.slug && (
+                          <div className='text-xs text-gray-500'>
+                            /{product.slug}
+                          </div>
+                        )}
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='text-sm text-gray-500'>
+                          {product.base || '-'}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='text-sm text-gray-500'>
+                          {formatPrice(product.fabric_price_per_mb)}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='text-sm text-gray-500'>
+                          {formatPrice(product.sewing_price_per_mb)}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='text-sm text-gray-500'>
+                          {product.material || '-'}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='text-sm text-gray-500'>
+                          {product.color || '-'}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        {product.image_path ? (
+                          <div className='w-16 h-16 relative'>
+                            <img
+                              src={product.image_path}
+                              alt={product.name}
+                              className='object-cover w-full h-full rounded'
+                            />
+                          </div>
+                        ) : (
+                          <div className='text-sm text-gray-500'>-</div>
+                        )}
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-center'>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openModal(product);
+                          }}
+                          className='text-indigo-600 hover:text-indigo-900 mr-3'
+                        >
+                          Edytuj
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(product.id);
+                          }}
+                          className='text-red-600 hover:text-red-900'
+                        >
+                          Usuń
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedRows.has(product.id) && (
+                      <tr className='bg-gray-50'>
+                        <td colSpan={8} className='px-6 py-4'>
+                          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            {product.description && (
+                              <div>
+                                <h4 className='font-medium text-sm'>Opis:</h4>
+                                <p className='text-sm text-gray-600 mt-1'>
+                                  {product.description}
+                                </p>
+                              </div>
+                            )}
+                            {product.style_tags &&
+                              product.style_tags.length > 0 && (
+                                <div>
+                                  <h4 className='font-medium text-sm'>
+                                    Tagi stylu:
+                                  </h4>
+                                  <div className='flex flex-wrap gap-1 mt-1'>
+                                    {product.style_tags.map((tag, index) => (
+                                      <span
+                                        key={index}
+                                        className='text-xs bg-gray-200 px-2 py-1 rounded'
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            {product.composition && (
+                              <div>
+                                <h4 className='font-medium text-sm'>Skład:</h4>
+                                <p className='text-sm text-gray-600 mt-1'>
+                                  {product.composition}
+                                </p>
+                              </div>
+                            )}
+                            {product.pattern && (
+                              <div>
+                                <h4 className='font-medium text-sm'>Wzór:</h4>
+                                <p className='text-sm text-gray-600 mt-1'>
+                                  {product.pattern}
+                                </p>
+                              </div>
+                            )}
+                            {product.height_cm && (
+                              <div>
+                                <h4 className='font-medium text-sm'>
+                                  Wysokość:
+                                </h4>
+                                <p className='text-sm text-gray-600 mt-1'>
+                                  {product.height_cm} cm
+                                </p>
+                              </div>
+                            )}
+                            {product.width_type && (
+                              <div>
+                                <h4 className='font-medium text-sm'>
+                                  Typ szerokości:
+                                </h4>
+                                <p className='text-sm text-gray-600 mt-1'>
+                                  {product.width_type}
+                                </p>
+                              </div>
+                            )}
+                            {product.maintenance && (
+                              <div>
+                                <h4 className='font-medium text-sm'>
+                                  Pielęgnacja:
+                                </h4>
+                                <p className='text-sm text-gray-600 mt-1'>
+                                  {product.maintenance}
+                                </p>
+                              </div>
+                            )}
+                            <div className='md:col-span-2 mt-2'>
+                              <h4 className='font-medium text-sm border-b pb-1 mb-2'>
+                                SEO:
+                              </h4>
+                              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                {product.meta_title && (
+                                  <div>
+                                    <h5 className='font-medium text-xs'>
+                                      Meta tytuł:
+                                    </h5>
+                                    <p className='text-sm text-gray-600'>
+                                      {product.meta_title}
+                                    </p>
+                                  </div>
+                                )}
+                                {product.meta_description && (
+                                  <div>
+                                    <h5 className='font-medium text-xs'>
+                                      Meta opis:
+                                    </h5>
+                                    <p className='text-sm text-gray-600'>
+                                      {product.meta_description}
+                                    </p>
+                                  </div>
+                                )}
+                                {product.og_title && (
+                                  <div>
+                                    <h5 className='font-medium text-xs'>
+                                      OG tytuł:
+                                    </h5>
+                                    <p className='text-sm text-gray-600'>
+                                      {product.og_title}
+                                    </p>
+                                  </div>
+                                )}
+                                {product.og_description && (
+                                  <div>
+                                    <h5 className='font-medium text-xs'>
+                                      OG opis:
+                                    </h5>
+                                    <p className='text-sm text-gray-600'>
+                                      {product.og_description}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>
@@ -507,56 +807,213 @@ export default function CalculatorProductsPage() {
                   </p>
                 </div>
 
-                {/* Istniejące obrazy */}
-                {editingProduct &&
-                  editingProduct.images &&
-                  editingProduct.images.length > 0 && (
-                    <div className='mb-6'>
-                      <label className='block text-sm font-medium text-gray-700 mb-2'>
-                        Istniejące obrazy
+                {/* Opis produktu */}
+                <div className='mb-6'>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Opis produktu
+                  </label>
+                  <textarea
+                    name='description'
+                    value={formData.description || ''}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                  />
+                </div>
+
+                {/* Materiał, Kompozycja, Wzór, Kolor */}
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Materiał
+                    </label>
+                    <input
+                      type='text'
+                      name='material'
+                      value={formData.material || ''}
+                      onChange={handleInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Skład
+                    </label>
+                    <input
+                      type='text'
+                      name='composition'
+                      value={formData.composition || ''}
+                      onChange={handleInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                </div>
+
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Wzór
+                    </label>
+                    <input
+                      type='text'
+                      name='pattern'
+                      value={formData.pattern || ''}
+                      onChange={handleInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Kolor
+                    </label>
+                    <input
+                      type='text'
+                      name='color'
+                      value={formData.color || ''}
+                      onChange={handleInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                </div>
+
+                {/* Wysokość, Szerokość, Pielęgnacja */}
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-6'>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Wysokość (cm)
+                    </label>
+                    <input
+                      type='text'
+                      name='height_cm'
+                      value={formData.height_cm?.toString() || ''}
+                      onChange={handleHeightInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Typ szerokości
+                    </label>
+                    <input
+                      type='text'
+                      name='width_type'
+                      value={formData.width_type || ''}
+                      onChange={handleInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Pielęgnacja
+                    </label>
+                    <input
+                      type='text'
+                      name='maintenance'
+                      value={formData.maintenance || ''}
+                      onChange={handleInputChange}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+                </div>
+
+                {/* Tagi stylu */}
+                <div className='mb-6'>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Tagi stylu (oddzielone przecinkami)
+                  </label>
+                  <input
+                    type='text'
+                    value={(formData.style_tags || []).join(', ')}
+                    onChange={(e) => handleArrayInputChange(e, 'style_tags')}
+                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    placeholder='np. nowoczesny, skandynawski, minimalistyczny'
+                  />
+                </div>
+
+                {/* SEO Metadata */}
+                <div className='border-t border-gray-200 pt-6 mb-6'>
+                  <h3 className='text-lg font-medium mb-4'>Metadane SEO</h3>
+
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Meta Tytuł
                       </label>
-                      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'>
-                        {editingProduct.images.map((imageUrl, index) => (
-                          <div key={index} className='relative group'>
-                            <div className='w-full h-24 relative'>
-                              <img
-                                src={imageUrl}
-                                alt={`Obraz ${index + 1}`}
-                                className='object-cover w-full h-full rounded'
-                              />
-                            </div>
-                            <button
-                              type='button'
-                              onClick={() =>
-                                deleteImage(editingProduct.id, imageUrl)
-                              }
-                              className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity'
-                            >
-                              <svg
-                                xmlns='http://www.w3.org/2000/svg'
-                                className='h-4 w-4'
-                                fill='none'
-                                viewBox='0 0 24 24'
-                                stroke='currentColor'
-                              >
-                                <path
-                                  strokeLinecap='round'
-                                  strokeLinejoin='round'
-                                  strokeWidth={2}
-                                  d='M6 18L18 6M6 6l12 12'
-                                />
-                              </svg>
-                            </button>
-                            {editingProduct.image_path === imageUrl && (
-                              <div className='absolute bottom-1 left-1 bg-green-500 text-white text-xs px-1 rounded'>
-                                Główny
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                      <input
+                        type='text'
+                        name='meta_title'
+                        value={formData.meta_title || ''}
+                        onChange={handleInputChange}
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                      />
                     </div>
-                  )}
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Slug URL
+                      </label>
+                      <input
+                        type='text'
+                        name='slug'
+                        value={formData.slug || ''}
+                        onChange={handleInputChange}
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                      />
+                    </div>
+                  </div>
+
+                  <div className='mb-6'>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Meta Opis
+                    </label>
+                    <textarea
+                      name='meta_description'
+                      value={formData.meta_description || ''}
+                      onChange={handleInputChange}
+                      rows={2}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                    />
+                  </div>
+
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        OG Tytuł
+                      </label>
+                      <input
+                        type='text'
+                        name='og_title'
+                        value={formData.og_title || ''}
+                        onChange={handleInputChange}
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        OG Opis
+                      </label>
+                      <input
+                        type='text'
+                        name='og_description'
+                        value={formData.og_description || ''}
+                        onChange={handleInputChange}
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                      />
+                    </div>
+                  </div>
+
+                  <div className='mb-6'>
+                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      Teksty alternatywne dla obrazów (oddzielone przecinkami)
+                    </label>
+                    <input
+                      type='text'
+                      value={(formData.alt_texts || []).join(', ')}
+                      onChange={(e) => handleArrayInputChange(e, 'alt_texts')}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                      placeholder='np. Firanka w salonie, Biała firanka'
+                    />
+                  </div>
+                </div>
 
                 <div className='flex justify-end mt-6'>
                   <button
