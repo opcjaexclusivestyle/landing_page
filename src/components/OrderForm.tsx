@@ -381,32 +381,11 @@ export default function OrderForm({
         },
       };
 
+      // Dodaj produkt do koszyka
       dispatch(addToCart(cartItem));
 
-      // Utwórz sesję płatności
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          totalAmount: price,
-          cancelRoute: '/cart',
-          productIds: productId,
-          currentRoute: '/cart',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || 'Wystąpił błąd podczas przetwarzania płatności',
-        );
-      }
-
-      // Przekieruj do strony płatności Stripe
-      window.location.href = data.url;
+      // Przekieruj do koszyka
+      window.location.href = '/cart';
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd',
@@ -1029,6 +1008,22 @@ export default function OrderForm({
             </div>
           </div>
 
+          {/* Ilość sztuk - przeniesiona spod kalkulatora */}
+          <div className='mb-6'>
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Ilość sztuk
+            </label>
+            <input
+              type='number'
+              name='quantity'
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              min='1'
+              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+            />
+          </div>
+
           {/* Przewodnik pomiarowy */}
           <div className='mb-8 bg-gray-50 p-4 rounded-lg border border-gray-100'>
             <div className='flex items-start'>
@@ -1202,58 +1197,21 @@ export default function OrderForm({
             </div>
           </div>
 
-          {/* NOWA KOLEJNOŚĆ: 6. Szczegóły zamówienia */}
-          <div className='space-y-6 mb-8'>
-            <h2 className='text-xl font-light text-deep-navy mb-4'>
-              Szczegóły zamówienia
-            </h2>
-            <div className='grid grid-cols-1 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Produkt / szczegóły *
-                </label>
-                <input
-                  type='text'
-                  name='productDetails'
-                  value={formData.productDetails}
-                  onChange={handleChange}
-                  required
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                />
-                <p className='text-sm text-gray-500 mt-1'>
-                  Podaj nazwę i szczegóły zamawianego produktu
-                </p>
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Ilość *
-                </label>
-                <input
-                  type='number'
-                  name='quantity'
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  required
-                  min='1'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Dodatkowe uwagi
-                </label>
-                <textarea
-                  name='comments'
-                  value={formData.comments}
-                  onChange={handleChange}
-                  rows={3}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                />
-              </div>
-            </div>
+          {/* Dodatkowe uwagi do zamówienia */}
+          <div className='mb-8'>
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
+              Dodatkowe uwagi do zamówienia
+            </label>
+            <textarea
+              name='comments'
+              value={formData.comments}
+              onChange={handleChange}
+              rows={3}
+              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+            />
           </div>
 
-          {/* Przycisk zamówienia */}
+          {/* Przycisk dodania do koszyka */}
           <button
             type='submit'
             disabled={isLoading}
@@ -1288,7 +1246,7 @@ export default function OrderForm({
                 className='flex items-center justify-center'
                 style={{ color: 'black' }}
               >
-                Zamów teraz
+                Dodaj do koszyka
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-5 w-5 ml-2'
@@ -1300,7 +1258,7 @@ export default function OrderForm({
                     strokeLinecap='round'
                     strokeLinejoin='round'
                     strokeWidth={2}
-                    d='M14 5l7 7m0 0l-7 7m7-7H3'
+                    d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
                   />
                 </svg>
               </span>

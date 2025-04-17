@@ -1,8 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Konfiguracja Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Dodajemy awaryjne wartości dla produkcji w przypadku, gdy zmienne środowiskowe nie są dostępne
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  'https://siyavnvmbwjhwgjwunjr.supabase.co';
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpeWF2bnZtYndqaHdnand1bmpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyODMxOTMsImV4cCI6MjA1OTg1OTE5M30.ec0r2KT_A2ZKV6cfQUOC7OPUzWqjzic7KFpox3b5z6Q';
 
 // Weryfikacja dostępności klucza i URL-a
 if (!supabaseUrl) {

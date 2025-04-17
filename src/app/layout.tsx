@@ -41,8 +41,6 @@ export default function RootLayout({
         />
         <link rel='manifest' href='/site.webmanifest' />
         <meta name='theme-color' content='#152354' />
-
-        <link rel='stylesheet' href='https://use.typekit.net/rpg6tht.css' />
       </head>
       <body className={inter.className}>
         <ReduxProvider>
