@@ -79,7 +79,13 @@ export default function EditProductPage({
             currentPrice: data.current_price || 0,
             lowestPrice: data.lowest_price || 0,
             sizes: data.sizes || [],
-            colors: data.color_variants || [],
+            colors: Array.isArray(data.color_variants)
+              ? data.color_variants.map((variant: any) => ({
+                  color: variant.color_code || variant.color || '', // Obsługa obu formatów
+                  name: variant.name || '',
+                  images: variant.images || [],
+                }))
+              : [],
             sheetPrices: data.sheet_prices || {},
             benefits: data.benefits || [''],
           });
@@ -345,7 +351,11 @@ export default function EditProductPage({
         current_price: formData.currentPrice,
         lowest_price: formData.lowestPrice,
         sizes: formData.sizes,
-        color_variants: formData.colors,
+        color_variants: formData.colors.map((color) => ({
+          name: color.name,
+          color_code: color.color, // Mapowanie color na color_code dla zgodności z testami
+          images: color.images,
+        })),
         sheet_prices: formData.sheetPrices,
         benefits: formData.benefits.filter((benefit) => benefit.trim() !== ''),
         main_image: formData.colors[0]?.images[0] || null,

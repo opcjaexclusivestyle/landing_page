@@ -70,38 +70,71 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         )}
 
-        <nav className='space-y-2'>
+        <nav className='space-y-1'>
           <Link
             href='/admin'
             className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
           >
             Pulpit
           </Link>
+
+          {/* Produkty */}
+          <div className='pt-2 mt-2 border-t border-gray-700'>
+            <p className='text-xs uppercase tracking-wider text-gray-400 px-4 py-1'>
+              Produkty
+            </p>
+          </div>
+
           <Link
-            href='/admin/produkty'
+            href='/admin/produkty-lniane'
             className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
           >
-            Produkty
-          </Link>
-          <Link
-            href='/admin/produkty/nowy'
-            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
-          >
-            Dodaj nowy produkt
-          </Link>
-          <Link
-            href='/admin/zamowienia'
-            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
-          >
-            Zamówienia
-          </Link>
-          <Link
-            href='/admin/uzytkownicy'
-            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
-          >
-            Użytkownicy
+            Produkty lniane
           </Link>
 
+          <Link
+            href='/admin/kalkulator-produkty'
+            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
+          >
+            Produkty kalkulatora
+          </Link>
+
+          <Link
+            href='/admin/produkty-zaslony'
+            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
+          >
+            Zasłony
+          </Link>
+
+          {/* Blog */}
+          <div className='pt-2 mt-2 border-t border-gray-700'>
+            <p className='text-xs uppercase tracking-wider text-gray-400 px-4 py-1'>
+              Blog
+            </p>
+          </div>
+
+          <Link
+            href='/admin/blog'
+            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
+          >
+            Wpisy na blogu
+          </Link>
+
+          {/* Opinie */}
+          <div className='pt-2 mt-2 border-t border-gray-700'>
+            <p className='text-xs uppercase tracking-wider text-gray-400 px-4 py-1'>
+              Opinie
+            </p>
+          </div>
+
+          <Link
+            href='/admin/opinie'
+            className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
+          >
+            Opinie klientów
+          </Link>
+
+          {/* Inne */}
           <div className='pt-4 mt-6 border-t border-gray-700'>
             <button
               onClick={handleLogout}
@@ -114,7 +147,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Główna zawartość */}
-      <main className='flex-1 p-8 bg-gray-50'>{children}</main>
+      <main className='flex-1 p-8 bg-gray-50 overflow-auto'>{children}</main>
     </div>
   );
 }

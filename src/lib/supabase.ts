@@ -1,26 +1,64 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Konfiguracja klienta Supabase
-const supabaseUrl = 'https://siyavnvmbwjhwgjwunjr.supabase.co';
-const supabaseKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpeWF2bnZtYndqaHdnand1bmpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyODMxOTMsImV4cCI6MjA1OTg1OTE5M30.ec0r2KT_A2ZKV6cfQUOC7OPUzWqjzic7KFpox3b5z6Q';
+// Konfiguracja Supabase
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase Key dostępny:', supabaseKey ? 'Tak' : 'Nie');
-console.log(
-  'Początek klucza:',
-  supabaseKey ? supabaseKey.substring(0, 5) + '...' : 'brak',
-);
+// Weryfikacja dostępności klucza i URL-a
+if (!supabaseUrl) {
+  console.error('Brak URL Supabase, sprawdź zmienne środowiskowe');
+}
 
-// Utworzenie klienta Supabase z dodatkowymi nagłówkami
+if (!supabaseKey) {
+  console.error('Brak klucza Supabase, sprawdź zmienne środowiskowe');
+} else {
+  console.log('Klucz Supabase dostępny:', supabaseKey.substring(0, 5) + '...');
+}
+
+console.log('URL Supabase:', supabaseUrl);
+
+// Tworzenie klienta Supabase z kluczem anonimowym
+// Uwaga: ten klient ma ograniczone uprawnienia,
+// więc będzie działał dla operacji dozwolonych dla ról publicznych
 export const supabase = createClient(supabaseUrl, supabaseKey, {
-  global: {
-    headers: {
-      apikey: supabaseKey,
-      Authorization: `Bearer ${supabaseKey}`,
-    },
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
   },
 });
+
+// Funkcja pomocnicza - testowanie połączenia
+export async function testConnection() {
+  console.log('Testowanie połączenia z Supabase...');
+
+  try {
+    // Test z użyciem klienta Supabase
+    const supabaseTest = await supabase
+      .from('testimonials')
+      .select('count(*)', { count: 'exact', head: true });
+
+    console.log('Test klienta Supabase:', supabaseTest);
+
+    return {
+      success: !supabaseTest.error,
+      data: supabaseTest,
+    };
+  } catch (error) {
+    console.error('Błąd podczas testowania połączenia:', error);
+    return { success: false, error };
+  }
+}
+
+// Funkcja pomocnicza do tworzenia publicznych URL-i dla Supabase Storage
+export function getPublicStorageUrl(bucket: string, path: string): string {
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
+}
+
+// Interfejs ogólny dla odpowiedzi API
+export interface ApiResponse<T> {
+  data: T | null;
+  error: Error | null;
+}
 
 // Funkcja generująca obrazy-placeholdery
 function getPlaceholderImage(
@@ -247,47 +285,6 @@ export async function getTestimonialsWithFetch(options = { limit: 10 }) {
   }
 }
 
-// Funkcja testowa sprawdzająca połączenie
-export async function testConnection() {
-  console.log('Testowanie połączenia z Supabase...');
-
-  try {
-    // Test z użyciem klienta Supabase
-    const supabaseTest = await supabase
-      .from('testimonials')
-      .select('count(*)', { count: 'exact', head: true });
-
-    console.log('Test klienta Supabase:', supabaseTest);
-
-    // Test z użyciem bezpośrednio fetch API
-    const fetchResponse = await fetch(
-      `${supabaseUrl}/rest/v1/testimonials?select=count`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-      },
-    );
-
-    const fetchData = await fetchResponse.json();
-    console.log('Test fetch API:', {
-      status: fetchResponse.status,
-      data: fetchData,
-    });
-
-    return {
-      supabaseTest,
-      fetchTest: { status: fetchResponse.status, data: fetchData },
-    };
-  } catch (error) {
-    console.error('Błąd podczas testowania połączenia:', error);
-    return { error };
-  }
-}
-
 // Funkcja do pobierania produktów do kalkulatora
 export async function fetchCalculatorProducts(): Promise<CalcProduct[]> {
   console.log('Pobieranie produktów do kalkulatora...');
@@ -320,11 +317,6 @@ export async function fetchCalculatorProducts(): Promise<CalcProduct[]> {
     console.error('Wyjątek podczas pobierania produktów kalkulatora:', err);
     throw err;
   }
-}
-
-// Funkcja pomocnicza do tworzenia publicznych URL-i dla Supabase Storage
-export function getPublicStorageUrl(bucket: string, path: string): string {
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
 
 // Funkcja do pobierania wszystkich postów blogowych

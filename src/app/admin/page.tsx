@@ -2,145 +2,69 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import JwtDebugger from '@/components/JwtDebugger';
 
-// Definiowanie typów dla danych produktów i zamówień
-interface Product {
-  id: number;
-  name: string;
-  current_price: number;
-  created_at: string;
-}
-
-interface Order {
-  id: number;
-  customer_name: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-}
-
-interface DashboardStats {
-  productCount: number;
-  orderCount: number;
-  recentProducts: Product[];
-  recentOrders: Order[];
-  adminInfo?: {
-    email: string;
-    role: string;
-  };
+interface AdminStats {
+  blogCount: number;
+  productsLinenCount: number;
+  calculatorProductsCount: number;
+  testimonialsCount: number;
 }
 
 export default function AdminDashboard() {
-  const router = useRouter();
-  // Używamy hooka do weryfikacji uprawnień administratora
   const { isVerifying } = useAdminAuth();
-
-  const [stats, setStats] = useState<DashboardStats>({
-    productCount: 0,
-    orderCount: 0,
-    recentProducts: [],
-    recentOrders: [],
+  const [stats, setStats] = useState<AdminStats>({
+    blogCount: 0,
+    productsLinenCount: 0,
+    calculatorProductsCount: 0,
+    testimonialsCount: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    // Pobieramy dane tylko jeśli weryfikacja jest zakończona
     if (!isVerifying) {
       fetchStats();
     }
-
-    async function fetchStats() {
-      try {
-        // Sprawdzamy, czy dane są już w pamięci podręcznej
-        const cachedStats = sessionStorage.getItem('adminDashboardStats');
-        const cacheTime = sessionStorage.getItem('adminDashboardStatsTime');
-
-        // Wykorzystujemy cache, jeśli dane są nie starsze niż 5 minut
-        if (cachedStats && cacheTime) {
-          const now = new Date().getTime();
-          const cacheAge = now - parseInt(cacheTime);
-
-          // Jeśli dane są względnie świeże (mniej niż 5 minut)
-          if (cacheAge < 5 * 60 * 1000) {
-            if (mounted) {
-              setStats(JSON.parse(cachedStats));
-              setLoading(false);
-              return;
-            }
-          }
-        }
-
-        // Pobieranie danych statystycznych z Supabase
-        const { count: productCount } = await supabase
-          .from('products')
-          .select('*', { count: 'exact', head: true });
-
-        const { count: orderCount } = await supabase
-          .from('orders')
-          .select('*', { count: 'exact', head: true });
-
-        const { data: recentProducts } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        const { data: recentOrders } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        // Pobieranie danych sesji
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session) {
-          const newStats = {
-            productCount: productCount || 0,
-            orderCount: orderCount || 0,
-            recentProducts: (recentProducts as Product[]) || [],
-            recentOrders: (recentOrders as Order[]) || [],
-            adminInfo: {
-              email: session.user.email || '',
-              role: 'admin',
-            },
-          };
-
-          // Zapisujemy dane w pamięci podręcznej
-          sessionStorage.setItem(
-            'adminDashboardStats',
-            JSON.stringify(newStats),
-          );
-          sessionStorage.setItem(
-            'adminDashboardStatsTime',
-            new Date().getTime().toString(),
-          );
-
-          if (mounted) {
-            setStats(newStats);
-            setLoading(false);
-          }
-        }
-      } catch (error) {
-        console.error('Błąd podczas pobierania statystyk:', error);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    return () => {
-      mounted = false;
-    };
   }, [isVerifying]);
+
+  async function fetchStats() {
+    try {
+      setLoading(true);
+
+      // Pobieranie liczby wpisów na blogu
+      const { count: blogCount } = await supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact', head: true });
+
+      // Pobieranie liczby produktów lnianych
+      const { count: productsLinenCount } = await supabase
+        .from('products_linen')
+        .select('*', { count: 'exact', head: true });
+
+      // Pobieranie liczby produktów kalkulatora
+      const { count: calculatorProductsCount } = await supabase
+        .from('calculator_products')
+        .select('*', { count: 'exact', head: true });
+
+      // Pobieranie liczby opinii
+      const { count: testimonialsCount } = await supabase
+        .from('testimonials')
+        .select('*', { count: 'exact', head: true });
+
+      setStats({
+        blogCount: blogCount || 0,
+        productsLinenCount: productsLinenCount || 0,
+        calculatorProductsCount: calculatorProductsCount || 0,
+        testimonialsCount: testimonialsCount || 0,
+      });
+    } catch (error) {
+      console.error('Błąd podczas pobierania statystyk:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Zwracamy komponent ładowania, gdy trwa weryfikacja
   if (isVerifying) {
@@ -154,7 +78,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className='text-3xl font-bold mb-8'>Pulpit</h1>
+      <h1 className='text-3xl font-bold mb-8'>Panel Administratora</h1>
 
       {/* Debugger JWT - tylko w środowisku deweloperskim */}
       {process.env.NODE_ENV === 'development' && <JwtDebugger />}
@@ -166,181 +90,82 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <>
-          {/* Informacje o zalogowanym administratorze */}
-          {stats.adminInfo && (
-            <div className='bg-white shadow rounded-lg p-6 mb-8'>
-              <h2 className='text-xl font-medium text-gray-700 mb-4'>
-                Twoje konto administratora
-              </h2>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div>
-                  <p className='text-sm text-gray-500'>Email:</p>
-                  <p className='font-medium'>{stats.adminInfo.email}</p>
-                </div>
-                <div>
-                  <p className='text-sm text-gray-500'>Rola:</p>
-                  <p className='font-medium'>
-                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--gold)] text-white'>
-                      {stats.adminInfo.role}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Karty ze statystykami */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-8'>
-            <div className='bg-white shadow rounded-lg p-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+            <Link
+              href='/admin/produkty-lniane'
+              className='bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow'
+            >
               <h2 className='text-xl font-medium text-gray-700 mb-2'>
-                Produkty
+                Produkty lniane
               </h2>
               <p className='text-3xl font-bold text-[var(--gold)]'>
-                {stats.productCount}
+                {stats.productsLinenCount}
               </p>
               <p className='text-sm text-gray-500 mt-2'>
-                Łączna liczba produktów w sklepie
+                Łączna liczba produktów lnianych
               </p>
-            </div>
+            </Link>
 
-            <div className='bg-white shadow rounded-lg p-6'>
+            <Link
+              href='/admin/kalkulator-produkty'
+              className='bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow'
+            >
               <h2 className='text-xl font-medium text-gray-700 mb-2'>
-                Zamówienia
+                Produkty kalkulatora
               </h2>
               <p className='text-3xl font-bold text-[var(--gold)]'>
-                {stats.orderCount}
+                {stats.calculatorProductsCount}
               </p>
               <p className='text-sm text-gray-500 mt-2'>
-                Łączna liczba zamówień
+                Łączna liczba produktów kalkulatora
               </p>
-            </div>
+            </Link>
+
+            <Link
+              href='/admin/blog'
+              className='bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow'
+            >
+              <h2 className='text-xl font-medium text-gray-700 mb-2'>Blog</h2>
+              <p className='text-3xl font-bold text-[var(--gold)]'>
+                {stats.blogCount}
+              </p>
+              <p className='text-sm text-gray-500 mt-2'>
+                Łączna liczba wpisów na blogu
+              </p>
+            </Link>
+
+            <Link
+              href='/admin/opinie'
+              className='bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow'
+            >
+              <h2 className='text-xl font-medium text-gray-700 mb-2'>Opinie</h2>
+              <p className='text-3xl font-bold text-[var(--gold)]'>
+                {stats.testimonialsCount}
+              </p>
+              <p className='text-sm text-gray-500 mt-2'>
+                Łączna liczba opinii klientów
+              </p>
+            </Link>
           </div>
 
-          {/* Ostatnio dodane produkty */}
+          {/* Instrukcje */}
           <div className='bg-white shadow rounded-lg p-6 mb-8'>
             <h2 className='text-xl font-medium text-gray-700 mb-4'>
-              Ostatnio dodane produkty
+              Witaj w panelu administratora!
             </h2>
-
-            {stats.recentProducts && stats.recentProducts.length > 0 ? (
-              <div className='overflow-x-auto'>
-                <table className='w-full'>
-                  <thead>
-                    <tr className='bg-gray-50'>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Nazwa
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Cena
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Data dodania
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Akcje
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats.recentProducts.map((product) => (
-                      <tr key={product.id} className='border-t'>
-                        <td className='px-4 py-3'>{product.name}</td>
-                        <td className='px-4 py-3'>
-                          {product.current_price.toFixed(2)} zł
-                        </td>
-                        <td className='px-4 py-3'>
-                          {new Date(product.created_at).toLocaleDateString(
-                            'pl-PL',
-                          )}
-                        </td>
-                        <td className='px-4 py-3'>
-                          <Link
-                            href={`/admin/produkty/${product.id}`}
-                            className='text-[var(--gold)] hover:underline'
-                          >
-                            Edytuj
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className='text-gray-500 text-center py-4'>
-                Brak produktów do wyświetlenia
+            <p className='text-gray-600 mb-4'>
+              Z tego miejsca możesz zarządzać wszystkimi produktami, wpisami na
+              blogu i opiniami klientów. Wybierz jedną z sekcji powyżej lub z
+              menu bocznego, aby rozpocząć edycję.
+            </p>
+            <div className='bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700'>
+              <p className='font-medium'>Wskazówka:</p>
+              <p>
+                Wszystkie zmiany są zapisywane natychmiast w bazie danych.
+                Upewnij się, że wprowadzasz poprawne dane.
               </p>
-            )}
-          </div>
-
-          {/* Ostatnie zamówienia */}
-          <div className='bg-white shadow rounded-lg p-6'>
-            <h2 className='text-xl font-medium text-gray-700 mb-4'>
-              Ostatnie zamówienia
-            </h2>
-
-            {stats.recentOrders && stats.recentOrders.length > 0 ? (
-              <div className='overflow-x-auto'>
-                <table className='w-full'>
-                  <thead>
-                    <tr className='bg-gray-50'>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        ID
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Klient
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Kwota
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Status
-                      </th>
-                      <th className='px-4 py-2 text-left text-sm font-medium text-gray-500'>
-                        Data
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats.recentOrders.map((order) => (
-                      <tr key={order.id} className='border-t'>
-                        <td className='px-4 py-3'>{order.id}</td>
-                        <td className='px-4 py-3'>{order.customer_name}</td>
-                        <td className='px-4 py-3'>
-                          {order.total_amount.toFixed(2)} zł
-                        </td>
-                        <td className='px-4 py-3'>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === 'completed'
-                                ? 'bg-green-100 text-green-800'
-                                : order.status === 'processing'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}
-                          >
-                            {order.status === 'completed'
-                              ? 'Zrealizowane'
-                              : order.status === 'processing'
-                              ? 'W realizacji'
-                              : 'Nowe'}
-                          </span>
-                        </td>
-                        <td className='px-4 py-3'>
-                          {new Date(order.created_at).toLocaleDateString(
-                            'pl-PL',
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className='text-gray-500 text-center py-4'>
-                Brak zamówień do wyświetlenia
-              </p>
-            )}
+            </div>
           </div>
         </>
       )}

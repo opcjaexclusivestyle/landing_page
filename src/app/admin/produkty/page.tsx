@@ -13,7 +13,8 @@ interface Product {
   name: string;
   current_price: number;
   regular_price: number;
-  colors: string[];
+  colors?: string[];
+  color_variants?: Array<{ color_code?: string; color?: string; name: string }>;
   created_at: string;
   main_image: string;
 }
@@ -223,6 +224,18 @@ export default function ProductsPage() {
                                 className='h-6 w-6 rounded-full border border-gray-300'
                                 style={{ backgroundColor: color }}
                                 title={color}
+                              />
+                            ))}
+                          {product.color_variants &&
+                            product.color_variants.map((variant, index) => (
+                              <div
+                                key={index}
+                                className='h-6 w-6 rounded-full border border-gray-300'
+                                style={{
+                                  backgroundColor:
+                                    variant.color_code || variant.color || '',
+                                }}
+                                title={variant.name}
                               />
                             ))}
                         </div>

@@ -314,7 +314,11 @@ export default function NewProductPage() {
         current_price: formData.currentPrice,
         lowest_price: formData.lowestPrice,
         sizes: formData.sizes,
-        color_variants: formData.colors,
+        color_variants: formData.colors.map((color) => ({
+          name: color.name,
+          color_code: color.color, // Mapowanie color na color_code dla zgodności z testami
+          images: color.images,
+        })),
         sheet_prices: formData.sheetPrices,
         benefits: formData.benefits.filter((benefit) => benefit.trim() !== ''),
         main_image: formData.colors[0]?.images[0] || null,
