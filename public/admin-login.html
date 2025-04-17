@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logowanie do panelu administratora</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .login-box {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+      h1 {
+        margin-top: 0;
+        color: #333;
+        text-align: center;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #004080;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: #003366;
+      }
+      .error-message {
+        color: red;
+        margin-top: 1rem;
+        text-align: center;
+      }
+      .actions {
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-box">
+      <h1>Panel administratora</h1>
+      <div id="error-container" class="error-message"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Hasło</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Zaloguj się</button>
+      </form>
+      <div class="actions">
+        <button
+          id="go-to-admin"
+          style="background-color: #28a745; margin-top: 10px"
+        >
+          Przejdź do logowania w aplikacji
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById('go-to-admin')
+        .addEventListener('click', function () {
+          window.location.href = '/login?returnUrl=/admin';
+        });
+
+      document
+        .getElementById('login-form')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          const errorContainer = document.getElementById('error-container');
+
+          errorContainer.textContent = '';
+
+          try {
+            // Przekierowanie do głównej strony logowania w aplikacji z parametrem returnUrl
+            window.location.href = '/login?returnUrl=/admin';
+          } catch (error) {
+            errorContainer.textContent = 'Wystąpił błąd podczas logowania';
+            console.error('Error:', error);
+          }
+        });
+    </script>
+  </body>
+</html>

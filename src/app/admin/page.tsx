@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import JwtDebugger from '@/components/JwtDebugger';
 
 // Definiowanie typów dla danych produktów i zamówień
 interface Product {
@@ -24,9 +28,17 @@ interface DashboardStats {
   orderCount: number;
   recentProducts: Product[];
   recentOrders: Order[];
+  adminInfo?: {
+    email: string;
+    role: string;
+  };
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  // Używamy hooka do weryfikacji uprawnień administratora
+  const { isVerifying } = useAdminAuth();
+
   const [stats, setStats] = useState<DashboardStats>({
     productCount: 0,
     orderCount: 0,
@@ -36,11 +48,35 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Pobieramy dane tylko jeśli weryfikacja jest zakończona
+    if (!isVerifying) {
+      fetchStats();
+    }
+
     async function fetchStats() {
       try {
-        // Pobieranie danych statystycznych z Supabase
-        // To są zapytania przykładowe, możesz je dostosować do rzeczywistej struktury bazy danych
+        // Sprawdzamy, czy dane są już w pamięci podręcznej
+        const cachedStats = sessionStorage.getItem('adminDashboardStats');
+        const cacheTime = sessionStorage.getItem('adminDashboardStatsTime');
 
+        // Wykorzystujemy cache, jeśli dane są nie starsze niż 5 minut
+        if (cachedStats && cacheTime) {
+          const now = new Date().getTime();
+          const cacheAge = now - parseInt(cacheTime);
+
+          // Jeśli dane są względnie świeże (mniej niż 5 minut)
+          if (cacheAge < 5 * 60 * 1000) {
+            if (mounted) {
+              setStats(JSON.parse(cachedStats));
+              setLoading(false);
+              return;
+            }
+          }
+        }
+
+        // Pobieranie danych statystycznych z Supabase
         const { count: productCount } = await supabase
           .from('products')
           .select('*', { count: 'exact', head: true });
@@ -61,25 +97,67 @@ export default function AdminDashboard() {
           .order('created_at', { ascending: false })
           .limit(5);
 
-        setStats({
-          productCount: productCount || 0,
-          orderCount: orderCount || 0,
-          recentProducts: (recentProducts as Product[]) || [],
-          recentOrders: (recentOrders as Order[]) || [],
-        });
+        // Pobieranie danych sesji
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session) {
+          const newStats = {
+            productCount: productCount || 0,
+            orderCount: orderCount || 0,
+            recentProducts: (recentProducts as Product[]) || [],
+            recentOrders: (recentOrders as Order[]) || [],
+            adminInfo: {
+              email: session.user.email || '',
+              role: 'admin',
+            },
+          };
+
+          // Zapisujemy dane w pamięci podręcznej
+          sessionStorage.setItem(
+            'adminDashboardStats',
+            JSON.stringify(newStats),
+          );
+          sessionStorage.setItem(
+            'adminDashboardStatsTime',
+            new Date().getTime().toString(),
+          );
+
+          if (mounted) {
+            setStats(newStats);
+            setLoading(false);
+          }
+        }
       } catch (error) {
         console.error('Błąd podczas pobierania statystyk:', error);
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
-    fetchStats();
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [isVerifying]);
+
+  // Zwracamy komponent ładowania, gdy trwa weryfikacja
+  if (isVerifying) {
+    return (
+      <div className='text-center py-10'>
+        <div className='w-12 h-12 border-4 border-t-[var(--gold)] border-gray-200 rounded-full animate-spin mx-auto'></div>
+        <p className='mt-4 text-gray-600'>Weryfikacja uprawnień...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       <h1 className='text-3xl font-bold mb-8'>Pulpit</h1>
+
+      {/* Debugger JWT - tylko w środowisku deweloperskim */}
+      {process.env.NODE_ENV === 'development' && <JwtDebugger />}
 
       {loading ? (
         <div className='text-center py-10'>
@@ -88,6 +166,29 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <>
+          {/* Informacje o zalogowanym administratorze */}
+          {stats.adminInfo && (
+            <div className='bg-white shadow rounded-lg p-6 mb-8'>
+              <h2 className='text-xl font-medium text-gray-700 mb-4'>
+                Twoje konto administratora
+              </h2>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div>
+                  <p className='text-sm text-gray-500'>Email:</p>
+                  <p className='font-medium'>{stats.adminInfo.email}</p>
+                </div>
+                <div>
+                  <p className='text-sm text-gray-500'>Rola:</p>
+                  <p className='font-medium'>
+                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--gold)] text-white'>
+                      {stats.adminInfo.role}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Karty ze statystykami */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-8'>
             <div className='bg-white shadow rounded-lg p-6'>
@@ -153,12 +254,12 @@ export default function AdminDashboard() {
                           )}
                         </td>
                         <td className='px-4 py-3'>
-                          <a
+                          <Link
                             href={`/admin/produkty/${product.id}`}
                             className='text-[var(--gold)] hover:underline'
                           >
                             Edytuj
-                          </a>
+                          </Link>
                         </td>
                       </tr>
                     ))}

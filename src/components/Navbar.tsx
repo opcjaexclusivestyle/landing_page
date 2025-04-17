@@ -4,15 +4,53 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { supabase } from '@/lib/supabase';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Pobieranie danych koszyka z Redux
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  // Sprawdzamy, czy użytkownik jest administratorem
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      // Najpierw sprawdzamy pamięć podręczną
+      const cachedAdminStatus = sessionStorage.getItem('adminVerified');
+      if (cachedAdminStatus === 'true') {
+        setIsAdmin(true);
+        return;
+      }
+
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (profile?.role === 'admin') {
+            setIsAdmin(true);
+          }
+        }
+      } catch (error) {
+        console.error(
+          'Błąd podczas sprawdzania statusu administratora:',
+          error,
+        );
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
 
   // Obsługa animacji paska nawigacyjnego przy przewijaniu
   useEffect(() => {
@@ -104,6 +142,28 @@ export default function Navbar() {
                 Kontakt
               </Link>
 
+              {/* Ikona administratora - wyświetlana tylko jeśli użytkownik jest adminem */}
+              {isAdmin && (
+                <Link
+                  href='/admin'
+                  className='text-gray-700 hover:text-[var(--gold)] transition-colors'
+                  title='Panel administratora'
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    className='w-6 h-6'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M11.484 2.17a.75.75 0 0 1 1.032 0 11.209 11.209 0 0 0 7.877 3.08.75.75 0 0 1 .722.515 12.74 12.74 0 0 1 .635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 0 1-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 0 1 .722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75ZM12 15a.75.75 0 0 0 0 1.5h.007a.75.75 0 0 0 0-1.5H12Z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </Link>
+              )}
+
               {/* Koszyk */}
               <Link
                 href='/cart'
@@ -133,6 +193,28 @@ export default function Navbar() {
 
             {/* Przycisk menu mobilnego */}
             <div className='md:hidden flex items-center space-x-4'>
+              {/* Ikona administratora dla urządzeń mobilnych */}
+              {isAdmin && (
+                <Link
+                  href='/admin'
+                  className='text-gray-700 hover:text-[var(--gold)] transition-colors'
+                  title='Panel administratora'
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
+                    fill='currentColor'
+                    className='w-6 h-6'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M11.484 2.17a.75.75 0 0 1 1.032 0 11.209 11.209 0 0 0 7.877 3.08.75.75 0 0 1 .722.515 12.74 12.74 0 0 1 .635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 0 1-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 0 1 .722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75ZM12 15a.75.75 0 0 0 0 1.5h.007a.75.75 0 0 0 0-1.5H12Z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </Link>
+              )}
+
               {/* Ikona koszyka na urządzeniach mobilnych */}
               <Link
                 href='/cart'
@@ -242,17 +324,33 @@ export default function Navbar() {
             >
               Kontakt
             </Link>
+            {isAdmin && (
+              <Link
+                href='/admin'
+                className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)] flex items-center'
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  viewBox='0 0 24 24'
+                  fill='currentColor'
+                  className='w-5 h-5 mr-2'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M11.484 2.17a.75.75 0 0 1 1.032 0 11.209 11.209 0 0 0 7.877 3.08.75.75 0 0 1 .722.515 12.74 12.74 0 0 1 .635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 0 1-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 0 1 .722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75ZM12 15a.75.75 0 0 0 0 1.5h.007a.75.75 0 0 0 0-1.5H12Z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+                Panel Administratora
+              </Link>
+            )}
             <Link
               href='/cart'
               className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)] flex items-center'
               onClick={() => setIsMenuOpen(false)}
             >
               <span className='mr-2'>Koszyk</span>
-              {itemCount > 0 && (
-                <span className='bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
-                  {itemCount}
-                </span>
-              )}
             </Link>
           </div>
         </div>

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // Typ dla produktów
 interface Product {
@@ -17,6 +19,10 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const router = useRouter();
+  // Używamy hooka do weryfikacji uprawnień administratora
+  const { isVerifying } = useAdminAuth();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,6 +32,11 @@ export default function ProductsPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
+    // Pobieramy dane tylko jeśli weryfikacja jest zakończona
+    if (!isVerifying) {
+      fetchProducts();
+    }
+
     async function fetchProducts() {
       setLoading(true);
       try {
@@ -43,9 +54,7 @@ export default function ProductsPage() {
         setLoading(false);
       }
     }
-
-    fetchProducts();
-  }, [sortField, sortDirection]);
+  }, [sortField, sortDirection, isVerifying]);
 
   // Funkcja do zmiany sortowania
   const toggleSort = (field: 'name' | 'current_price' | 'created_at') => {
@@ -77,6 +86,16 @@ export default function ProductsPage() {
       }
     }
   };
+
+  // Zwracamy komponent ładowania, gdy trwa weryfikacja
+  if (isVerifying) {
+    return (
+      <div className='text-center py-10'>
+        <div className='w-12 h-12 border-4 border-t-[var(--gold)] border-gray-200 rounded-full animate-spin mx-auto'></div>
+        <p className='mt-4 text-gray-600'>Weryfikacja uprawnień...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
