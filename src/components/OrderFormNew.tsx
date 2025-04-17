@@ -7,6 +7,7 @@ import { setCustomerInfo } from '@/store/customerSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import productsConfig from '@/config/products.json';
+import AccordionCertificates from './AccordionCertificates';
 
 interface Product {
   name: string;
@@ -498,6 +499,9 @@ export default function OrderForm({ productName }: OrderFormProps) {
               </div>
             </div>
           </div>
+
+          {/* Dodanie sekcji z certyfikatami */}
+          <AccordionCertificates />
 
           {/* Przewodnik pomiarowy */}
           <div className='mb-8 bg-gray-50 p-4 rounded-lg border border-gray-100'>

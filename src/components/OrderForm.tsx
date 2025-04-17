@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import productsConfig from '@/config/products.json';
 import { fetchCalculatorProducts, CalcProduct } from '@/lib/supabase';
+import AccordionCertificates from './AccordionCertificates';
 
 interface Product {
   name: string;
@@ -911,6 +912,9 @@ export default function OrderForm({
 
           {/* NOWA KOLEJNOŚĆ: 3. Szczegóły kalkulacji */}
           <div className='mb-8'>
+            {/* Dodanie sekcji z certyfikatami */}
+            <AccordionCertificates />
+
             <div className='calculation-details bg-white/90 p-4 rounded-lg'>
               <h3 className='text-lg font-medium mb-3'>Szczegóły kalkulacji</h3>
               <div className='space-y-2'>

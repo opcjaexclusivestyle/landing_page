@@ -75,7 +75,6 @@ export default function Firany() {
         <div>
           {/* Sekcja About */}
           {/* <About /> */}
-          <Certification />
           {/* Sekcja typów zasłon */}
           {/* <TypesSection /> */}
 
@@ -90,6 +89,7 @@ export default function Firany() {
 
           {/* Formularz zamówienia */}
           <OrderForm />
+          <Certification />
 
           {/* Jak mierzyć */}
           <MeasuringGuide />
