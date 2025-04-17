@@ -128,6 +128,21 @@ export interface CalcProduct {
   imagePath?: string;
   images: string[];
   created_at?: string;
+  description?: string;
+  style_tags?: string[];
+  material?: string;
+  composition?: string;
+  pattern?: string;
+  color?: string;
+  height_cm?: number;
+  width_type?: string;
+  maintenance?: string;
+  meta_title?: string;
+  meta_description?: string;
+  alt_texts?: string[];
+  og_title?: string;
+  og_description?: string;
+  slug?: string;
 }
 
 // Interfejs dla posta blogowego

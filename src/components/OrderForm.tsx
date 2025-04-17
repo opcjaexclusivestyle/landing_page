@@ -16,6 +16,13 @@ interface Product {
   base?: string;
   imagePath: string;
   images: string[];
+  description?: string;
+  material?: string;
+  composition?: string;
+  alt_texts?: string[];
+  pattern?: string;
+  style_tags?: string[];
+  maintenance?: string;
 }
 
 interface OrderFormProps {
@@ -94,6 +101,7 @@ export default function OrderForm({
   const [productsLoading, setProductsLoading] = useState(true);
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
+  const [modalImageAlt, setModalImageAlt] = useState('');
   const [tapeError, setTapeError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showTapeImage, setShowTapeImage] = useState(false);
@@ -146,6 +154,15 @@ export default function OrderForm({
           base: product.base,
           imagePath: product.imagePath || product.image_path || '',
           images: Array.isArray(product.images) ? product.images : [],
+          description: product.description || '',
+          material: product.material || '',
+          composition: product.composition || '',
+          alt_texts: Array.isArray(product.alt_texts) ? product.alt_texts : [],
+          pattern: product.pattern || '',
+          style_tags: Array.isArray(product.style_tags)
+            ? product.style_tags
+            : [],
+          maintenance: product.maintenance || '',
         }));
 
         console.log('Zmapowane produkty:', mappedProducts);
@@ -309,7 +326,7 @@ export default function OrderForm({
     }));
   };
 
-  const openImageModal = (imageSrc: string) => {
+  const openImageModal = (imageSrc: string, imageAlt?: string) => {
     console.log('Otwieranie modalu z obrazem:', imageSrc);
 
     if (!imageSrc) {
@@ -318,6 +335,7 @@ export default function OrderForm({
     }
 
     setModalImageSrc(imageSrc);
+    setModalImageAlt(imageAlt || 'Powiększony podgląd materiału');
     setShowImageModal(true);
   };
 
@@ -529,6 +547,114 @@ export default function OrderForm({
                       Bazuje na: {selectedProduct.base}
                     </p>
                   )}
+
+                  {/* Informacje o wybranym produkcie */}
+                  {selectedProduct && (
+                    <div className='mt-3'>
+                      {selectedProduct.description && (
+                        <div className='mt-2'>
+                          <p className='text-sm text-gray-700'>
+                            {selectedProduct.description}
+                          </p>
+                        </div>
+                      )}
+
+                      {(selectedProduct.material ||
+                        selectedProduct.composition) && (
+                        <div className='mt-2 grid grid-cols-2 gap-2 text-sm'>
+                          {selectedProduct.material && (
+                            <div>
+                              <span className='font-medium text-gray-700'>
+                                Materiał:{' '}
+                              </span>
+                              <span className='text-gray-600'>
+                                {selectedProduct.material}
+                              </span>
+                            </div>
+                          )}
+
+                          {selectedProduct.composition && (
+                            <div>
+                              <span className='font-medium text-gray-700'>
+                                Skład:{' '}
+                              </span>
+                              <span className='text-gray-600'>
+                                {selectedProduct.composition}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Wyświetlanie wzoru i tagów stylu */}
+                      {(selectedProduct.pattern ||
+                        selectedProduct.style_tags) && (
+                        <div className='mt-2'>
+                          {selectedProduct.pattern && (
+                            <div className='mb-1'>
+                              <span className='font-medium text-gray-700'>
+                                Wzór:{' '}
+                              </span>
+                              <span className='text-gray-600'>
+                                {selectedProduct.pattern}
+                              </span>
+                            </div>
+                          )}
+
+                          {selectedProduct.style_tags &&
+                            selectedProduct.style_tags.length > 0 && (
+                              <div>
+                                <span className='font-medium text-gray-700'>
+                                  Style:{' '}
+                                </span>
+                                <div className='flex flex-wrap gap-1 mt-1'>
+                                  {selectedProduct.style_tags.map(
+                                    (tag, idx) => (
+                                      <span
+                                        key={idx}
+                                        className='inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full'
+                                      >
+                                        {tag}
+                                      </span>
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      )}
+
+                      {/* Informacje o pielęgnacji */}
+                      {selectedProduct.maintenance && (
+                        <div className='mt-3 p-2 bg-blue-50 rounded-md'>
+                          <div className='flex items-start'>
+                            <svg
+                              xmlns='http://www.w3.org/2000/svg'
+                              className='h-5 w-5 text-blue-600 mr-2 mt-0.5'
+                              fill='none'
+                              viewBox='0 0 24 24'
+                              stroke='currentColor'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth={2}
+                                d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                              />
+                            </svg>
+                            <div>
+                              <p className='text-sm font-medium text-blue-800'>
+                                Pielęgnacja:
+                              </p>
+                              <p className='text-sm text-blue-700'>
+                                {selectedProduct.maintenance}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Sekcja z miniaturkami materiałów - dostosowana logika wyświetlania */}
@@ -569,9 +695,14 @@ export default function OrderForm({
                                   >
                                     <Image
                                       src={imageUrl}
-                                      alt={`${
-                                        selectedProduct.name
-                                      } - miniatura ${index + 1}`}
+                                      alt={
+                                        selectedProduct.alt_texts &&
+                                        selectedProduct.alt_texts[index]
+                                          ? selectedProduct.alt_texts[index]
+                                          : `${
+                                              selectedProduct.name
+                                            } - miniatura ${index + 1}`
+                                      }
                                       fill
                                       sizes='64px'
                                       className='object-cover'
@@ -645,7 +776,17 @@ export default function OrderForm({
                                   formData.selectedImageIndex
                                 ]
                               }`;
-                              openImageModal(currentImage);
+                              openImageModal(
+                                currentImage,
+                                selectedProduct.alt_texts &&
+                                  selectedProduct.alt_texts[
+                                    formData.selectedImageIndex
+                                  ]
+                                  ? selectedProduct.alt_texts[
+                                      formData.selectedImageIndex
+                                    ]
+                                  : `${selectedProduct.name} - duży podgląd`,
+                              );
                             }}
                           >
                             <Image
@@ -654,7 +795,16 @@ export default function OrderForm({
                                   formData.selectedImageIndex
                                 ]
                               }`}
-                              alt={`${selectedProduct.name} - duży podgląd`}
+                              alt={
+                                selectedProduct.alt_texts &&
+                                selectedProduct.alt_texts[
+                                  formData.selectedImageIndex
+                                ]
+                                  ? selectedProduct.alt_texts[
+                                      formData.selectedImageIndex
+                                    ]
+                                  : `${selectedProduct.name} - duży podgląd`
+                              }
                               fill
                               sizes='(max-width: 768px) 100vw, 50vw'
                               className='object-contain'
@@ -1194,7 +1344,7 @@ export default function OrderForm({
                 <div className='relative w-full h-full'>
                   <Image
                     src={modalImageSrc}
-                    alt='Powiększony podgląd materiału'
+                    alt={modalImageAlt}
                     fill
                     sizes='(max-width: 1200px) 100vw, 1200px'
                     className='object-contain'
