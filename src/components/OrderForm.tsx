@@ -107,6 +107,7 @@ export default function OrderForm({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showTapeImage, setShowTapeImage] = useState(false);
   const [selectedTapeImage, setSelectedTapeImage] = useState('');
+  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -276,8 +277,9 @@ export default function OrderForm({
     // Obliczanie ceny materiału
     const materialCost = meters * MATERIAL_PRICE_PER_METER;
 
-    // Obliczanie kosztu szycia
-    const sewingCost = meters * SEWING_PRICE_PER_METER;
+    // Obliczanie kosztu szycia - 4 zł za każde 0,5 mb
+    const sewingUnits = Math.ceil(meters / 0.5); // Zaokrąglenie w górę do pełnych 0,5 mb
+    const sewingCost = sewingUnits * 4;
 
     // Zaokrąglenie do 2 miejsc po przecinku
     return Math.round((materialCost + sewingCost) * 100) / 100;
@@ -430,11 +432,34 @@ export default function OrderForm({
     }
   };
 
+  // Funkcja wyświetlająca zdjęcie po najechaniu na nazwę produktu
+  const handleProductHover = (productName: string) => {
+    setHoveredProduct(productName);
+  };
+
+  const handleProductLeave = () => {
+    setHoveredProduct(null);
+  };
+
+  // Funkcja znajdująca produkt po nazwie
+  const getProductByName = (name: string) => {
+    return products.find((product) => product.name === name);
+  };
+
+  // Funkcja zwracająca URL głównego zdjęcia produktu
+  const getProductMainImage = (productName: string) => {
+    const product = getProductByName(productName);
+    if (product && product.images && product.images.length > 0) {
+      return `${product.imagePath}/${product.images[0]}`;
+    }
+    return null;
+  };
+
   return (
-    <div className='order-form-container min-h-screen flex flex-col lg:flex-row'>
+    <div className='order-form-container min-h-screen bg-gray-50'>
       {/* Pasek kontaktowy */}
-      <div className='contact-bar'>
-        <div className='container mx-auto flex items-center justify-between'>
+      <div className='contact-bar bg-white border-b border-gray-200 py-2 sticky top-0 z-50'>
+        <div className='container mx-auto flex items-center justify-between px-4'>
           <div className='flex items-center space-x-4'>
             <span>Potrzebujesz pomocy?</span>
             <div className='flex items-center space-x-2'>
@@ -457,824 +482,764 @@ export default function OrderForm({
         </div>
       </div>
 
-      {/* Lewa sekcja z tłem kalkulatora */}
-      <div className='w-full lg:w-1/2 relative hidden lg:block'>
-        <div className="absolute inset-0 bg-[url('/images/calculator.png')] bg-cover bg-center">
-          <div className='absolute inset-0 bg-gradient-to-r from-deep-navy/80 to-deep-navy/40' />
-        </div>
-        <div className='absolute inset-0 flex items-center justify-center'>
-          <div className='text-white text-center p-8'>
-            <h2 className='text-4xl font-light mb-4'>
-              Oblicz koszt swoich zasłon
-            </h2>
-            <p className='text-lg opacity-90'>
-              Wypełnij formularz, aby otrzymać dokładną wycenę
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Główny kontener - dwukolumnowy układ produktowy */}
+      <div className='container mx-auto py-8 px-4 md:py-12'>
+        <div className='flex flex-col lg:flex-row gap-8'>
+          {/* Lewa kolumna - zdjęcie i detale produktu */}
+          <div className='w-full lg:w-1/2'>
+            <div className='sticky top-20 space-y-8'>
+              {/* Sekcja zdjęcia */}
+              {selectedProduct &&
+                selectedProduct.images &&
+                selectedProduct.images.length > 0 && (
+                  <div className='bg-white p-4 rounded-lg shadow-sm'>
+                    <div className='product-image-container relative w-full h-96 mb-4 rounded-lg overflow-hidden'>
+                      <Image
+                        src={`${selectedProduct.imagePath}/${
+                          selectedProduct.images[formData.selectedImageIndex]
+                        }`}
+                        alt={
+                          selectedProduct.alt_texts &&
+                          selectedProduct.alt_texts[formData.selectedImageIndex]
+                            ? selectedProduct.alt_texts[
+                                formData.selectedImageIndex
+                              ]
+                            : `${selectedProduct.name} - podgląd`
+                        }
+                        fill
+                        sizes='(max-width: 768px) 100vw, 600px'
+                        className='object-contain'
+                        quality={90}
+                        onClick={() => {
+                          const currentImage = `${selectedProduct.imagePath}/${
+                            selectedProduct.images[formData.selectedImageIndex]
+                          }`;
+                          openImageModal(
+                            currentImage,
+                            selectedProduct.alt_texts &&
+                              selectedProduct.alt_texts[
+                                formData.selectedImageIndex
+                              ]
+                              ? selectedProduct.alt_texts[
+                                  formData.selectedImageIndex
+                                ]
+                              : `${selectedProduct.name} - duży podgląd`,
+                          );
+                        }}
+                        priority
+                      />
+                      <div className='absolute bottom-2 right-2 bg-deep-navy/70 text-white text-xs px-2 py-1 rounded'>
+                        Kliknij, aby powiększyć
+                      </div>
+                    </div>
 
-      {/* Prawa sekcja z formularzem i tłem lilii */}
-      <div className='w-full lg:w-1/2 p-8 lg:p-12 relative mt-16 lg:mt-0'>
-        <div className="absolute inset-0 bg-[url('/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_d4c0efab-3cd7-42e9-be57-ae5d5f0d8f2a_0-removebg-preview.png')] bg-contain bg-center opacity-10"></div>
-        <form
-          onSubmit={handleSubmit}
-          className='form-section max-w-2xl mx-auto relative z-10'
-        >
-          <h1 className='form-heading mb-8'>Formularz zamówienia</h1>
+                    {/* Miniatury - wyświetlane w formie galerii */}
+                    {selectedProduct.images.length > 1 && (
+                      <div className='product-thumbnails'>
+                        <div className='flex gap-2 overflow-x-auto pb-2'>
+                          {selectedProduct.images.map((img, index) => (
+                            <div
+                              key={index}
+                              className={`
+                              cursor-pointer border-2 rounded overflow-hidden w-20 h-20 relative flex-shrink-0
+                              ${
+                                formData.selectedImageIndex === index
+                                  ? 'border-royal-gold'
+                                  : 'border-gray-200'
+                              }
+                            `}
+                              onClick={() => handleThumbnailClick(index)}
+                            >
+                              <Image
+                                src={`${selectedProduct.imagePath}/${img}`}
+                                alt={
+                                  selectedProduct.alt_texts &&
+                                  selectedProduct.alt_texts[index]
+                                    ? selectedProduct.alt_texts[index]
+                                    : `${selectedProduct.name} - miniatura ${
+                                        index + 1
+                                      }`
+                                }
+                                fill
+                                sizes='80px'
+                                className='object-cover'
+                                quality={60}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-          {/* NOWA KOLEJNOŚĆ: 1. Wybór produktu */}
-          <div className='space-y-6 mb-8'>
-            <h2 className='text-xl font-light text-deep-navy mb-4'>
-              Wybór produktu
-            </h2>
+              {/* Szczegóły produktu */}
+              {selectedProduct && (
+                <div className='product-details bg-white p-6 rounded-lg shadow-sm'>
+                  <h2 className='text-2xl font-medium text-deep-navy mb-4'>
+                    {selectedProduct.name}
+                  </h2>
 
-            {error && (
-              <div className='bg-red-50 text-red-700 p-4 rounded-lg mb-4'>
-                {error}
-              </div>
-            )}
-
-            {productsLoading ? (
-              <div className='flex items-center justify-center p-6'>
-                <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-royal-gold'></div>
-                <span className='ml-3 text-gray-600'>
-                  Ładowanie produktów...
-                </span>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Typ materiału
-                  </label>
-                  <select
-                    name='selectedProduct'
-                    value={formData.selectedProduct}
-                    onChange={handleChange}
-                    className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                    required
-                  >
-                    {products.map((product) => (
-                      <option key={product.name} value={product.name}>
-                        {product.name} - {formatPrice(product.fabricPricePerMB)}{' '}
-                        zł/mb
-                      </option>
-                    ))}
-                  </select>
-                  {selectedProduct?.base && (
-                    <p className='mt-1 text-sm text-gray-500'>
-                      Bazuje na: {selectedProduct.base}
-                    </p>
+                  {selectedProduct.description && (
+                    <div className='mb-4'>
+                      <h3 className='text-lg font-medium mb-2'>Opis</h3>
+                      <p className='text-gray-700'>
+                        {selectedProduct.description}
+                      </p>
+                    </div>
                   )}
 
-                  {/* Informacje o wybranym produkcie */}
-                  {selectedProduct && (
-                    <div className='mt-3'>
-                      {selectedProduct.description && (
-                        <div className='mt-2'>
-                          <p className='text-sm text-gray-700'>
-                            {selectedProduct.description}
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                    {selectedProduct.material && (
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-700'>
+                          Materiał
+                        </h3>
+                        <p className='text-gray-600'>
+                          {selectedProduct.material}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedProduct.composition && (
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-700'>
+                          Skład
+                        </h3>
+                        <p className='text-gray-600'>
+                          {selectedProduct.composition}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedProduct.pattern && (
+                      <div>
+                        <h3 className='text-sm font-medium text-gray-700'>
+                          Wzór
+                        </h3>
+                        <p className='text-gray-600'>
+                          {selectedProduct.pattern}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tagi stylu */}
+                  {selectedProduct.style_tags &&
+                    selectedProduct.style_tags.length > 0 && (
+                      <div className='mb-4'>
+                        <h3 className='text-sm font-medium text-gray-700 mb-2'>
+                          Style
+                        </h3>
+                        <div className='flex flex-wrap gap-2'>
+                          {selectedProduct.style_tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className='inline-block px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full'
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* Informacje o pielęgnacji */}
+                  {selectedProduct.maintenance && (
+                    <div className='p-3 bg-blue-50 rounded-md'>
+                      <div className='flex items-start'>
+                        <svg
+                          xmlns='http://www.w3.org/2000/svg'
+                          className='h-5 w-5 text-blue-600 mr-2 mt-0.5'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          stroke='currentColor'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                          />
+                        </svg>
+                        <div>
+                          <p className='text-sm font-medium text-blue-800'>
+                            Pielęgnacja:
+                          </p>
+                          <p className='text-sm text-blue-700'>
+                            {selectedProduct.maintenance}
                           </p>
                         </div>
-                      )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
 
-                      {(selectedProduct.material ||
-                        selectedProduct.composition) && (
-                        <div className='mt-2 grid grid-cols-2 gap-2 text-sm'>
-                          {selectedProduct.material && (
-                            <div>
-                              <span className='font-medium text-gray-700'>
-                                Materiał:{' '}
-                              </span>
-                              <span className='text-gray-600'>
-                                {selectedProduct.material}
-                              </span>
-                            </div>
-                          )}
+          {/* Prawa kolumna - kalkulator i formularz */}
+          <div className='w-full lg:w-1/2'>
+            <div className='bg-white p-6 rounded-lg shadow-sm mb-6'>
+              <h1 className='text-2xl font-medium text-deep-navy mb-6'>
+                Kalkulator zamówienia
+              </h1>
 
-                          {selectedProduct.composition && (
-                            <div>
-                              <span className='font-medium text-gray-700'>
-                                Skład:{' '}
-                              </span>
-                              <span className='text-gray-600'>
-                                {selectedProduct.composition}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
+              {error && (
+                <div className='bg-red-50 text-red-700 p-4 rounded-lg mb-4'>
+                  {error}
+                </div>
+              )}
 
-                      {/* Wyświetlanie wzoru i tagów stylu */}
-                      {(selectedProduct.pattern ||
-                        selectedProduct.style_tags) && (
-                        <div className='mt-2'>
-                          {selectedProduct.pattern && (
-                            <div className='mb-1'>
-                              <span className='font-medium text-gray-700'>
-                                Wzór:{' '}
-                              </span>
-                              <span className='text-gray-600'>
-                                {selectedProduct.pattern}
-                              </span>
-                            </div>
-                          )}
+              <form onSubmit={handleSubmit} className='space-y-6'>
+                {/* 1. Wybór produktu */}
+                <div className='space-y-4'>
+                  <h2 className='text-lg font-medium text-deep-navy'>
+                    Wybór materiału
+                  </h2>
 
-                          {selectedProduct.style_tags &&
-                            selectedProduct.style_tags.length > 0 && (
-                              <div>
-                                <span className='font-medium text-gray-700'>
-                                  Style:{' '}
-                                </span>
-                                <div className='flex flex-wrap gap-1 mt-1'>
-                                  {selectedProduct.style_tags.map(
-                                    (tag, idx) => (
-                                      <span
-                                        key={idx}
-                                        className='inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full'
-                                      >
-                                        {tag}
-                                      </span>
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                        </div>
-                      )}
-
-                      {/* Informacje o pielęgnacji */}
-                      {selectedProduct.maintenance && (
-                        <div className='mt-3 p-2 bg-blue-50 rounded-md'>
-                          <div className='flex items-start'>
-                            <svg
-                              xmlns='http://www.w3.org/2000/svg'
-                              className='h-5 w-5 text-blue-600 mr-2 mt-0.5'
-                              fill='none'
-                              viewBox='0 0 24 24'
-                              stroke='currentColor'
-                            >
-                              <path
-                                strokeLinecap='round'
-                                strokeLinejoin='round'
-                                strokeWidth={2}
-                                d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                              />
-                            </svg>
-                            <div>
-                              <p className='text-sm font-medium text-blue-800'>
-                                Pielęgnacja:
-                              </p>
-                              <p className='text-sm text-blue-700'>
-                                {selectedProduct.maintenance}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                  {productsLoading ? (
+                    <div className='flex items-center justify-center p-6'>
+                      <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-royal-gold'></div>
+                      <span className='ml-3 text-gray-600'>
+                        Ładowanie produktów...
+                      </span>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Typ materiału
+                      </label>
+                      <select
+                        name='selectedProduct'
+                        value={formData.selectedProduct}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
+                        required
+                        onMouseOver={(e) => {
+                          const option = e.target as HTMLSelectElement;
+                          handleProductHover(option.value);
+                        }}
+                        onMouseOut={handleProductLeave}
+                      >
+                        {products.map((product) => (
+                          <option
+                            key={product.name}
+                            value={product.name}
+                            onMouseOver={() => handleProductHover(product.name)}
+                          >
+                            {product.name} -{' '}
+                            {formatPrice(product.fabricPricePerMB)} zł/mb
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   )}
                 </div>
 
-                {/* Sekcja z miniaturkami materiałów - dostosowana logika wyświetlania */}
-                {selectedProduct &&
-                  selectedProduct.images &&
-                  Array.isArray(selectedProduct.images) && (
-                    <div className='mt-4'>
-                      <label className='block text-sm font-medium text-gray-700 mb-2'>
-                        Przeglądaj materiał
+                {/* 2. Wymiary i taśma */}
+                <div className='space-y-4 pt-2'>
+                  <h2 className='text-lg font-medium text-deep-navy'>
+                    Wymiary i taśma
+                  </h2>
+                  <div className='space-y-4'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Rodzaj taśmy
                       </label>
-
-                      {/* Miniatury - wyświetlane tylko jeśli są dostępne */}
-                      {selectedProduct.images.length > 0 && (
-                        <div className='flex justify-between items-center mb-4'>
-                          <div className='flex space-x-2'>
-                            {/* Pokazuj tyle zdjęć ile jest dostępnych, maksymalnie 4 */}
-                            {selectedProduct.images
-                              .slice(
-                                0,
-                                Math.min(4, selectedProduct.images.length),
-                              )
-                              .map((img, index) => {
-                                // Łączymy ścieżkę bazową z nazwą pliku
-                                const imageUrl = `${selectedProduct.imagePath}/${img}`;
-
-                                return (
-                                  <div
-                                    key={index}
-                                    className={`
-                                  cursor-pointer border-2 rounded overflow-hidden w-16 h-16 relative
-                                  ${
-                                    formData.selectedImageIndex === index
-                                      ? 'border-royal-gold'
-                                      : 'border-gray-200'
-                                  }
-                                `}
-                                    onClick={() => handleThumbnailClick(index)}
-                                  >
-                                    <Image
-                                      src={imageUrl}
-                                      alt={
-                                        selectedProduct.alt_texts &&
-                                        selectedProduct.alt_texts[index]
-                                          ? selectedProduct.alt_texts[index]
-                                          : `${
-                                              selectedProduct.name
-                                            } - miniatura ${index + 1}`
-                                      }
-                                      fill
-                                      sizes='64px'
-                                      className='object-cover'
-                                      priority={index === 0}
-                                      quality={60}
-                                    />
-                                  </div>
-                                );
-                              })}
-                          </div>
-
-                          {/* Strzałki nawigacyjne, pokazujemy tylko gdy jest więcej niż 4 obrazy */}
-                          {selectedProduct.images.length > 4 && (
-                            <div className='flex space-x-2'>
-                              <button
-                                type='button'
-                                onClick={prevImage}
-                                className='bg-gray-200 hover:bg-gray-300 rounded-full p-2'
-                              >
-                                <svg
-                                  xmlns='http://www.w3.org/2000/svg'
-                                  className='h-5 w-5'
-                                  fill='none'
-                                  viewBox='0 0 24 24'
-                                  stroke='currentColor'
-                                >
-                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                    strokeWidth={2}
-                                    d='M15 19l-7-7 7-7'
-                                  />
-                                </svg>
-                              </button>
-                              <button
-                                type='button'
-                                onClick={nextImage}
-                                className='bg-gray-200 hover:bg-gray-300 rounded-full p-2'
-                              >
-                                <svg
-                                  xmlns='http://www.w3.org/2000/svg'
-                                  className='h-5 w-5'
-                                  fill='none'
-                                  viewBox='0 0 24 24'
-                                  stroke='currentColor'
-                                >
-                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                    strokeWidth={2}
-                                    d='M9 5l7 7-7 7'
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                      <select
+                        name='tapeType'
+                        value={formData.tapeType}
+                        onChange={handleChange}
+                        className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                          tapeError ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        required
+                      >
+                        {TAPE_TYPES.map((tape) => (
+                          <option
+                            key={tape.id}
+                            value={tape.id}
+                            disabled={tape.id === ''}
+                          >
+                            {tape.name}
+                          </option>
+                        ))}
+                      </select>
+                      {tapeError && (
+                        <p className='mt-1 text-sm text-red-600'>{tapeError}</p>
                       )}
 
-                      {/* Wyświetlanie dużego obrazu - tylko jeśli są jakieś zdjęcia */}
-                      {selectedProduct.images.length > 0 &&
-                        selectedProduct.images[formData.selectedImageIndex] && (
-                          <div
-                            className='relative w-full h-64 rounded-lg overflow-hidden cursor-pointer'
-                            onClick={() => {
-                              // Łączymy ścieżkę bazową z nazwą pliku dla modalu
-                              const currentImage = `${
-                                selectedProduct.imagePath
-                              }/${
-                                selectedProduct.images[
-                                  formData.selectedImageIndex
-                                ]
-                              }`;
-                              openImageModal(
-                                currentImage,
-                                selectedProduct.alt_texts &&
-                                  selectedProduct.alt_texts[
-                                    formData.selectedImageIndex
-                                  ]
-                                  ? selectedProduct.alt_texts[
-                                      formData.selectedImageIndex
-                                    ]
-                                  : `${selectedProduct.name} - duży podgląd`,
-                              );
-                            }}
-                          >
+                      {/* Wyświetlanie zdjęcia taśmy */}
+                      {showTapeImage && selectedTapeImage && (
+                        <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
+                          <p className='text-sm font-medium text-gray-700 mb-2'>
+                            Podgląd wybranej taśmy:
+                          </p>
+                          <div className='relative w-full h-48 rounded overflow-hidden'>
                             <Image
-                              src={`${selectedProduct.imagePath}/${
-                                selectedProduct.images[
-                                  formData.selectedImageIndex
-                                ]
-                              }`}
-                              alt={
-                                selectedProduct.alt_texts &&
-                                selectedProduct.alt_texts[
-                                  formData.selectedImageIndex
-                                ]
-                                  ? selectedProduct.alt_texts[
-                                      formData.selectedImageIndex
-                                    ]
-                                  : `${selectedProduct.name} - duży podgląd`
-                              }
+                              src={selectedTapeImage}
+                              alt={selectedTape?.name || 'Wybrana taśma'}
                               fill
-                              sizes='(max-width: 768px) 100vw, 50vw'
+                              sizes='(max-width: 768px) 100vw, 300px'
                               className='object-contain'
-                              quality={80}
-                              placeholder='blur'
-                              blurDataURL='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+                              onError={(e) => {
+                                console.error(
+                                  'Nie można załadować obrazu taśmy:',
+                                  selectedTapeImage,
+                                );
+                                setShowTapeImage(false);
+                              }}
                             />
-                            <div className='absolute bottom-2 right-2 bg-deep-navy/70 text-white text-xs px-2 py-1 rounded'>
-                              Kliknij, aby powiększyć
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className='flex flex-row gap-4'>
+                      <div className='w-1/2'>
+                        <label className='block text-sm font-medium text-gray-700 mb-1'>
+                          Szerokość karnisza (cm)
+                        </label>
+                        <input
+                          type='number'
+                          name='rodWidth'
+                          value={formData.rodWidth}
+                          onChange={handleChange}
+                          min='1'
+                          className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                            !formData.tapeType
+                              ? 'bg-gray-100 cursor-not-allowed'
+                              : ''
+                          }`}
+                          required
+                          disabled={!formData.tapeType}
+                        />
+                        {formData.tapeType && formData.rodWidth && (
+                          <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
+                            <div className='flex justify-between items-center'>
+                              <span className='text-sm font-medium'>
+                                Koszt materiału:
+                              </span>
+                              <span className='text-sm font-bold text-deep-navy'>
+                                {formatPrice(calculateMaterialPrice())} zł/mb
+                              </span>
                             </div>
                           </div>
                         )}
+                      </div>
+                      <div className='w-1/2'>
+                        <label className='block text-sm font-medium text-gray-700 mb-1'>
+                          Wysokość dekoracji (cm)
+                        </label>
+                        <input
+                          type='number'
+                          name='height'
+                          value={formData.height}
+                          onChange={handleChange}
+                          min='1'
+                          className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                            !formData.tapeType
+                              ? 'bg-gray-100 cursor-not-allowed'
+                              : ''
+                          }`}
+                          required
+                          disabled={!formData.tapeType}
+                        />
+                      </div>
                     </div>
-                  )}
-              </>
-            )}
-          </div>
+                  </div>
+                </div>
 
-          {/* NOWA KOLEJNOŚĆ: 2. Wymiary i taśma */}
-          <div className='space-y-6 mb-8'>
-            <h2 className='text-xl font-light text-deep-navy mb-4'>
-              Wymiary i taśma
-            </h2>
-            <div className='space-y-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Rodzaj taśmy
-                </label>
-                <select
-                  name='tapeType'
-                  value={formData.tapeType}
-                  onChange={handleChange}
-                  className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
-                    tapeError ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  required
-                >
-                  {TAPE_TYPES.map((tape) => (
-                    <option
-                      key={tape.id}
-                      value={tape.id}
-                      disabled={tape.id === ''}
-                    >
-                      {tape.name}
-                    </option>
-                  ))}
-                </select>
-                {tapeError && (
-                  <p className='mt-1 text-sm text-red-600'>{tapeError}</p>
-                )}
+                {/* 3. Szczegóły kalkulacji */}
+                <div className='mb-8'>
+                  <div className='calculation-details bg-white/90 p-4 rounded-lg'>
+                    <h3 className='text-lg font-medium mb-3'>
+                      Szczegóły kalkulacji
+                    </h3>
+                    <div className='space-y-2'>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>Wybrany materiał:</span>
+                        <span className='font-medium'>
+                          {selectedProduct?.name || '-'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>
+                          Cena materiału (za mb):
+                        </span>
+                        <span className='font-medium'>
+                          {selectedProduct
+                            ? `${formatPrice(
+                                selectedProduct.fabricPricePerMB,
+                              )} zł/mb`
+                            : '-'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>
+                          Koszt szycia (za mb):
+                        </span>
+                        <span className='font-medium'>
+                          {selectedProduct
+                            ? `${formatPrice(
+                                selectedProduct.sewingPricePerMB,
+                              )} zł/mb`
+                            : '-'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>
+                          Szerokość materiału:
+                        </span>
+                        <span className='font-medium'>
+                          {formData.rodWidth && formData.tapeType
+                            ? `${
+                                parseFloat(formData.rodWidth) *
+                                (selectedTape?.ratio || 0)
+                              } cm`
+                            : '-'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>
+                          Ilość metrów bieżących:
+                        </span>
+                        <span className='font-medium'>
+                          {formData.rodWidth &&
+                          formData.height &&
+                          formData.tapeType
+                            ? `${formatPrice(
+                                (parseFloat(formData.rodWidth) *
+                                  (selectedTape?.ratio || 0) *
+                                  parseFloat(formData.height)) /
+                                  10000,
+                              )} mb`
+                            : '-'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>Koszt materiału:</span>
+                        <span className='font-medium'>
+                          {formData.rodWidth &&
+                          formData.height &&
+                          selectedProduct &&
+                          formData.tapeType
+                            ? `${formatPrice(
+                                ((parseFloat(formData.rodWidth) *
+                                  (selectedTape?.ratio || 0) *
+                                  parseFloat(formData.height)) /
+                                  10000) *
+                                  selectedProduct.fabricPricePerMB,
+                              )} zł`
+                            : '-'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center text-sm'>
+                        <span className='text-gray-600'>Koszt szycia:</span>
+                        <span className='font-medium'>
+                          {formData.rodWidth &&
+                          formData.height &&
+                          selectedProduct &&
+                          formData.tapeType
+                            ? (() => {
+                                const meters =
+                                  (parseFloat(formData.rodWidth) *
+                                    (selectedTape?.ratio || 0) *
+                                    parseFloat(formData.height)) /
+                                  10000;
+                                const sewingUnits = Math.ceil(meters / 0.5);
+                                return `${formatPrice(
+                                  sewingUnits * 4,
+                                )} zł (${sewingUnits} x 4 zł)`;
+                              })()
+                            : '-'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className='pt-4 border-t border-gray-200 mt-4'>
+                      <div className='flex justify-between items-center'>
+                        <span className='text-lg font-medium text-deep-navy'>
+                          Razem:
+                        </span>
+                        <span className='text-xl font-bold text-deep-navy'>
+                          {formatPrice(calculatePrice())} zł
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                {/* Wyświetlanie zdjęcia taśmy */}
-                {showTapeImage && selectedTapeImage && (
-                  <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
-                    <p className='text-sm font-medium text-gray-700 mb-2'>
-                      Podgląd wybranej taśmy:
-                    </p>
-                    <div className='relative w-full h-48 rounded overflow-hidden'>
-                      <Image
-                        src={selectedTapeImage}
-                        alt={selectedTape?.name || 'Wybrana taśma'}
-                        fill
-                        sizes='(max-width: 768px) 100vw, 300px'
-                        className='object-contain'
-                        onError={(e) => {
-                          console.error(
-                            'Nie można załadować obrazu taśmy:',
-                            selectedTapeImage,
-                          );
-                          setShowTapeImage(false);
-                        }}
+                {/* 4. Ilość sztuk */}
+                <div className='mb-6'>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Ilość sztuk
+                  </label>
+                  <input
+                    type='number'
+                    name='quantity'
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    required
+                    min='1'
+                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                  />
+                </div>
+
+                {/* 5. Certyfikaty */}
+                <div className='mb-6'>
+                  <AccordionCertificates />
+                </div>
+
+                {/* Przewodnik pomiarowy */}
+                <div className='bg-gray-50 p-4 rounded-lg border border-gray-100'>
+                  <div className='flex items-start'>
+                    <div className='mr-4 text-deep-navy'>
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='h-6 w-6'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className='text-sm font-medium text-deep-navy mb-1'>
+                        Nie masz pewności jak zmierzyć okno?
+                      </h4>
+                      <p className='text-xs text-gray-600 mb-2'>
+                        Sprawdź nasz przewodnik, który pomoże Ci dokonać
+                        poprawnych pomiarów.
+                      </p>
+                      <a
+                        href='/jak-mierzyc'
+                        className='text-royal-gold hover:text-gold text-sm font-medium inline-flex items-center'
+                      >
+                        Zobacz przewodnik
+                        <svg
+                          xmlns='http://www.w3.org/2000/svg'
+                          className='h-4 w-4 ml-1'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          stroke='currentColor'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M14 5l7 7m0 0l-7 7m7-7H3'
+                          />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sekcja danych osobowych */}
+                <div className='space-y-6 mb-8 border-t border-gray-200 pt-6'>
+                  <h2 className='text-lg font-medium text-deep-navy'>
+                    Dane osobowe
+                  </h2>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Imię
+                      </label>
+                      <input
+                        type='text'
+                        name='firstName'
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Nazwisko
+                      </label>
+                      <input
+                        type='text'
+                        name='lastName'
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Email
+                      </label>
+                      <input
+                        type='email'
+                        name='email'
+                        value={formData.email}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Telefon
+                      </label>
+                      <input
+                        type='tel'
+                        name='phone'
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
                       />
                     </div>
                   </div>
-                )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Szerokość karnisza (cm)
-                </label>
-                <input
-                  type='number'
-                  name='rodWidth'
-                  value={formData.rodWidth}
-                  onChange={handleChange}
-                  min='1'
-                  className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
-                    !formData.tapeType ? 'bg-gray-100 cursor-not-allowed' : ''
-                  }`}
-                  required
-                  disabled={!formData.tapeType}
-                />
-                {formData.tapeType && formData.rodWidth && (
-                  <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-sm font-medium'>
-                        Koszt materiału:
-                      </span>
-                      <span className='text-sm font-bold text-deep-navy'>
-                        {formatPrice(calculateMaterialPrice())} zł/mb
-                      </span>
+                </div>
+
+                {/* Dane do dostawy */}
+                <div className='space-y-6 mb-8 border-t border-gray-200 pt-6'>
+                  <h2 className='text-lg font-medium text-deep-navy'>
+                    Dane do dostawy
+                  </h2>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Ulica
+                      </label>
+                      <input
+                        type='text'
+                        name='street'
+                        value={formData.street}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Numer domu/mieszkania
+                      </label>
+                      <input
+                        type='text'
+                        name='houseNumber'
+                        value={formData.houseNumber}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Kod pocztowy
+                      </label>
+                      <input
+                        type='text'
+                        name='postalCode'
+                        value={formData.postalCode}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Miasto
+                      </label>
+                      <input
+                        type='text'
+                        name='city'
+                        value={formData.city}
+                        onChange={handleChange}
+                        className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
+                        required
+                      />
                     </div>
                   </div>
+                </div>
+
+                {/* Dodatkowe uwagi do zamówienia */}
+                <div className='mb-8 border-t border-gray-200 pt-6'>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Dodatkowe uwagi do zamówienia
+                  </label>
+                  <textarea
+                    name='comments'
+                    value={formData.comments}
+                    onChange={handleChange}
+                    rows={3}
+                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                  />
+                </div>
+
+                {/* Przycisk dodania do koszyka */}
+                <button
+                  type='submit'
+                  disabled={isLoading}
+                  className='magic-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
+                >
+                  {isLoading ? (
+                    <span className='flex items-center justify-center'>
+                      <svg
+                        className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                      >
+                        <circle
+                          className='opacity-25'
+                          cx='12'
+                          cy='12'
+                          r='10'
+                          stroke='currentColor'
+                          strokeWidth='4'
+                        ></circle>
+                        <path
+                          className='opacity-75'
+                          fill='currentColor'
+                          d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                        ></path>
+                      </svg>
+                      Przetwarzanie...
+                    </span>
+                  ) : (
+                    <span
+                      className='flex items-center justify-center'
+                      style={{ color: 'white' }}
+                    >
+                      Dodaj do koszyka
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='h-5 w-5 ml-2'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
+                        />
+                      </svg>
+                    </span>
+                  )}
+                </button>
+
+                {error && (
+                  <div className='mt-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm'>
+                    {error}
+                  </div>
                 )}
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Wysokość dekoracji (cm)
-                </label>
-                <input
-                  type='number'
-                  name='height'
-                  value={formData.height}
-                  onChange={handleChange}
-                  min='1'
-                  className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
-                    !formData.tapeType ? 'bg-gray-100 cursor-not-allowed' : ''
-                  }`}
-                  required
-                  disabled={!formData.tapeType}
-                />
-              </div>
+              </form>
             </div>
           </div>
-
-          {/* NOWA KOLEJNOŚĆ: 3. Szczegóły kalkulacji */}
-          <div className='mb-8'>
-            {/* Dodanie sekcji z certyfikatami */}
-            <AccordionCertificates />
-
-            <div className='calculation-details bg-white/90 p-4 rounded-lg'>
-              <h3 className='text-lg font-medium mb-3'>Szczegóły kalkulacji</h3>
-              <div className='space-y-2'>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Wybrany materiał:</span>
-                  <span className='font-medium'>
-                    {selectedProduct?.name || '-'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Cena materiału (za mb):</span>
-                  <span className='font-medium'>
-                    {selectedProduct
-                      ? `${formatPrice(selectedProduct.fabricPricePerMB)} zł/mb`
-                      : '-'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Koszt szycia (za mb):</span>
-                  <span className='font-medium'>
-                    {selectedProduct
-                      ? `${formatPrice(selectedProduct.sewingPricePerMB)} zł/mb`
-                      : '-'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Szerokość materiału:</span>
-                  <span className='font-medium'>
-                    {formData.rodWidth && formData.tapeType
-                      ? `${
-                          parseFloat(formData.rodWidth) *
-                          (selectedTape?.ratio || 0)
-                        } cm`
-                      : '-'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Ilość metrów bieżących:</span>
-                  <span className='font-medium'>
-                    {formData.rodWidth && formData.height && formData.tapeType
-                      ? `${formatPrice(
-                          (parseFloat(formData.rodWidth) *
-                            (selectedTape?.ratio || 0) *
-                            parseFloat(formData.height)) /
-                            10000,
-                        )} mb`
-                      : '-'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Koszt materiału:</span>
-                  <span className='font-medium'>
-                    {formData.rodWidth &&
-                    formData.height &&
-                    selectedProduct &&
-                    formData.tapeType
-                      ? `${formatPrice(
-                          ((parseFloat(formData.rodWidth) *
-                            (selectedTape?.ratio || 0) *
-                            parseFloat(formData.height)) /
-                            10000) *
-                            selectedProduct.fabricPricePerMB,
-                        )} zł`
-                      : '-'}
-                  </span>
-                </div>
-                <div className='flex justify-between items-center text-sm'>
-                  <span className='text-gray-600'>Koszt szycia:</span>
-                  <span className='font-medium'>
-                    {formData.rodWidth &&
-                    formData.height &&
-                    selectedProduct &&
-                    formData.tapeType
-                      ? `${formatPrice(
-                          ((parseFloat(formData.rodWidth) *
-                            (selectedTape?.ratio || 0) *
-                            parseFloat(formData.height)) /
-                            10000) *
-                            selectedProduct.sewingPricePerMB,
-                        )} zł`
-                      : '-'}
-                  </span>
-                </div>
-              </div>
-              <div className='pt-4 border-t border-gray-200 mt-4'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-lg font-medium text-deep-navy'>
-                    Razem:
-                  </span>
-                  <span className='text-xl font-bold text-deep-navy'>
-                    {formatPrice(calculatePrice())} zł
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Ilość sztuk - przeniesiona spod kalkulatora */}
-          <div className='mb-6'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Ilość sztuk
-            </label>
-            <input
-              type='number'
-              name='quantity'
-              value={formData.quantity}
-              onChange={handleChange}
-              required
-              min='1'
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-            />
-          </div>
-
-          {/* Przewodnik pomiarowy */}
-          <div className='mb-8 bg-gray-50 p-4 rounded-lg border border-gray-100'>
-            <div className='flex items-start'>
-              <div className='mr-4 text-deep-navy'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-6 w-6'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                  />
-                </svg>
-              </div>
-              <div>
-                <h4 className='text-sm font-medium text-deep-navy mb-1'>
-                  Nie masz pewności jak zmierzyć okno?
-                </h4>
-                <p className='text-xs text-gray-600 mb-2'>
-                  Sprawdź nasz przewodnik, który pomoże Ci dokonać poprawnych
-                  pomiarów.
-                </p>
-                <a
-                  href='/jak-mierzyc'
-                  className='text-royal-gold hover:text-gold text-sm font-medium inline-flex items-center'
-                >
-                  Zobacz przewodnik
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-4 w-4 ml-1'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M14 5l7 7m0 0l-7 7m7-7H3'
-                    />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* NOWA KOLEJNOŚĆ: 4. Dane osobowe */}
-          <div className='space-y-6 mb-8'>
-            <h2 className='text-xl font-light text-deep-navy mb-4'>
-              Dane osobowe
-            </h2>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Imię
-                </label>
-                <input
-                  type='text'
-                  name='firstName'
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Nazwisko
-                </label>
-                <input
-                  type='text'
-                  name='lastName'
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Email
-                </label>
-                <input
-                  type='email'
-                  name='email'
-                  value={formData.email}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Telefon
-                </label>
-                <input
-                  type='tel'
-                  name='phone'
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* NOWA KOLEJNOŚĆ: 5. Dane do dostawy */}
-          <div className='space-y-6 mb-8'>
-            <h2 className='text-xl font-light text-deep-navy mb-4'>
-              Dane do dostawy
-            </h2>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Ulica
-                </label>
-                <input
-                  type='text'
-                  name='street'
-                  value={formData.street}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Numer domu/mieszkania
-                </label>
-                <input
-                  type='text'
-                  name='houseNumber'
-                  value={formData.houseNumber}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Kod pocztowy
-                </label>
-                <input
-                  type='text'
-                  name='postalCode'
-                  value={formData.postalCode}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Miasto
-                </label>
-                <input
-                  type='text'
-                  name='city'
-                  value={formData.city}
-                  onChange={handleChange}
-                  className='form-input-focus w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none bg-white/90'
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Dodatkowe uwagi do zamówienia */}
-          <div className='mb-8'>
-            <label className='block text-sm font-medium text-gray-700 mb-1'>
-              Dodatkowe uwagi do zamówienia
-            </label>
-            <textarea
-              name='comments'
-              value={formData.comments}
-              onChange={handleChange}
-              rows={3}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-            />
-          </div>
-
-          {/* Przycisk dodania do koszyka */}
-          <button
-            type='submit'
-            disabled={isLoading}
-            className='magic-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
-          >
-            {isLoading ? (
-              <span className='flex items-center justify-center'>
-                <svg
-                  className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle
-                    className='opacity-25'
-                    cx='12'
-                    cy='12'
-                    r='10'
-                    stroke='currentColor'
-                    strokeWidth='4'
-                  ></circle>
-                  <path
-                    className='opacity-75'
-                    fill='currentColor'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-                Przetwarzanie...
-              </span>
-            ) : (
-              <span
-                className='flex items-center justify-center'
-                style={{ color: 'black' }}
-              >
-                Dodaj do koszyka
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-5 w-5 ml-2'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
-                  />
-                </svg>
-              </span>
-            )}
-          </button>
-
-          {error && (
-            <div className='mt-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm'>
-              {error}
-            </div>
-          )}
-        </form>
+        </div>
       </div>
 
       {/* Modal do powiększenia obrazu */}
@@ -1327,6 +1292,25 @@ export default function OrderForm({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Panel podglądu produktu po najechaniu kursorem */}
+      {hoveredProduct && (
+        <div className='fixed top-1/4 right-10 z-40 bg-white rounded-lg shadow-lg p-4 max-w-xs'>
+          <h4 className='text-sm font-medium mb-2'>{hoveredProduct}</h4>
+          {getProductMainImage(hoveredProduct) && (
+            <div className='relative w-full h-40'>
+              <Image
+                src={getProductMainImage(hoveredProduct) as string}
+                alt={`Podgląd materiału ${hoveredProduct}`}
+                fill
+                sizes='256px'
+                className='object-contain'
+                quality={70}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
