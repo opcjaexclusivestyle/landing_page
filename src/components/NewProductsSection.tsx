@@ -4,6 +4,7 @@ import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { TextPlugin } from 'gsap/TextPlugin';
 
 const NewProductsSection = () => {
   const sectionRef = useRef(null);
@@ -49,7 +50,7 @@ const NewProductsSection = () => {
 
   // Rejestracja pluginów GSAP
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
 
     // Utworzenie timeline dla całej sekcji
     const mainTimeline = gsap.timeline({
@@ -99,65 +100,55 @@ const NewProductsSection = () => {
       },
     });
 
-    // Spektakularny efekt wejścia tytułu
+    // Przygotowanie tytułu
+    const tytul = 'Nowości — Zasłony szyte na wymiar';
+
+    // Ustawienie pustego tytułu na początku
     gsap.set(titleInnerRef.current, {
-      textShadow: '0 0 0 rgba(255, 215, 0, 0)',
-      letterSpacing: 'normal',
+      text: '',
       color: '#1a1a1a',
+      opacity: 1,
     });
 
-    gsap.fromTo(
-      titleInnerRef.current,
-      {
-        y: 100,
-        opacity: 0,
-        scale: 0.8,
-        filter: 'blur(8px)',
+    // Animacja stopniowego pojawiania się liter, litera po literze
+    const titleTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: titleRef.current,
+        start: 'top 80%',
+        toggleActions: 'play none none none',
       },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        filter: 'blur(0px)',
-        textShadow: '0 0 15px rgba(255, 215, 0, 0.7)',
-        color: '#ffffff',
-        letterSpacing: '2px',
-        duration: 1.5,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none none',
+    });
+
+    titleTimeline
+      // Efekt pisania litera po literze
+      .to(titleInnerRef.current, {
+        duration: 2.5,
+        text: {
+          value: tytul,
+          delimiter: '',
         },
-      },
-    );
-
-    // Efekt podświetlenia tytułu
-    const titleGlowTimeline = gsap.timeline({
-      repeat: -1,
-      yoyo: true,
-      repeatDelay: 1,
-    });
-
-    titleGlowTimeline
-      .to(titleInnerRef.current, {
-        textShadow: '0 0 25px rgba(255, 215, 0, 0.9)',
-        duration: 2,
-        ease: 'sine.inOut',
+        ease: 'power1.inOut',
       })
-      .to(titleInnerRef.current, {
-        textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
-        duration: 2,
-        ease: 'sine.inOut',
-      });
+      // Animacja zmiany koloru po zakończeniu pisania
+      .to(
+        titleInnerRef.current,
+        {
+          duration: 0.7,
+          color: '#ffffff',
+          textShadow: '0 0 12px rgba(255, 215, 0, 0.4)',
+          ease: 'power2.out',
+        },
+        '+=0.2',
+      );
 
-    // Delikatny efekt "floating" tytułu
+    // Subtelny efekt podświetlenia już po zakończeniu głównej animacji
     gsap.to(titleInnerRef.current, {
-      y: 15,
-      duration: 5,
-      ease: 'sine.inOut',
+      textShadow: '0 0 15px rgba(255, 215, 0, 0.6)',
+      duration: 2,
       repeat: -1,
       yoyo: true,
+      ease: 'sine.inOut',
+      delay: 4,
     });
 
     // Animacja elementów dekoracyjnych
