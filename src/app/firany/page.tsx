@@ -89,7 +89,7 @@ export default function Firany() {
 
           {/* Formularz zamówienia */}
           <OrderForm />
-          <Certification />
+          {/* <Certification /> */}
 
           {/* Jak mierzyć */}
           <MeasuringGuide />

@@ -11,6 +11,7 @@ import RecommendedProducts from '@/components/RecommendedProducts';
 import MainPageNavigation from '@/components/MainPageNavigation';
 import PortfolioSection from '@/components/PortfolioSection';
 import BlogSection from '@/components/BlogSection';
+import FAQSection from '@/components/FAQSection';
 import { BlogPost } from '@/lib/supabase';
 
 interface HomeClientProps {
@@ -188,6 +189,12 @@ export default function HomeClient({
 
       {/* Portfolio Section - Realizacje */}
       <PortfolioSection />
+
+      {/* FAQ Section - sekcja najczęściej zadawanych pytań */}
+      <FAQSection
+        title='Często zadawane pytania'
+        subtitle='Znajdź odpowiedzi na najczęstsze pytania dotyczące naszych produktów'
+      />
 
       {/* Blog Section - przekazujemy pobrane posty z Supabase */}
       <BlogSection posts={blogPosts} />
