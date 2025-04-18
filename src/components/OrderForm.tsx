@@ -576,7 +576,12 @@ export default function OrderForm({
               {/* Szczegóły produktu */}
               {selectedProduct && (
                 <div className='product-details bg-white p-6 rounded-lg shadow-sm'>
-                  <h2 className='text-2xl font-medium text-deep-navy mb-4'>
+                  <h2
+                    className='text-2xl font-medium text-deep-navy mb-4'
+                    onMouseOver={() => handleProductHover(selectedProduct.name)}
+                    onMouseOut={handleProductLeave}
+                    style={{ cursor: 'pointer' }}
+                  >
                     {selectedProduct.name}
                   </h2>
 
@@ -1297,17 +1302,17 @@ export default function OrderForm({
 
       {/* Panel podglądu produktu po najechaniu kursorem */}
       {hoveredProduct && (
-        <div className='fixed top-1/4 right-10 z-40 bg-white rounded-lg shadow-lg p-4 max-w-xs'>
+        <div className='fixed top-1/4 left-10 z-40 bg-white rounded-lg shadow-lg p-4 max-w-xs'>
           <h4 className='text-sm font-medium mb-2'>{hoveredProduct}</h4>
           {getProductMainImage(hoveredProduct) && (
-            <div className='relative w-full h-40'>
+            <div className='relative w-full h-60'>
               <Image
                 src={getProductMainImage(hoveredProduct) as string}
                 alt={`Podgląd materiału ${hoveredProduct}`}
                 fill
-                sizes='256px'
+                sizes='300px'
                 className='object-contain'
-                quality={70}
+                quality={80}
               />
             </div>
           )}
