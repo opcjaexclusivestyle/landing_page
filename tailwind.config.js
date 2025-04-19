@@ -4,17 +4,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'yellow-primary': '#FCBA04',
-        'yellow-hover': '#FFD54F',
-        'yellow-dark': '#D19D00',
-        'black-rich': '#1A1A1A',
-        'black-soft': '#333333',
+        'yellow-primary': '#d6bd9b',
+        'yellow-hover': '#c3aa88',
+        'yellow-dark': '#b49b7a',
+        'black-rich': '#0d273d',
+        'black-soft': '#576068',
         'white-pure': '#FFFFFF',
         'white-off': '#F8F8F8',
         'gray-light': '#E5E5E5',
         'gray-medium': '#9E9E9E',
-        'deep-navy': '#0f1d45',
-        'royal-gold': '#D4AF37',
+        'deep-navy': '#0d273d',
+        'royal-gold': '#d6bd9b',
       },
       fontFamily: {
         display: ['"Playfair Display"', 'serif'],

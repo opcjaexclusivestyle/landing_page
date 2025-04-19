@@ -2,11 +2,11 @@
 
 :root {
   /* Kolory podstawowe */
-  --yellow-primary: #fcba04;
-  --yellow-hover: #ffd54f;
-  --yellow-dark: #d19d00;
-  --black-rich: #1a1a1a;
-  --black-soft: #333333;
+  --yellow-primary: #d6bd9b;
+  --yellow-hover: #c3aa88;
+  --yellow-dark: #b49b7a;
+  --black-rich: #0d273d;
+  --black-soft: #576068;
   --white-pure: #ffffff;
   --white-off: #f8f8f8;
   --gray-light: #e5e5e5;
@@ -147,7 +147,7 @@ a:hover {
 .btn-outline {
   background-color: transparent;
   border: 2px solid var(--yellow-primary);
-  color: var(--yellow-dark);
+  color: var(--black-rich);
 }
 
 .btn-outline:hover {
