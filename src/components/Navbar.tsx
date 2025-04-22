@@ -127,9 +127,9 @@ export default function Navbar() {
                 <Image
                   src='/logo_zaslonex.svg'
                   alt='Zasłonex'
-                  width={150}
-                  height={50}
-                  className='h-10'
+                  width={200}
+                  height={67}
+                  className='h-12'
                 />
               </Link>
             </div>
