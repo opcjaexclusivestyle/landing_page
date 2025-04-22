@@ -458,29 +458,6 @@ export default function OrderForm({
   return (
     <div className='order-form-container min-h-screen bg-gray-50'>
       {/* Pasek kontaktowy */}
-      <div className='contact-bar bg-white border-b border-gray-200 py-2 sticky top-0 z-50'>
-        <div className='container mx-auto flex items-center justify-between px-4'>
-          <div className='flex items-center space-x-4'>
-            <span>Potrzebujesz pomocy?</span>
-            <div className='flex items-center space-x-2'>
-              <Image
-                src='/mateusz.jpg'
-                alt='Mateusz'
-                width={32}
-                height={32}
-                className='rounded-full'
-              />
-              <span>ZADZWOŃ DO MATEUSZA</span>
-              <a
-                href='tel:531400230'
-                className='text-royal-gold hover:text-gold transition-colors'
-              >
-                531 400 230
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Główny kontener - dwukolumnowy układ produktowy */}
       <div className='container mx-auto py-8 px-4 md:py-12'>

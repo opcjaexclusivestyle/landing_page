@@ -323,11 +323,10 @@ export default function BlogSection({
         {/* Przycisk "Zobacz więcej" */}
         {posts.length > 0 && (
           <div className='text-center mt-16'>
-            <Link
-              href='/blog'
-              className='read-more-button inline-block px-8 py-3 bg-white border border-gray-200 rounded-full text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-300 hover:bg-primary hover:text-white hover:border-primary'
-            >
-              Zobacz więcej artykułów
+            <Link href='/blog'>
+              <button className='premium-button'>
+                Zobacz więcej artykułów
+              </button>
             </Link>
           </div>
         )}

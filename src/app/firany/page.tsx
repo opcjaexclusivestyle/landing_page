@@ -9,6 +9,10 @@ import Certification from '../../components/Certification';
 import MeasuringGuide from '../../components/MeasuringGuide';
 import TestimonialsSection from '../../components/TestimonialsSection';
 import WorkProcess from '../../components/WorkProcess';
+import About from '../../components/About';
+import TypesSection from '../../components/TypesSection';
+import KeyFactorsSection from '../../components/KeyFactorsSection';
+import CommercialResidentialSection from '../../components/CommercialResidentialSection';
 export default function Firany() {
   const contentRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef(null);
@@ -66,9 +70,7 @@ export default function Firany() {
           >
             &larr; Powrót do strony głównej
           </Link>
-          <h2 className='text-3xl md:text-4xl font-light text-gray-800'>
-            Zasłony
-          </h2>
+          <h2 className='text-3xl md:text-4xl luxury-heading'>Firany</h2>
           <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
         </div>
 
@@ -85,6 +87,7 @@ export default function Firany() {
           {/* <CommercialResidentialSection /> */}
           <WorkProcess />
           {/* Sekcja Testimoniali */}
+
           <TestimonialsSection />
 
           {/* Formularz zamówienia */}

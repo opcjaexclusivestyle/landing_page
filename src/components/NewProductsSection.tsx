@@ -615,9 +615,6 @@ const NewProductsSection = () => {
                 <span className='absolute top-4 left-4 bg-gradient-to-r from-yellow-600 to-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md'>
                   SZYCIE NA WYMIAR
                 </span>
-                <button className='absolute top-4 right-4 text-black/80 bg-white/80 hover:bg-white rounded-full p-2.5 transition-all duration-300 shadow-md transform hover:scale-110'>
-                  ❤️
-                </button>
               </div>
               <div className='p-6 card-content'>
                 <p className='text-sm text-gray-700 mb-3 line-clamp-2 tracking-wide'>

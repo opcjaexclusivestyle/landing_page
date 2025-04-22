@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,14 +99,38 @@ export default function Navbar() {
       }`}
     >
       <div className='bg-white bg-opacity-95 shadow-md'>
+        {/* Górny pasek z informacjami kontaktowymi */}
+        <div className='bg-[var(--deep-navy)] text-white py-2'>
+          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center'>
+            <div className='text-sm'>Godziny otwarcia: 8:00 - 16:00</div>
+            <div className='flex items-center space-x-4'>
+              <div className='text-sm'>
+                <span className='font-medium'>Potrzebujesz pomocy?</span>
+                <span className='mx-2'>|</span>
+                <span>ZADZWOŃ DO MATEUSZA</span>
+                <a
+                  href='tel:531400230'
+                  className='ml-2 font-semibold text-[var(--gold)] hover:text-white transition-colors'
+                >
+                  531 400 230
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-between h-16'>
             {/* Logo */}
             <div className='flex items-center'>
               <Link href='/' className='flex-shrink-0 flex items-center'>
-                <span className='text-xl font-medium text-[var(--deep-navy)]'>
-                  Firany & Rolety
-                </span>
+                <Image
+                  src='/logo_zaslonex.svg'
+                  alt='Zasłonex'
+                  width={150}
+                  height={50}
+                  className='h-10'
+                />
               </Link>
             </div>
 
@@ -124,7 +149,7 @@ export default function Navbar() {
                 Firany
               </Link>
               <Link
-                href='/przescieradlo'
+                href='/posciel-premium'
                 className='text-gray-700 hover:text-[var(--gold)] transition-colors'
               >
                 Pościel

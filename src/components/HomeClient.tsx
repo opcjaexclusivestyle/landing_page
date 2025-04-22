@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import NewProductsSection from '@/components/NewProductsSection';
 import RecommendedProducts from '@/components/RecommendedProducts';
@@ -70,95 +71,7 @@ export default function HomeClient({
   return (
     <main className='flex flex-col min-h-screen'>
       {/* Header */}
-      <header className='py-4 bg-white shadow-sm sticky top-0 z-50 transition-all ease-in-out duration-300'>
-        <div className='container mx-auto px-4 flex justify-between items-center'>
-          <div className='flex items-center'>
-            <Link href='/' className='text-2xl font-bold text-gray-900'>
-              Curtains
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className='hidden md:flex space-x-8'>
-            <Link
-              href='#oferta'
-              className='text-gray-600 hover:text-primary font-medium transition-colors whitespace-nowrap'
-            >
-              Oferta
-            </Link>
-            <Link
-              href='#realizacje'
-              className='text-gray-600 hover:text-primary font-medium transition-colors whitespace-nowrap'
-            >
-              Realizacje
-            </Link>
-            <Link
-              href='#jak-pracujemy'
-              className='text-gray-600 hover:text-primary font-medium transition-colors whitespace-nowrap'
-            >
-              Jak pracujemy
-            </Link>
-            <Link
-              href='#kontakt'
-              className='text-gray-600 hover:text-primary font-medium transition-colors whitespace-nowrap'
-            >
-              Kontakt
-            </Link>
-          </nav>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={toggleMenu}
-            className='md:hidden text-gray-500 focus:outline-none'
-          >
-            {isMenuOpen ? (
-              <XMarkIcon className='h-6 w-6' />
-            ) : (
-              <Bars3Icon className='h-6 w-6' />
-            )}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div
-          className={`${
-            isMenuOpen ? 'max-h-64' : 'max-h-0'
-          } md:hidden overflow-hidden transition-all duration-300 ease-in-out`}
-        >
-          <div className='container mx-auto px-4 py-2'>
-            <div className='flex flex-col space-y-3'>
-              <Link
-                href='#oferta'
-                className='text-gray-600 hover:text-primary font-medium transition-colors'
-                onClick={toggleMenu}
-              >
-                Oferta
-              </Link>
-              <Link
-                href='#realizacje'
-                className='text-gray-600 hover:text-primary font-medium transition-colors'
-                onClick={toggleMenu}
-              >
-                Realizacje
-              </Link>
-              <Link
-                href='#jak-pracujemy'
-                className='text-gray-600 hover:text-primary font-medium transition-colors'
-                onClick={toggleMenu}
-              >
-                Jak pracujemy
-              </Link>
-              <Link
-                href='#kontakt'
-                className='text-gray-600 hover:text-primary font-medium transition-colors'
-                onClick={toggleMenu}
-              >
-                Kontakt
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <HeroSection />
