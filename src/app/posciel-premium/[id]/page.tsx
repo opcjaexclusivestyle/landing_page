@@ -11,6 +11,7 @@ import BeddingForm, {
 import Loading from '@/app/components/Loading';
 import { LinenProduct } from '@/components/LinenProductsList';
 import { notFound, useRouter } from 'next/navigation';
+import SimpleHeader from '@/app/components/SimpleHeader';
 
 export default function ProductDetails({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<LinenProduct | null>(null);
@@ -177,8 +178,17 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
   console.log('Domyślny kolor w BeddingForm:', beddingProductData.defaultColor);
 
   return (
-    <div className='max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8'>
-      <BeddingForm productData={beddingProductData} />
-    </div>
+    <>
+      <SimpleHeader
+        videoSrc='/video/linen.mp4'
+        title='Pościel i Prześcieradła'
+        subtitle='Komfort i elegancja'
+        description='Odkryj naszą kolekcję luksusowej pościeli'
+        height='60vh'
+      />
+      <div className='max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8'>
+        <BeddingForm productData={beddingProductData} />
+      </div>
+    </>
   );
 }

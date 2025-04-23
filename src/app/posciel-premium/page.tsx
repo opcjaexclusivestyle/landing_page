@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import LinenProductsList from '@/components/LinenProductsList';
 import Loading from '@/app/components/Loading';
 import { supabase } from '@/lib/supabase';
+import SimpleHeader from '../components/SimpleHeader';
 
 export default function LinenProductsPage() {
   const [connectionStatus, setConnectionStatus] = useState<{
@@ -42,24 +43,33 @@ export default function LinenProductsPage() {
   }, []);
 
   return (
-    <div className='container mx-auto'>
-      {connectionStatus && !connectionStatus.success && (
-        <div className='bg-red-50 border border-red-200 rounded-lg p-4 my-4'>
-          <h3 className='text-lg font-semibold text-red-700'>
-            Problem z połączeniem do bazy danych
-          </h3>
-          <p className='text-red-600'>
-            Wystąpił problem z połączeniem do tabeli products_linen. Sprawdź
-            konsolę deweloperską, aby uzyskać więcej informacji.
-          </p>
-          <pre className='mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto'>
-            {JSON.stringify(connectionStatus.error, null, 2)}
-          </pre>
-        </div>
-      )}
-      <Suspense fallback={<Loading />}>
-        <LinenProductsList />
-      </Suspense>
-    </div>
+    <>
+      <SimpleHeader
+        videoSrc='/video/linen.mp4'
+        title='Pościel i Prześcieradła'
+        subtitle='Komfort i elegancja'
+        description='Odkryj naszą kolekcję luksusowej pościeli'
+        height='60vh'
+      />
+      <div className='container mx-auto'>
+        {connectionStatus && !connectionStatus.success && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 my-4'>
+            <h3 className='text-lg font-semibold text-red-700'>
+              Problem z połączeniem do bazy danych
+            </h3>
+            <p className='text-red-600'>
+              Wystąpił problem z połączeniem do tabeli products_linen. Sprawdź
+              konsolę deweloperską, aby uzyskać więcej informacji.
+            </p>
+            <pre className='mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto'>
+              {JSON.stringify(connectionStatus.error, null, 2)}
+            </pre>
+          </div>
+        )}
+        <Suspense fallback={<Loading />}>
+          <LinenProductsList />
+        </Suspense>
+      </div>
+    </>
   );
 }

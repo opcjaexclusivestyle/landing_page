@@ -258,403 +258,410 @@ const BeddingForm: React.FC<BeddingFormProps> = ({ productData }) => {
   };
 
   return (
-    <div className='space-y-8'>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-        {/* Lewa strona - Galeria */}
-        <div className='space-y-4'>
-          {/* Główny obraz */}
-          <div
-            className='relative h-[400px] w-full rounded-lg overflow-hidden border border-gray-200'
-            data-testid='main-image-container'
-          >
-            {mainImage && (
-              <Image
-                src={mainImage}
-                alt='Pościel'
-                fill
-                className='object-cover'
-                priority
-                data-testid='main-product-image'
-              />
-            )}
-          </div>
-
-          {/* Miniatury zdjęć */}
-          <div className='grid grid-cols-4 gap-2'>
-            {productData.colors[selectedColor]?.images.map((img, idx) => (
-              <div
-                key={idx}
-                className={`relative h-20 cursor-pointer rounded overflow-hidden border-2 ${
-                  mainImage === img ? 'border-[var(--gold)]' : 'border-gray-200'
-                }`}
-                onClick={() => setMainImage(img)}
-                data-testid={`thumbnail-${idx}`}
-              >
+    <>
+      <div className='space-y-8'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+          {/* Lewa strona - Galeria */}
+          <div className='space-y-4'>
+            {/* Główny obraz */}
+            <div
+              className='relative h-[400px] w-full rounded-lg overflow-hidden border border-gray-200'
+              data-testid='main-image-container'
+            >
+              {mainImage && (
                 <Image
-                  src={img}
-                  alt={`Pościel miniatura ${idx + 1}`}
+                  src={mainImage}
+                  alt='Pościel'
                   fill
                   className='object-cover'
+                  priority
+                  data-testid='main-product-image'
                 />
-              </div>
-            ))}
-          </div>
-
-          {/* Wybór koloru */}
-          <div className='mt-4'>
-            <h3 className='text-sm font-medium text-gray-700 mb-2'>
-              Wybierz kolor:
-            </h3>
-            <div className='flex space-x-3'>
-              {Object.entries(productData.colors).map(
-                ([colorKey, colorData]) => (
-                  <button
-                    key={colorKey}
-                    className={`w-8 h-8 rounded-full border ${
-                      selectedColor === colorKey
-                        ? 'ring-2 ring-[var(--gold)]'
-                        : 'border-gray-300'
-                    }`}
-                    onClick={() => setSelectedColor(colorKey as ColorOption)}
-                    aria-label={colorData.displayName}
-                    data-testid={`color-${colorKey}`}
-                    style={{ backgroundColor: colorData.displayColor }}
-                  />
-                ),
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Prawa strona - Informacje o produkcie i formularz */}
-        <div className='space-y-6'>
-          <h1
-            className='text-2xl font-bold text-[var(--deep-navy)]'
-            data-testid='product-title'
-          >
-            {purchaseType === 'sheet-only'
-              ? `Prześcieradło adamaszkowe – ${productData.colors[selectedColor]?.displayName}`
-              : `${productData.name} – ${productData.colors[selectedColor]?.displayName}`}
-          </h1>
-
-          <div
-            className='text-xl font-semibold text-[var(--gold)]'
-            data-testid='product-price'
-          >
-            {totalPrice.toFixed(2)} zł
-          </div>
-
-          <p className='text-gray-600'>{productData.description}</p>
-
-          <div className='space-y-4'>
-            {/* Opcje zakupu */}
-            {renderPurchaseOptions()}
-
-            {/* Wybór zestawu pościeli - widoczne tylko dla pościeli */}
-            {purchaseType !== 'sheet-only' && (
-              <div>
-                <label className='block mb-2 font-medium text-gray-700'>
-                  Wybierz komplet:
-                </label>
-                <select
-                  value={selectedSet.id}
-                  onChange={(e) => {
-                    const setId = parseInt(e.target.value);
-                    const newSet = productData.beddingSets.find(
-                      (set) => set.id === setId,
-                    );
-                    if (newSet) setSelectedSet(newSet);
-                  }}
-                  className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                  data-testid='bedding-set-select'
+            {/* Miniatury zdjęć */}
+            <div className='grid grid-cols-4 gap-2'>
+              {productData.colors[selectedColor]?.images.map((img, idx) => (
+                <div
+                  key={idx}
+                  className={`relative h-20 cursor-pointer rounded overflow-hidden border-2 ${
+                    mainImage === img
+                      ? 'border-[var(--gold)]'
+                      : 'border-gray-200'
+                  }`}
+                  onClick={() => setMainImage(img)}
+                  data-testid={`thumbnail-${idx}`}
                 >
-                  {productData.beddingSets.map((set) => (
-                    <option
-                      key={set.id}
-                      value={set.id}
-                      data-testid={`option-set-${set.id}`}
-                    >
-                      {set.label} - {set.price.toFixed(2)} zł
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+                  <Image
+                    src={img}
+                    alt={`Pościel miniatura ${idx + 1}`}
+                    fill
+                    className='object-cover'
+                  />
+                </div>
+              ))}
+            </div>
 
-            {/* Opcja prześcieradła i wybór rozmiaru - dla wariantu pościel z prześcieradłem */}
-            {purchaseType === 'bedding-with-sheet' && (
-              <div className='mt-4'>
+            {/* Wybór koloru */}
+            <div className='mt-4'>
+              <h3 className='text-sm font-medium text-gray-700 mb-2'>
+                Wybierz kolor:
+              </h3>
+              <div className='flex space-x-3'>
+                {Object.entries(productData.colors).map(
+                  ([colorKey, colorData]) => (
+                    <button
+                      key={colorKey}
+                      className={`w-8 h-8 rounded-full border ${
+                        selectedColor === colorKey
+                          ? 'ring-2 ring-[var(--gold)]'
+                          : 'border-gray-300'
+                      }`}
+                      onClick={() => setSelectedColor(colorKey as ColorOption)}
+                      aria-label={colorData.displayName}
+                      data-testid={`color-${colorKey}`}
+                      style={{ backgroundColor: colorData.displayColor }}
+                    />
+                  ),
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Prawa strona - Informacje o produkcie i formularz */}
+          <div className='space-y-6'>
+            <h1
+              className='text-2xl font-bold text-[var(--deep-navy)]'
+              data-testid='product-title'
+            >
+              {purchaseType === 'sheet-only'
+                ? `Prześcieradło adamaszkowe – ${productData.colors[selectedColor]?.displayName}`
+                : `${productData.name} – ${productData.colors[selectedColor]?.displayName}`}
+            </h1>
+
+            <div
+              className='text-xl font-semibold text-[var(--gold)]'
+              data-testid='product-price'
+            >
+              {totalPrice.toFixed(2)} zł
+            </div>
+
+            <p className='text-gray-600'>{productData.description}</p>
+
+            <div className='space-y-4'>
+              {/* Opcje zakupu */}
+              {renderPurchaseOptions()}
+
+              {/* Wybór zestawu pościeli - widoczne tylko dla pościeli */}
+              {purchaseType !== 'sheet-only' && (
+                <div>
+                  <label className='block mb-2 font-medium text-gray-700'>
+                    Wybierz komplet:
+                  </label>
+                  <select
+                    value={selectedSet.id}
+                    onChange={(e) => {
+                      const setId = parseInt(e.target.value);
+                      const newSet = productData.beddingSets.find(
+                        (set) => set.id === setId,
+                      );
+                      if (newSet) setSelectedSet(newSet);
+                    }}
+                    className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                    data-testid='bedding-set-select'
+                  >
+                    {productData.beddingSets.map((set) => (
+                      <option
+                        key={set.id}
+                        value={set.id}
+                        data-testid={`option-set-${set.id}`}
+                      >
+                        {set.label} - {set.price.toFixed(2)} zł
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Opcja prześcieradła i wybór rozmiaru - dla wariantu pościel z prześcieradłem */}
+              {purchaseType === 'bedding-with-sheet' && (
+                <div className='mt-4'>
+                  <div className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      id='includeSheet'
+                      checked={includeSheet}
+                      onChange={(e) => setIncludeSheet(e.target.checked)}
+                      className='h-4 w-4 text-[var(--gold)] focus:ring-[var(--gold)] border-gray-300 rounded'
+                      data-testid='sheet-checkbox'
+                    />
+                    <label
+                      htmlFor='includeSheet'
+                      className='ml-2 block text-gray-700'
+                    >
+                      Dodaj prześcieradło bez gumki
+                    </label>
+                  </div>
+
+                  {includeSheet && (
+                    <div className='mt-3'>
+                      <label className='block mb-2 text-sm text-gray-700'>
+                        Wybierz rozmiar prześcieradła:
+                      </label>
+                      <select
+                        value={selectedSheetSize}
+                        onChange={(e) => setSelectedSheetSize(e.target.value)}
+                        className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                        data-testid='sheet-size-select'
+                      >
+                        {Object.keys(productData.sheetPrices).map((size) => (
+                          <option
+                            key={size}
+                            value={size}
+                            data-testid={`option-sheet-${size}`}
+                          >
+                            {size} (+{productData.sheetPrices[size].toFixed(2)}{' '}
+                            zł)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Wybór rozmiaru prześcieradła - tylko dla samego prześcieradła */}
+              {purchaseType === 'sheet-only' && (
+                <div>
+                  <label className='block mb-2 font-medium text-gray-700'>
+                    Wybierz rozmiar prześcieradła:
+                  </label>
+                  <select
+                    value={selectedSheetSize}
+                    onChange={(e) => setSelectedSheetSize(e.target.value)}
+                    className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                    data-testid='sheet-size-select'
+                  >
+                    {Object.keys(productData.sheetPrices).map((size) => (
+                      <option
+                        key={size}
+                        value={size}
+                        data-testid={`option-sheet-${size}`}
+                      >
+                        {size} ({productData.sheetPrices[size].toFixed(2)} zł)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Opcja niestandardowego rozmiaru */}
+              <div className='border-t border-gray-200 pt-4'>
                 <div className='flex items-center'>
                   <input
                     type='checkbox'
-                    id='includeSheet'
-                    checked={includeSheet}
-                    onChange={(e) => setIncludeSheet(e.target.checked)}
+                    id='customSize'
+                    checked={hasCustomSize}
+                    onChange={(e) => setHasCustomSize(e.target.checked)}
                     className='h-4 w-4 text-[var(--gold)] focus:ring-[var(--gold)] border-gray-300 rounded'
-                    data-testid='sheet-checkbox'
+                    data-testid='custom-size-checkbox'
                   />
                   <label
-                    htmlFor='includeSheet'
-                    className='ml-2 block text-gray-700'
+                    htmlFor='customSize'
+                    className='ml-2 block text-gray-700 font-medium'
                   >
-                    Dodaj prześcieradło bez gumki
+                    Inny rozmiar
                   </label>
                 </div>
 
-                {includeSheet && (
-                  <div className='mt-3'>
+                {hasCustomSize && (
+                  <div className='mt-3 p-4 bg-gray-50 rounded-md'>
                     <label className='block mb-2 text-sm text-gray-700'>
-                      Wybierz rozmiar prześcieradła:
+                      Podaj szczegóły niestandardowego rozmiaru:
                     </label>
-                    <select
-                      value={selectedSheetSize}
-                      onChange={(e) => setSelectedSheetSize(e.target.value)}
+                    <textarea
+                      value={customSizeComment}
+                      onChange={(e) => setCustomSizeComment(e.target.value)}
                       className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                      data-testid='sheet-size-select'
-                    >
-                      {Object.keys(productData.sheetPrices).map((size) => (
-                        <option
-                          key={size}
-                          value={size}
-                          data-testid={`option-sheet-${size}`}
-                        >
-                          {size} (+{productData.sheetPrices[size].toFixed(2)}{' '}
-                          zł)
-                        </option>
-                      ))}
-                    </select>
+                      rows={3}
+                      placeholder='Opisz potrzebny rozmiar...'
+                      data-testid='custom-size-textarea'
+                    />
+                    <p className='mt-2 text-sm text-gray-600'>
+                      Jeśli chcesz zmienić rozmiar poduszek, napisz nam o tym w
+                      komentarzu do zamówienia, a my wykonamy to bezpłatnie. W
+                      przypadku pościeli o niestandardowych wymiarach wybierz
+                      rozmiar najbardziej zbliżony do tego, którego
+                      potrzebujesz.
+                    </p>
+                    <p className='mt-2 text-sm text-gray-600'>
+                      Jeśli wymiary będą znacząco odbiegać od wybranych,
+                      skontaktujemy się z Tobą mailowo lub telefonicznie.
+                    </p>
+                    <p className='mt-2 text-sm font-medium text-gray-700'>
+                      Masz pytania? Zadzwoń do nas: 111 111 111.
+                    </p>
                   </div>
                 )}
               </div>
-            )}
 
-            {/* Wybór rozmiaru prześcieradła - tylko dla samego prześcieradła */}
-            {purchaseType === 'sheet-only' && (
+              {/* Pole komentarza do zamówienia */}
+              <div className='border-t border-gray-200 pt-4'>
+                <label className='block mb-2 font-medium text-gray-700'>
+                  Komentarz do zamówienia (opcjonalnie):
+                </label>
+                <textarea
+                  value={customerComment}
+                  onChange={(e) => setCustomerComment(e.target.value)}
+                  className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                  rows={3}
+                  placeholder='Dodatkowe informacje lub życzenia...'
+                  data-testid='comment-textarea'
+                />
+              </div>
+
+              {/* Wybór ilości */}
               <div>
                 <label className='block mb-2 font-medium text-gray-700'>
-                  Wybierz rozmiar prześcieradła:
+                  Ilość:
                 </label>
-                <select
-                  value={selectedSheetSize}
-                  onChange={(e) => setSelectedSheetSize(e.target.value)}
-                  className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                  data-testid='sheet-size-select'
-                >
-                  {Object.keys(productData.sheetPrices).map((size) => (
-                    <option
-                      key={size}
-                      value={size}
-                      data-testid={`option-sheet-${size}`}
-                    >
-                      {size} ({productData.sheetPrices[size].toFixed(2)} zł)
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Opcja niestandardowego rozmiaru */}
-            <div className='border-t border-gray-200 pt-4'>
-              <div className='flex items-center'>
-                <input
-                  type='checkbox'
-                  id='customSize'
-                  checked={hasCustomSize}
-                  onChange={(e) => setHasCustomSize(e.target.checked)}
-                  className='h-4 w-4 text-[var(--gold)] focus:ring-[var(--gold)] border-gray-300 rounded'
-                  data-testid='custom-size-checkbox'
-                />
-                <label
-                  htmlFor='customSize'
-                  className='ml-2 block text-gray-700 font-medium'
-                >
-                  Inny rozmiar
-                </label>
-              </div>
-
-              {hasCustomSize && (
-                <div className='mt-3 p-4 bg-gray-50 rounded-md'>
-                  <label className='block mb-2 text-sm text-gray-700'>
-                    Podaj szczegóły niestandardowego rozmiaru:
-                  </label>
-                  <textarea
-                    value={customSizeComment}
-                    onChange={(e) => setCustomSizeComment(e.target.value)}
-                    className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                    rows={3}
-                    placeholder='Opisz potrzebny rozmiar...'
-                    data-testid='custom-size-textarea'
+                <div className='flex items-center'>
+                  <button
+                    className='px-3 py-1 border border-gray-300 rounded-l-md bg-gray-100'
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    data-testid='quantity-decrease'
+                  >
+                    -
+                  </button>
+                  <input
+                    type='number'
+                    min='1'
+                    value={quantity}
+                    onChange={(e) =>
+                      setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+                    }
+                    className='w-16 text-center border-y border-gray-300 py-1'
+                    data-testid='quantity-input'
                   />
-                  <p className='mt-2 text-sm text-gray-600'>
-                    Jeśli chcesz zmienić rozmiar poduszek, napisz nam o tym w
-                    komentarzu do zamówienia, a my wykonamy to bezpłatnie. W
-                    przypadku pościeli o niestandardowych wymiarach wybierz
-                    rozmiar najbardziej zbliżony do tego, którego potrzebujesz.
-                  </p>
-                  <p className='mt-2 text-sm text-gray-600'>
-                    Jeśli wymiary będą znacząco odbiegać od wybranych,
-                    skontaktujemy się z Tobą mailowo lub telefonicznie.
-                  </p>
-                  <p className='mt-2 text-sm font-medium text-gray-700'>
-                    Masz pytania? Zadzwoń do nas: 111 111 111.
-                  </p>
+                  <button
+                    className='px-3 py-1 border border-gray-300 rounded-r-md bg-gray-100'
+                    onClick={() => setQuantity(quantity + 1)}
+                    data-testid='quantity-increase'
+                  >
+                    +
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Pole komentarza do zamówienia */}
-            <div className='border-t border-gray-200 pt-4'>
-              <label className='block mb-2 font-medium text-gray-700'>
-                Komentarz do zamówienia (opcjonalnie):
-              </label>
-              <textarea
-                value={customerComment}
-                onChange={(e) => setCustomerComment(e.target.value)}
-                className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                rows={3}
-                placeholder='Dodatkowe informacje lub życzenia...'
-                data-testid='comment-textarea'
-              />
-            </div>
+              {/* Przycisk dodania do koszyka */}
+              <div className='pt-4'>
+                <button
+                  onClick={handleAddToCart}
+                  className='w-full bg-[var(--gold)] hover:bg-[var(--deep-gold)] text-white py-3 px-4 rounded-md transition-colors'
+                  data-testid='add-to-cart-button'
+                >
+                  Dodaj do koszyka
+                </button>
 
-            {/* Wybór ilości */}
-            <div>
-              <label className='block mb-2 font-medium text-gray-700'>
-                Ilość:
-              </label>
-              <div className='flex items-center'>
-                <button
-                  className='px-3 py-1 border border-gray-300 rounded-l-md bg-gray-100'
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  data-testid='quantity-decrease'
-                >
-                  -
-                </button>
-                <input
-                  type='number'
-                  min='1'
-                  value={quantity}
-                  onChange={(e) =>
-                    setQuantity(Math.max(1, parseInt(e.target.value) || 1))
-                  }
-                  className='w-16 text-center border-y border-gray-300 py-1'
-                  data-testid='quantity-input'
-                />
-                <button
-                  className='px-3 py-1 border border-gray-300 rounded-r-md bg-gray-100'
-                  onClick={() => setQuantity(quantity + 1)}
-                  data-testid='quantity-increase'
-                >
-                  +
-                </button>
+                {isAddedToCart && (
+                  <div
+                    className='mt-3 p-2 bg-green-100 text-green-700 text-center rounded-md'
+                    data-testid='added-to-cart-message'
+                  >
+                    Produkt dodany do koszyka!
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Przycisk dodania do koszyka */}
-            <div className='pt-4'>
-              <button
-                onClick={handleAddToCart}
-                className='w-full bg-[var(--gold)] hover:bg-[var(--deep-gold)] text-white py-3 px-4 rounded-md transition-colors'
-                data-testid='add-to-cart-button'
-              >
-                Dodaj do koszyka
-              </button>
-
-              {isAddedToCart && (
-                <div
-                  className='mt-3 p-2 bg-green-100 text-green-700 text-center rounded-md'
-                  data-testid='added-to-cart-message'
-                >
-                  Produkt dodany do koszyka!
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Szczegóły produktu */}
-          <div className='border-t border-gray-200 pt-4 mt-6'>
-            <h3 className='font-medium text-gray-800 mb-2'>
-              Szczegóły produktu:
-            </h3>
-            <ul className='list-disc list-inside space-y-1 text-gray-600'>
-              {productData.features.map((feature, index) => (
-                <li key={index} data-testid={`product-feature-${index}`}>
-                  {feature}
-                </li>
-              ))}
-              {purchaseType !== 'sheet-only' && <li>Zapięcie: na zamek</li>}
-              <li data-testid='product-details'>
-                {purchaseType === 'sheet-only'
-                  ? `Prześcieradło bez gumki ${selectedSheetSize}`
-                  : `Zestaw zawiera: poszwę na kołdrę ${
-                      selectedSet.beddingSize
-                    } i poszewkę na poduszkę ${selectedSet.pillowSize}
+            {/* Szczegóły produktu */}
+            <div className='border-t border-gray-200 pt-4 mt-6'>
+              <h3 className='font-medium text-gray-800 mb-2'>
+                Szczegóły produktu:
+              </h3>
+              <ul className='list-disc list-inside space-y-1 text-gray-600'>
+                {productData.features.map((feature, index) => (
+                  <li key={index} data-testid={`product-feature-${index}`}>
+                    {feature}
+                  </li>
+                ))}
+                {purchaseType !== 'sheet-only' && <li>Zapięcie: na zamek</li>}
+                <li data-testid='product-details'>
+                  {purchaseType === 'sheet-only'
+                    ? `Prześcieradło bez gumki ${selectedSheetSize}`
+                    : `Zestaw zawiera: poszwę na kołdrę ${
+                        selectedSet.beddingSize
+                      } i poszewkę na poduszkę ${selectedSet.pillowSize}
                      ${
                        includeSheet
                          ? `, prześcieradło bez gumki ${selectedSheetSize}`
                          : ''
                      }`}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Sekcja komentarzy */}
-      <div className='border-t border-gray-200 pt-8 mt-8'>
-        <h2 className='text-xl font-bold text-[var(--deep-navy)] mb-6'>
-          Komentarze klientów
-        </h2>
-
-        {productData.comments && productData.comments.length > 0 ? (
-          <div className='space-y-6'>
-            {productData.comments.map((comment) => (
-              <div key={comment.id} className='border-b border-gray-200 pb-6'>
-                <div className='flex justify-between items-center mb-2'>
-                  <div className='font-medium'>{comment.author}</div>
-                  <div className='text-sm text-gray-500'>{comment.date}</div>
-                </div>
-                <div className='flex mb-3'>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <svg
-                      key={i}
-                      xmlns='http://www.w3.org/2000/svg'
-                      className={`h-5 w-5 ${
-                        i < comment.rating ? 'text-yellow-400' : 'text-gray-300'
-                      }`}
-                      viewBox='0 0 20 20'
-                      fill='currentColor'
-                    >
-                      <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-                    </svg>
-                  ))}
-                </div>
-                <p className='text-gray-700'>{comment.content}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className='space-y-4'>
-            <p className='text-gray-500'>
-              Ten produkt nie ma jeszcze komentarzy. Bądź pierwszy i podziel się
-              swoją opinią!
-            </p>
-            <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
-              <p className='text-gray-700 mb-2'>
-                W tej sekcji znajdziesz opinie klientów o naszych pościelach i
-                prześcieradłach.
-              </p>
-              <p className='text-gray-700'>
-                Jeśli masz pytania lub uwagi dotyczące konkretnego zamówienia,
-                możesz skorzystać z pola "Komentarz do zamówienia" podczas
-                składania zamówienia lub skontaktować się z nami telefonicznie
-                pod numerem: 111 111 111.
-              </p>
+                </li>
+              </ul>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Sekcja komentarzy */}
+        <div className='border-t border-gray-200 pt-8 mt-8'>
+          <h2 className='text-xl font-bold text-[var(--deep-navy)] mb-6'>
+            Komentarze klientów
+          </h2>
+
+          {productData.comments && productData.comments.length > 0 ? (
+            <div className='space-y-6'>
+              {productData.comments.map((comment) => (
+                <div key={comment.id} className='border-b border-gray-200 pb-6'>
+                  <div className='flex justify-between items-center mb-2'>
+                    <div className='font-medium'>{comment.author}</div>
+                    <div className='text-sm text-gray-500'>{comment.date}</div>
+                  </div>
+                  <div className='flex mb-3'>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <svg
+                        key={i}
+                        xmlns='http://www.w3.org/2000/svg'
+                        className={`h-5 w-5 ${
+                          i < comment.rating
+                            ? 'text-yellow-400'
+                            : 'text-gray-300'
+                        }`}
+                        viewBox='0 0 20 20'
+                        fill='currentColor'
+                      >
+                        <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className='text-gray-700'>{comment.content}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className='space-y-4'>
+              <p className='text-gray-500'>
+                Ten produkt nie ma jeszcze komentarzy. Bądź pierwszy i podziel
+                się swoją opinią!
+              </p>
+              <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
+                <p className='text-gray-700 mb-2'>
+                  W tej sekcji znajdziesz opinie klientów o naszych pościelach i
+                  prześcieradłach.
+                </p>
+                <p className='text-gray-700'>
+                  Jeśli masz pytania lub uwagi dotyczące konkretnego zamówienia,
+                  możesz skorzystać z pola "Komentarz do zamówienia" podczas
+                  składania zamówienia lub skontaktować się z nami telefonicznie
+                  pod numerem: 111 111 111.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
