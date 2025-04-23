@@ -516,3 +516,96 @@ function calculateReadTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
   return Math.max(1, Math.ceil(words / wordsPerMinute));
 }
+
+// Interfejs dla produktów
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  currentPrice: number;
+  regularPrice: number;
+  lowestPrice: number;
+  image: string;
+  category: 'bedding' | 'curtains';
+}
+
+// Funkcja do pobierania produktów z danej kategorii
+export async function fetchProducts(
+  category: 'bedding' | 'curtains',
+  limit: number = 3,
+): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('category', category)
+    .limit(limit)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(
+      `Błąd podczas pobierania produktów z kategorii ${category}:`,
+      error,
+    );
+    throw error;
+  }
+
+  return data || [];
+}
+
+// Funkcja do testowania połączenia z tabelą products
+export async function testProductsConnection() {
+  try {
+    console.log('Testowanie połączenia z tabelą products...');
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .limit(1);
+
+    if (error) {
+      console.error('Błąd podczas testowania tabeli products:', error);
+      return { success: false, error };
+    }
+
+    console.log('Test połączenia z products zakończony sukcesem:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Wyjątek podczas testowania tabeli products:', error);
+    return { success: false, error };
+  }
+}
+
+// Funkcja do sprawdzenia dostępnych tabel w Supabase
+export async function checkAvailableTables() {
+  try {
+    console.log('Sprawdzanie dostępnych tabel w Supabase...');
+    const { data, error } = await supabase
+      .from('products_linen')
+      .select('*')
+      .limit(1);
+
+    if (error) {
+      console.error('Błąd podczas sprawdzania tabeli products_linen:', error);
+    } else {
+      console.log('Tabela products_linen istnieje i zawiera dane:', data);
+    }
+
+    const { data: productsData, error: productsError } = await supabase
+      .from('products')
+      .select('*')
+      .limit(1);
+
+    if (productsError) {
+      console.error('Błąd podczas sprawdzania tabeli products:', productsError);
+    } else {
+      console.log('Tabela products istnieje i zawiera dane:', productsData);
+    }
+
+    return {
+      products_linen: { exists: !error, data },
+      products: { exists: !productsError, data: productsData },
+    };
+  } catch (error) {
+    console.error('Wyjątek podczas sprawdzania tabel:', error);
+    return { error };
+  }
+}

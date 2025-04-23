@@ -4,41 +4,34 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SellingCard, { Card } from './SellingCard';
 
-// Definiujemy interfejs dla produktu
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  currentPrice: number;
-  regularPrice: number;
-  lowestPrice: number;
-  image: string;
-}
-
-// Definiujemy właściwości komponentu aby był reuzywalny
-interface RecommendedProductsProps {
+// Właściwości komponentu
+interface SellingCardsProps {
   title?: string;
   subtitle?: string;
-  products: Product[];
+  cards: Card[];
   background?: 'white' | 'gray' | 'light';
-  showPriceDetails?: boolean;
-  buttonText?: string;
+  showPrice?: boolean;
   className?: string;
+  onCardClick?: (card: Card) => void;
+  buttonVariant?: 'primary' | 'secondary' | 'outline';
+  gridCols?: '1' | '2' | '3' | '4';
 }
 
-export default function RecommendedProducts({
-  title = 'Wybrane dla Ciebie',
+export default function SellingCards({
+  title,
   subtitle,
-  products,
+  cards,
   background = 'white',
-  showPriceDetails = true,
-  buttonText = 'DODAJ DO KOSZYKA',
+  showPrice = true,
   className = '',
-}: RecommendedProductsProps) {
+  onCardClick,
+  buttonVariant = 'primary',
+  gridCols = '3',
+}: SellingCardsProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Ustawiamy klasy tła w zależności od wybranej opcji
+  // Ustawiamy klasy tła
   const getBgClass = () => {
     switch (background) {
       case 'gray':
@@ -47,6 +40,22 @@ export default function RecommendedProducts({
         return 'bg-gray-50';
       default:
         return 'bg-white';
+    }
+  };
+
+  // Ustawiamy klasy siatki
+  const getGridCols = () => {
+    switch (gridCols) {
+      case '1':
+        return 'grid-cols-1';
+      case '2':
+        return 'grid-cols-1 sm:grid-cols-2';
+      case '3':
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+      case '4':
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
+      default:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
     }
   };
 
@@ -74,7 +83,7 @@ export default function RecommendedProducts({
       });
     }
 
-    // Animacja kart produktów
+    // Animacja kart
     cardsRef.current.forEach((card, index) => {
       gsap.fromTo(
         card,
@@ -96,48 +105,31 @@ export default function RecommendedProducts({
     });
   }, []);
 
-  // Konwertujemy produkty na format karty
-  const convertToCards = (products: Product[]): Card[] => {
-    return products.map((product) => ({
-      id: product.id,
-      title: product.name,
-      description: product.description,
-      image: product.image,
-      price: product.currentPrice,
-      oldPrice: product.regularPrice,
-      discount:
-        product.currentPrice < product.regularPrice
-          ? Math.round((1 - product.currentPrice / product.regularPrice) * 100)
-          : undefined,
-      buttonText: buttonText,
-      additionalInfo: showPriceDetails
-        ? `Najniższa cena z 30 dni: ${product.lowestPrice.toFixed(
-            2,
-          )} zł\nCena regularna: ${product.regularPrice.toFixed(2)} zł`
-        : undefined,
-    }));
-  };
-
   return (
     <section
       ref={sectionRef}
       className={`py-24 relative ${getBgClass()} ${className}`}
     >
-      {/* Dekoracyjny element w tle */}
       <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
 
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='text-center max-w-3xl mx-auto mb-16'>
-          <h2 className='section-heading text-3xl md:text-4xl  text-black mb-4 tracking-wider luxury-heading'>
-            {title}
-          </h2>
-          {subtitle && (
-            <p className='section-heading text-gray-600 text-lg'>{subtitle}</p>
-          )}
-        </div>
+        {(title || subtitle) && (
+          <div className='text-center max-w-3xl mx-auto mb-16'>
+            {title && (
+              <h2 className='section-heading text-3xl md:text-4xl text-black mb-4 tracking-wider luxury-heading'>
+                {title}
+              </h2>
+            )}
+            {subtitle && (
+              <p className='section-heading text-gray-600 text-lg'>
+                {subtitle}
+              </p>
+            )}
+          </div>
+        )}
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
-          {convertToCards(products).map((card, index) => (
+        <div className={`grid ${getGridCols()} gap-8`}>
+          {cards.map((card, index) => (
             <div
               key={card.id}
               ref={(el: HTMLDivElement | null) => {
@@ -146,8 +138,9 @@ export default function RecommendedProducts({
             >
               <SellingCard
                 card={card}
-                showPrice={true}
-                buttonVariant='primary'
+                showPrice={showPrice}
+                buttonVariant={buttonVariant}
+                onCardClick={onCardClick}
               />
             </div>
           ))}

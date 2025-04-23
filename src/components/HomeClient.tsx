@@ -13,29 +13,143 @@ import MainPageNavigation from '@/components/MainPageNavigation';
 import PortfolioSection from '@/components/PortfolioSection';
 import BlogSection from '@/components/BlogSection';
 import FAQSection from '@/components/FAQSection';
-import { BlogPost } from '@/lib/supabase';
+import {
+  BlogPost,
+  Product,
+  fetchCalculatorProducts,
+  supabase,
+} from '@/lib/supabase';
 
 interface HomeClientProps {
   blogPosts: BlogPost[];
-  recommendedProducts: any[];
-  beddingProducts: any[];
 }
 
-// Komponent po stronie klienta do obsługi animacji i referencji
-export default function HomeClient({
-  blogPosts,
-  recommendedProducts,
-  beddingProducts,
-}: HomeClientProps) {
+interface TableCheckResult {
+  products_linen?: {
+    exists: boolean;
+    data: any[];
+  };
+  products?: {
+    exists: boolean;
+    data: any[];
+  };
+  error?: any;
+}
+
+interface LinenProduct {
+  id: number;
+  name: string;
+  fabric_price_per_mb?: number;
+  fabricPricePerMB?: number;
+  sewing_price_per_mb?: number;
+  sewingPricePerMB?: number;
+  base?: string;
+  image_path?: string;
+  imagePath?: string;
+  images: string[];
+  created_at?: string;
+  description?: string;
+  style_tags?: string[];
+  material?: string;
+  composition?: string;
+  pattern?: string;
+  color?: string;
+  height_cm?: number;
+  width_type?: string;
+  maintenance?: string;
+}
+
+export default function HomeClient({ blogPosts }: HomeClientProps) {
   const navigationRef = useRef(null);
   const contactButtonRef = useRef(null);
-
+  const [beddingProducts, setBeddingProducts] = useState<Product[]>([]);
+  const [curtainProducts, setCurtainProducts] = useState<Product[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<{
+    success?: boolean;
+    error?: any;
+  } | null>(null);
 
   // Rejestracja pluginu ScrollTrigger
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+  }, []);
+
+  // Pobieranie produktów przy montowaniu komponentu
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        console.log('Rozpoczynam pobieranie produktów...');
+
+        // Pobieranie produktów pościelowych z tabeli products_linen
+        const { data: linenData, error: linenError } = await supabase
+          .from('products_linen')
+          .select('*');
+
+        if (linenError) {
+          console.error('Błąd podczas pobierania pościeli:', linenError);
+        } else {
+          console.log('Pobrane produkty pościelowe:', linenData);
+
+          // Mapowanie produktów pościelowych
+          const mappedLinenProducts = linenData.map((product) => ({
+            id: Number(product.id) || 0,
+            name: product.name,
+            description: product.description || '',
+            currentPrice: product.price || 0,
+            regularPrice: (product.price || 0) * 1.2,
+            lowestPrice: (product.price || 0) * 0.9,
+            image: product.image || '',
+            category: 'bedding' as const,
+          }));
+
+          setBeddingProducts(mappedLinenProducts);
+        }
+
+        // Pobieranie tylko 3 pierwszych firan z tabeli calculator_products
+        const { data: curtainData, error: curtainError } = await supabase
+          .from('calculator_products')
+          .select('*')
+          .limit(3);
+
+        if (curtainError) {
+          console.error('Błąd podczas pobierania firan:', curtainError);
+        } else {
+          console.log('Pobrane firany (surowe dane):', curtainData);
+
+          // Mapowanie produktów firanowych
+          const mappedCurtainProducts = (curtainData || []).map((product) => {
+            console.log('Mapowanie produktu firany:', product);
+            return {
+              id: Number(product.id) || 0,
+              name: product.name || 'Brak nazwy',
+              description: product.description || '',
+              currentPrice:
+                product.fabric_price_per_mb || product.fabricPricePerMB || 0,
+              regularPrice:
+                (product.fabric_price_per_mb || product.fabricPricePerMB || 0) *
+                1.2,
+              lowestPrice:
+                (product.fabric_price_per_mb || product.fabricPricePerMB || 0) *
+                0.9,
+              image: product.image_path || product.imagePath || '',
+              category: 'curtains' as const,
+            };
+          });
+
+          console.log('Zmapowane firany:', mappedCurtainProducts);
+          setCurtainProducts(mappedCurtainProducts);
+        }
+
+        setConnectionStatus({ success: true });
+      } catch (error) {
+        console.error('Błąd podczas pobierania produktów:', error);
+        setConnectionStatus({ success: false, error });
+      }
+    };
+
+    fetchAllProducts();
   }, []);
 
   // Główne animacje przy wczytywaniu strony
@@ -96,7 +210,7 @@ export default function HomeClient({
       <RecommendedProducts
         title='Wybrane dla Ciebie'
         subtitle='Najlepsze firany w wyjątkowych cenach'
-        products={recommendedProducts}
+        products={curtainProducts}
         background='light'
       />
 

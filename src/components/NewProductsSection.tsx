@@ -5,6 +5,16 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { TextPlugin } from 'gsap/TextPlugin';
+import SellingCard, { Card } from './SellingCard';
+
+interface Product {
+  id: number;
+  image: string;
+  alt: string;
+  description: string;
+  example: string;
+  price: string;
+}
 
 const NewProductsSection = () => {
   const sectionRef = useRef(null);
@@ -18,7 +28,7 @@ const NewProductsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   // Dane produktów - warto przenieść do osobnego pliku w przyszłości
-  const products = [
+  const products: Product[] = [
     {
       id: 1,
       image: '/images/curtains/curtain-1.jpg',
@@ -48,6 +58,19 @@ const NewProductsSection = () => {
     },
   ];
 
+  // Konwertujemy produkty na format karty
+  const convertToCards = (products: Product[]): Card[] => {
+    return products.map((product) => ({
+      id: product.id,
+      title: product.alt,
+      description: product.description,
+      image: product.image,
+      price: parseFloat(product.price.replace(',', '.').replace(' zł', '')),
+      buttonText: 'Zamów',
+      additionalInfo: product.example,
+    }));
+  };
+
   // Rejestracja pluginów GSAP
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
@@ -66,6 +89,31 @@ const NewProductsSection = () => {
       },
     });
 
+    // Przygotowanie tytułu
+    const tytul = 'Nowości — Zasłony szyte na wymiar';
+
+    // Ustawienie początkowego stanu tytułu
+    gsap.set(titleInnerRef.current, {
+      opacity: 0,
+      y: 20,
+    });
+
+    // Uproszczona animacja tytułu
+    const titleTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: titleRef.current,
+        start: 'top 80%',
+        toggleActions: 'play none none none',
+      },
+    });
+
+    titleTimeline.to(titleInnerRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      ease: 'power2.out',
+    });
+
     // Efektowna przemiana tła
     gsap.fromTo(
       sectionBgRef.current,
@@ -76,7 +124,10 @@ const NewProductsSection = () => {
       {
         backgroundColor: 'rgba(10, 10, 24, 0.97)',
         backgroundImage:
-          'linear-gradient(180deg, rgba(31, 31, 71, 0.2) 0%, rgba(12, 12, 36, 0.9) 100%)',
+          'url(/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_49aa16d2-bca9-49f0-892e-c45372365ece_3-removebg-preview.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundBlendMode: 'overlay',
         duration: 1.5,
         ease: 'power2.inOut',
         scrollTrigger: {
@@ -98,57 +149,6 @@ const NewProductsSection = () => {
         end: 'bottom top',
         scrub: 0.5,
       },
-    });
-
-    // Przygotowanie tytułu
-    const tytul = 'Nowości — Zasłony szyte na wymiar';
-
-    // Ustawienie pustego tytułu na początku
-    gsap.set(titleInnerRef.current, {
-      text: '',
-      color: '#1a1a1a',
-      opacity: 1,
-    });
-
-    // Animacja stopniowego pojawiania się liter, litera po literze
-    const titleTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: titleRef.current,
-        start: 'top 80%',
-        toggleActions: 'play none none none',
-      },
-    });
-
-    titleTimeline
-      // Efekt pisania litera po literze
-      .to(titleInnerRef.current, {
-        duration: 2.5,
-        text: {
-          value: tytul,
-          delimiter: '',
-        },
-        ease: 'power1.inOut',
-      })
-      // Animacja zmiany koloru po zakończeniu pisania
-      .to(
-        titleInnerRef.current,
-        {
-          duration: 0.7,
-          color: '#ffffff',
-          textShadow: '0 0 12px rgba(255, 215, 0, 0.4)',
-          ease: 'power2.out',
-        },
-        '+=0.2',
-      );
-
-    // Subtelny efekt podświetlenia już po zakończeniu głównej animacji
-    gsap.to(titleInnerRef.current, {
-      textShadow: '0 0 15px rgba(255, 215, 0, 0.6)',
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-      delay: 4,
     });
 
     // Animacja elementów dekoracyjnych
@@ -480,67 +480,19 @@ const NewProductsSection = () => {
       <div
         ref={sectionBgRef}
         className='absolute inset-0 w-full h-full z-0 transition-colors duration-1000'
+        style={{
+          backgroundImage: 'url(/images/background-flower.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundBlendMode: 'overlay',
+        }}
       />
 
-      {/* Elementy dekoracyjne */}
-      <div className='absolute inset-0 overflow-hidden pointer-events-none z-0'>
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            ref={(el) => addToDecorativeRefs(el)}
-            className={`absolute opacity-0 ${
-              i % 2 === 0
-                ? 'bg-gradient-to-br from-gold/20 to-transparent'
-                : 'bg-gradient-to-tr from-deep-navy/20 to-transparent'
-            } rounded-full blur-xl`}
-            style={{
-              width: `${Math.random() * 20 + 10}rem`,
-              height: `${Math.random() * 20 + 10}rem`,
-              left: `${Math.random() * 80 + 10}%`,
-              top: `${Math.random() * 80 + 10}%`,
-              zIndex: 1,
-            }}
-          />
-        ))}
-
-        {/* Efekt unoszących się kurtyn */}
-        <div className='absolute top-0 left-0 w-full h-60 overflow-hidden z-1'>
-          <div
-            ref={(el) => addToDecorativeRefs(el)}
-            className='absolute top-0 left-[-5%] w-[30%] h-[300px] opacity-0 bg-gradient-to-br from-gold/10 to-transparent rounded-full blur-xl transform-gpu'
-          ></div>
-        </div>
-        <div className='absolute top-[20%] right-0 w-full h-60 overflow-hidden z-1'>
-          <div
-            ref={(el) => addToDecorativeRefs(el)}
-            className='absolute top-0 right-[-5%] w-[25%] h-[250px] opacity-0 bg-gradient-to-bl from-deep-navy/10 to-transparent rounded-full blur-xl transform-gpu'
-          ></div>
-        </div>
-
-        {/* Cząsteczki pyłu/blasku */}
-        <div className='particles-container absolute inset-0 z-0'>
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={`particle-${i}`}
-              ref={(el) => addToDecorativeRefs(el)}
-              className='particle absolute opacity-0 bg-white rounded-full'
-              style={{
-                width: `${Math.random() * 4 + 2}px`,
-                height: `${Math.random() * 4 + 2}px`,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                boxShadow: '0 0 10px rgba(255, 215, 0, 0.7)',
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
       <div className='container relative mx-auto px-4 sm:px-6 lg:px-8 z-10'>
-        <div ref={titleRef} className='mb-20 overflow-hidden'>
+        <div ref={titleRef} className='mb-20'>
           <h2
             ref={titleInnerRef}
-            className='text-4xl md:text-5xl lg:text-6xl tracking-wide text-center luxury-heading transition-colors duration-1000'
+            className='text-4xl md:text-5xl lg:text-6xl tracking-wide text-center font-bold text-white drop-shadow-lg'
           >
             Nowości — Zasłony szyte na wymiar
           </h2>
@@ -595,43 +547,18 @@ const NewProductsSection = () => {
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10'>
-          {products.map((product, index) => (
+          {convertToCards(products).map((card, index) => (
             <div
-              key={index}
+              key={card.id}
               ref={(el: HTMLDivElement | null) => {
                 cardsRef.current[index] = el;
               }}
-              className='bg-white/95 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-lg overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-gold/20'
             >
-              <div className='relative'>
-                <div className='relative h-80 overflow-hidden'>
-                  <Image
-                    src={product.image}
-                    alt={product.alt}
-                    fill
-                    className='object-cover card-image transition-all duration-700'
-                  />
-                </div>
-                <span className='absolute top-4 left-4 bg-gradient-to-r from-yellow-600 to-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md shadow-md'>
-                  SZYCIE NA WYMIAR
-                </span>
-              </div>
-              <div className='p-6 card-content'>
-                <p className='text-sm text-gray-700 mb-3 line-clamp-2 tracking-wide'>
-                  {product.description}
-                </p>
-                <p className='text-xs text-gray-500 mb-3 tracking-wide'>
-                  <strong>Przykład:</strong> {product.example}
-                </p>
-                <div className='flex items-center justify-between'>
-                  <p className='text-lg font-semibold text-gray-900 price-tag transition-colors duration-300'>
-                    {product.price}
-                  </p>
-                  <button className='px-4 py-2 bg-gradient-to-br from-gold to-amber-500 hover:from-amber-500 hover:to-gold text-white font-medium rounded-md shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105'>
-                    Zamów
-                  </button>
-                </div>
-              </div>
+              <SellingCard
+                card={card}
+                showPrice={true}
+                buttonVariant='primary'
+              />
             </div>
           ))}
         </div>
