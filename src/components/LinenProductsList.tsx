@@ -94,6 +94,14 @@ export default function LinenProductsList() {
         if (error) throw error;
 
         console.log('Pobrane produkty z pościeli:', data);
+        console.log(
+          'Struktura danych kolorów:',
+          data.map((p) => ({
+            id: p.id,
+            colors: p.colors,
+            default_color: p.default_color,
+          })),
+        );
         setProducts(data as LinenProduct[]);
       } catch (error) {
         console.error('Błąd podczas pobierania produktów pościeli:', error);

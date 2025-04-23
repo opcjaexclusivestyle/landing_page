@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 
 // Typy
-export type ColorOption = 'white' | 'beige' | 'silver' | 'black';
+export type ColorOption = string;
 export type PurchaseType = 'bedding-with-sheet' | 'bedding-only' | 'sheet-only';
 
 export interface BeddingSet {

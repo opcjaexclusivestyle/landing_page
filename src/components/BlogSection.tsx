@@ -208,9 +208,6 @@ export default function BlogSection({
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative'>
         {/* Nagłówek sekcji */}
         <div className='text-center max-w-3xl mx-auto mb-20'>
-          <div className='inline-block mb-3 px-4 py-1 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 text-primary text-sm font-medium'>
-            Nasz Blog
-          </div>
           <h2
             ref={headingRef}
             className='text-black text-4xl md:text-5xl mb-6 tracking-tight '

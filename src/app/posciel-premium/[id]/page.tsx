@@ -43,6 +43,10 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
 
         console.log('Pobrane dane produktu:', data);
         setProduct(data as LinenProduct);
+
+        // Dodatkowe logowanie kolorów
+        console.log('Kolory produktu:', data.colors);
+        console.log('Domyślny kolor:', data.default_color);
       } catch (error) {
         console.error('Błąd podczas pobierania danych produktu:', error);
         setError('Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
@@ -60,6 +64,8 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
   const prepareBeddingProductData = (
     product: LinenProduct,
   ): BeddingProductData => {
+    console.log('Przekształcanie danych produktu:', product);
+
     // Przekształcenie wariantów produktu na BeddingSet
     const beddingSets: BeddingSet[] = product.variants.map((variant) => {
       // Zakładamy, że nazwa zawiera wymiary pościeli i poduszki (np. "135x200 + 50x60")
@@ -99,21 +105,19 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
       };
     } = {};
 
+    console.log('Oryginalne kolory produktu:', product.colors);
+
     Object.keys(product.colors).forEach((colorKey) => {
       const color = product.colors[colorKey];
-      if (
-        colorKey === 'white' ||
-        colorKey === 'beige' ||
-        colorKey === 'silver' ||
-        colorKey === 'black'
-      ) {
-        colors[colorKey as ColorOption] = {
-          images: color.images,
-          displayName: color.displayName,
-          displayColor: color.displayColor,
-        };
-      }
+      console.log('Przetwarzanie koloru:', colorKey, color);
+      colors[colorKey as ColorOption] = {
+        images: color.images,
+        displayName: color.displayName,
+        displayColor: color.displayColor,
+      };
     });
+
+    console.log('Przekształcone kolory:', colors);
 
     // Konwersja features z JSON string do tablicy, jeśli jest to potrzebne
     let features: string[] = [];
@@ -128,7 +132,7 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
       features = product.features;
     }
 
-    return {
+    const result = {
       name: product.name,
       description: product.description,
       beddingSets,
@@ -137,6 +141,9 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
       defaultColor: product.default_color as ColorOption,
       features,
     };
+
+    console.log('Wynik przekształcenia:', result);
+    return result;
   };
 
   if (loading) {
@@ -163,6 +170,11 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
   }
 
   const beddingProductData = prepareBeddingProductData(product);
+
+  // Logowanie danych przed przekazaniem do BeddingForm
+  console.log('Dane przekazywane do BeddingForm:', beddingProductData);
+  console.log('Kolory w BeddingForm:', beddingProductData.colors);
+  console.log('Domyślny kolor w BeddingForm:', beddingProductData.defaultColor);
 
   return (
     <div className='max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8'>
