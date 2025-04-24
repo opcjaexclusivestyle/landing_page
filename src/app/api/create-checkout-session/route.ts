@@ -98,7 +98,8 @@ export async function POST(req: Request) {
     // Utworzenie sesji checkout
     const session = await stripe.checkout.sessions.create(sessionOptions);
 
-    return NextResponse.json({ clientSecret: session.id });
+    // Zwracamy pełny URL do przekierowania zamiast samego ID sesji
+    return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error('Błąd podczas tworzenia sesji płatności:', err);
     return NextResponse.json(

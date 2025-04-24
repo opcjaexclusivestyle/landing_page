@@ -173,14 +173,18 @@ const CartPage = () => {
         }),
       });
 
-      const { clientSecret, error: stripeError } = await response.json();
+      const data = await response.json();
 
-      if (stripeError) {
-        throw new Error(stripeError);
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      // Przekierowanie do strony płatności Stripe
-      window.location.href = `/stripe-checkout?session_id=${clientSecret}`;
+      // Bezpośrednie przekierowanie do Stripe
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Nie otrzymano prawidłowego adresu URL płatności');
+      }
     } catch (err) {
       setError(
         err instanceof Error
