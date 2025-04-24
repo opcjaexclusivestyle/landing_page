@@ -111,10 +111,17 @@ export default function RecommendedProducts({
           )} zł\nCena regularna: ${product.regularPrice?.toFixed(2)} zł`
         : undefined;
 
+      // Truncate description to max 150 characters
+      const truncatedDescription = product.description
+        ? product.description.length > 150
+          ? product.description.substring(0, 147) + '...'
+          : product.description
+        : '';
+
       cards.push({
         id: product.id,
         title: product.name || '',
-        description: product.description || '',
+        description: truncatedDescription,
         image: product.image || '',
         price: product.currentPrice,
         oldPrice: product.regularPrice,
@@ -198,7 +205,8 @@ export default function RecommendedProducts({
       const gapSize = 20; // Gap size (gap-5 = 1.25rem = 20px)
       let newCardWidth = 0;
 
-      // For mobile view (small screens), show 1 card
+      // Uniform card width for all screen sizes
+      // For mobile view (small screens)
       if (containerWidth < 640) {
         newCardWidth = containerWidth - 40; // 40px padding (20px on each side)
       }
@@ -354,7 +362,11 @@ export default function RecommendedProducts({
                     <div
                       key={card.id}
                       className='flex-shrink-0'
-                      style={{ width: cardWidth ? `${cardWidth}px` : '100%' }}
+                      style={{
+                        width: cardWidth
+                          ? `${cardWidth}px`
+                          : 'calc(33.33% - 14px)',
+                      }}
                     >
                       <SellingCard
                         card={card}
@@ -368,7 +380,9 @@ export default function RecommendedProducts({
               {/* "See More" card (always at the end) */}
               <div
                 className='flex-shrink-0'
-                style={{ width: cardWidth ? `${cardWidth}px` : '100%' }}
+                style={{
+                  width: cardWidth ? `${cardWidth}px` : 'calc(33.33% - 14px)',
+                }}
               >
                 <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
                   <Link
