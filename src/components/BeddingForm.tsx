@@ -73,7 +73,7 @@ const BeddingForm: React.FC<BeddingFormProps> = ({ productData }) => {
   const [selectedSet, setSelectedSet] = useState<BeddingSet>(
     productData.beddingSets[0],
   );
-  const [includeSheet, setIncludeSheet] = useState(false);
+  const [includeSheet, setIncludeSheet] = useState(true);
   const [selectedSheetSize, setSelectedSheetSize] = useState<string>(
     Object.keys(productData.sheetPrices)[0],
   );
