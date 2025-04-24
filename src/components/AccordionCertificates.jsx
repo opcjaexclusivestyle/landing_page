@@ -4,9 +4,14 @@ import './Certification.css'; // Korzystamy z istniejących stylów
 
 const AccordionCertificates = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeCertIndex, setActiveCertIndex] = useState(null);
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const toggleCert = (index) => {
+    setActiveCertIndex(activeCertIndex === index ? null : index);
   };
 
   const certifications = [
@@ -106,17 +111,50 @@ const AccordionCertificates = () => {
                 tekstylne do ich domów.
               </p>
 
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              <div className='certificates-inner-accordion'>
                 {certifications.map((cert, index) => (
-                  <div
-                    key={index}
-                    className='certificate-item bg-white py-4 px-3 flex flex-col h-full'
-                  >
-                    <div className='certificate-icon h-20 flex items-center justify-center mb-3'>
-                      {renderIcon(cert.iconType)}
-                    </div>
-                    <h3 className='text-base font-medium mb-2'>{cert.title}</h3>
-                    <p className='text-sm text-gray-600'>{cert.description}</p>
+                  <div key={index} className='accordion-item'>
+                    <button
+                      className={`accordion-header ${
+                        activeCertIndex === index ? 'active' : ''
+                      }`}
+                      onClick={() => toggleCert(index)}
+                    >
+                      <div className='flex items-center'>
+                        {renderIcon(cert.iconType)}
+                        <span className='ml-3 font-medium'>{cert.title}</span>
+                      </div>
+                      <svg
+                        className={`h-5 w-5 transform transition-transform ${
+                          activeCertIndex === index ? 'rotate-180' : ''
+                        }`}
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M19 9l-7 7-7-7'
+                        />
+                      </svg>
+                    </button>
+                    <AnimatePresence>
+                      {activeCertIndex === index && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className='accordion-content'
+                        >
+                          <p className='text-sm text-gray-600'>
+                            {cert.description}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ))}
               </div>
