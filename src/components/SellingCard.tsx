@@ -1,5 +1,7 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export interface Card {
   id: number;
@@ -12,6 +14,8 @@ export interface Card {
   buttonText?: string;
   buttonLink?: string;
   additionalInfo?: string;
+  isSpecial?: boolean;
+  linkTo?: string;
 }
 
 interface SellingCardProps {
@@ -27,6 +31,12 @@ export default function SellingCard({
   buttonVariant = 'primary',
   onCardClick,
 }: SellingCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  if (!card) {
+    return <div className='bg-white rounded-lg shadow-md p-6'>Loading...</div>;
+  }
+
   const getButtonClass = () => {
     switch (buttonVariant) {
       case 'primary':
@@ -40,58 +50,96 @@ export default function SellingCard({
     }
   };
 
+  const handleCardClick = () => {
+    if (onCardClick) {
+      onCardClick(card);
+    } else if (card.buttonLink) {
+      window.location.href = card.buttonLink;
+    }
+  };
+
+  // Function to fix image path issues
+  const getProperImagePath = (imagePath: string) => {
+    if (!imagePath) return '/placeholder-image.jpg';
+
+    // Fix for image_path/image[0] format
+    if (imagePath.includes('[')) {
+      return imagePath.replace(/\[(\d+)\]/g, '$1');
+    }
+
+    return imagePath;
+  };
+
+  // Handle image load error
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   return (
     <div
-      className='rounded-lg overflow-hidden shadow-lg border border-gray-100 transform transition-transform duration-300 hover:-translate-y-2 bg-white'
-      onClick={() => onCardClick?.(card)}
+      className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'
+      onClick={handleCardClick}
     >
-      <div className='relative h-72 overflow-hidden'>
-        <Image
-          src={card.image}
-          alt={card.title}
-          fill
-          className='object-cover transition-transform duration-700 hover:scale-105'
-        />
+      {card.discount && (
+        <div className='absolute top-2 right-2 bg-primary text-white text-sm px-2 py-1 rounded-md z-10'>
+          -{card.discount}%
+        </div>
+      )}
 
-        {card.discount && (
-          <div className='absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
-            -{card.discount}%
+      <div className='relative w-full h-48 md:h-64 rounded-t-lg overflow-hidden'>
+        {card.image && !imageError ? (
+          <Image
+            src={getProperImagePath(card.image)}
+            alt={card.title || 'Product image'}
+            fill
+            className='object-cover'
+            sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+            priority
+            onError={handleImageError}
+          />
+        ) : (
+          <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+            <span className='text-gray-400'>No image</span>
           </div>
         )}
       </div>
 
-      <div className='p-6 bg-white'>
-        <h3 className='font-medium text-gray-800 mb-2'>{card.title}</h3>
-        <p className='text-sm text-gray-700 mb-3 h-20 leading-relaxed overflow-hidden'>
+      <div className='p-6 flex flex-col flex-grow'>
+        <h3 className='text-xl font-semibold text-gray-800 mb-3'>
+          {card.title}
+        </h3>
+        <p className='text-gray-600 text-sm mb-4 flex-grow'>
           {card.description}
         </p>
 
-        {showPrice && card.price && (
-          <div className='space-y-2 mb-4'>
-            <div className='flex items-center'>
-              <p className='text-primary font-semibold text-2xl'>
-                {card.price.toFixed(2)} zł
-              </p>
-              {card.oldPrice && (
-                <p className='ml-2 text-sm text-gray-400 line-through'>
-                  {card.oldPrice.toFixed(2)} zł
-                </p>
-              )}
-            </div>
+        {showPrice && card.price !== undefined && (
+          <div className='flex items-baseline mt-2 mb-4'>
+            <span className='text-xl text-gray-900 font-bold'>
+              {card.price.toFixed(2)} zł
+            </span>
+            {card.oldPrice && (
+              <span className='ml-2 text-sm text-gray-500 line-through'>
+                {card.oldPrice.toFixed(2)} zł
+              </span>
+            )}
           </div>
         )}
 
         {card.additionalInfo && (
-          <p className='text-xs text-gray-500 mb-4'>{card.additionalInfo}</p>
+          <div className='text-xs text-gray-500 mt-1 mb-4 whitespace-pre-line'>
+            {card.additionalInfo}
+          </div>
         )}
 
         {card.buttonText && (
           <button
-            className={`w-full py-2 px-4 rounded-md transition-colors duration-300 ${getButtonClass()}`}
+            className={`mt-auto w-full py-2 px-4 rounded-md transition-colors ${getButtonClass()}`}
             onClick={(e) => {
               e.stopPropagation();
               if (card.buttonLink) {
                 window.location.href = card.buttonLink;
+              } else if (card.linkTo) {
+                window.location.href = card.linkTo;
               }
             }}
           >

@@ -126,8 +126,22 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           // Mapowanie produktów firanowych
           const mappedCurtainProducts = (curtainData || []).map((product) => {
             console.log('Mapowanie produktu firany:', product);
-            const imageUrl = product.image_path || product.imagePath || '';
+            // Używamy image_path, albo pierwszego obrazka z tablicy images, albo imagePath
+            const imageUrl =
+              product.image_path ||
+              (product.images && product.images[0]) ||
+              product.imagePath ||
+              '';
             console.log('Ścieżka obrazka firany:', imageUrl);
+
+            // Tworzenie sluga z nazwy produktu (zmiana na małe litery, usunięcie znaków specjalnych, zamiana spacji na myślniki)
+            const slug = product.name
+              ? product.name
+                  .toLowerCase()
+                  .replace(/[^\w\s]/gi, '')
+                  .replace(/\s+/g, '-')
+              : `product-${product.id}`;
+
             return {
               id: Number(product.id) || 0,
               name: product.name || 'Brak nazwy',
@@ -142,6 +156,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 0.9,
               image: imageUrl,
               category: 'curtains' as const,
+              slug: slug, // Dodajemy slug do obiektu produktu
             };
           });
 
@@ -219,6 +234,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         subtitle='Najlepsze firany w wyjątkowych cenach'
         products={curtainProducts}
         background='light'
+        moreProductsLink='/firany-premium'
       />
 
       {/* Portfolio Section - Realizacje */}
