@@ -115,6 +115,15 @@ const BeddingForm: React.FC<BeddingFormProps> = ({ productData }) => {
     }
   }, [purchaseType]);
 
+  // Aktualizacja typu zakupu na podstawie checkboxa prześcieradła
+  useEffect(() => {
+    if (!includeSheet && purchaseType === 'bedding-with-sheet') {
+      setPurchaseType('bedding-only');
+    } else if (includeSheet && purchaseType === 'bedding-only') {
+      setPurchaseType('bedding-with-sheet');
+    }
+  }, [includeSheet]);
+
   // Obliczanie całkowitej ceny
   const calculateTotalPrice = () => {
     if (purchaseType === 'sheet-only') {
@@ -330,7 +339,7 @@ const BeddingForm: React.FC<BeddingFormProps> = ({ productData }) => {
           </div>
 
           {/* Prawa strona - Informacje o produkcie i formularz */}
-          <div className='space-y-6'>
+          <div className='bg-[rgba(19,24,42,0.1)] space-y-6 p-6 rounded-lg'>
             <h1
               className='text-2xl font-bold text-[var(--deep-navy)]'
               data-testid='product-title'
@@ -654,7 +663,7 @@ const BeddingForm: React.FC<BeddingFormProps> = ({ productData }) => {
                   Jeśli masz pytania lub uwagi dotyczące konkretnego zamówienia,
                   możesz skorzystać z pola "Komentarz do zamówienia" podczas
                   składania zamówienia lub skontaktować się z nami telefonicznie
-                  pod numerem: 111 111 111.
+                  pod numerem: 531 400 230
                 </p>
               </div>
             </div>
