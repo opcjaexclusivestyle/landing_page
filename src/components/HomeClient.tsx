@@ -18,6 +18,7 @@ import {
   Product,
   fetchCalculatorProducts,
   supabase,
+  generateSlug,
 } from '@/lib/supabase';
 
 interface HomeClientProps {
@@ -127,20 +128,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           const mappedCurtainProducts = (curtainData || []).map((product) => {
             console.log('Mapowanie produktu firany:', product);
             // Używamy image_path, albo pierwszego obrazka z tablicy images, albo imagePath
-            const imageUrl =
-              product.image_path ||
-              (product.images && product.images[0]) ||
-              product.imagePath ||
-              '';
-            console.log('Ścieżka obrazka firany:', imageUrl);
+            const imageUrl = `${product.image_path}//1.webp`;
+            product.imagePath || '';
+            console.log('Ścieżka obrazka firany:', `${imageUrl}/1.webp}`);
 
-            // Tworzenie sluga z nazwy produktu (zmiana na małe litery, usunięcie znaków specjalnych, zamiana spacji na myślniki)
-            const slug = product.name
-              ? product.name
-                  .toLowerCase()
-                  .replace(/[^\w\s]/gi, '')
-                  .replace(/\s+/g, '-')
-              : `product-${product.id}`;
+            // Używamy sluga z bazy danych lub generujemy go za pomocą funkcji generateSlug
+            const slug = product.slug || generateSlug(product.name, product.id);
 
             return {
               id: Number(product.id) || 0,

@@ -91,11 +91,13 @@ export default function RecommendedProducts({
       // Determine button URL based on product category
       let buttonLink = '';
       if (product.category === 'curtains' && product.slug) {
-        buttonLink = `/firany-premium/${product.slug}`;
+        buttonLink = `/firany-premium/${encodeURIComponent(product.slug)}`;
       } else if (product.category === 'bedding' && product.slug) {
         buttonLink = `/posciel/${product.slug}`;
       } else if (product.category === 'curtains') {
-        buttonLink = `/firany-premium/product-${product.id}`;
+        buttonLink = `/firany-premium/${encodeURIComponent(
+          `product-${product.id}`,
+        )}`;
       } else if (product.category === 'bedding') {
         buttonLink = `/posciel/product-${product.id}`;
       }

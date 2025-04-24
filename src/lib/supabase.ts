@@ -325,13 +325,18 @@ export async function fetchCalculatorProducts(): Promise<CalcProduct[]> {
     } else {
       console.log(`Pobrano ${data.length} produktów do kalkulatora`);
 
-      // Wyświetlamy surowe dane bez modyfikacji
+      // Dodajemy slug do każdego produktu, jeśli jeszcze go nie posiada
       data.forEach((product, index) => {
         console.log(`Produkt #${index + 1}:`, product);
+
+        // Jeśli produkt nie ma sluga, generujemy go
+        if (!product.slug) {
+          product.slug = generateSlug(product.name, product.id);
+        }
       });
     }
 
-    // Zwracamy dokładnie to, co przyszło z backendu
+    // Zwracamy produkty z dodanymi slugami
     return data || [];
   } catch (err) {
     console.error('Wyjątek podczas pobierania produktów kalkulatora:', err);
@@ -608,4 +613,14 @@ export async function checkAvailableTables() {
     console.error('Wyjątek podczas sprawdzania tabel:', error);
     return { error };
   }
+}
+
+// Funkcja do generowania sluga z nazwy produktu
+export function generateSlug(name: string, id?: number | string): string {
+  if (!name) return id ? `product-${id}` : 'product';
+
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s]/gi, '')
+    .replace(/\s+/g, '-');
 }

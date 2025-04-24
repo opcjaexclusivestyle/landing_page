@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchCalculatorProducts, CalcProduct } from '@/lib/supabase';
+import {
+  fetchCalculatorProducts,
+  CalcProduct,
+  generateSlug,
+} from '@/lib/supabase';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
@@ -143,7 +147,7 @@ export default function FiranyPremiumPage() {
               <Link
                 key={product.id || product.name}
                 href={`/firany-premium/${encodeURIComponent(
-                  product.slug || product.name,
+                  product.slug || generateSlug(product.name, product.id),
                 )}`}
                 className='block group'
               >
