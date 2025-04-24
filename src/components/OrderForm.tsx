@@ -104,7 +104,9 @@ export default function OrderForm({
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
   const [modalImageAlt, setModalImageAlt] = useState('');
-  const [tapeError, setTapeError] = useState<string | null>(null);
+  const [tapeError, setTapeError] = useState<string | null>(
+    'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+  );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showTapeImage, setShowTapeImage] = useState(false);
   const [selectedTapeImage, setSelectedTapeImage] = useState('');
@@ -298,28 +300,19 @@ export default function OrderForm({
   ) => {
     const { name, value } = e.target;
 
-    // Sprawdzanie, czy taśma została wybrana przed wpisaniem wymiarów
-    if ((name === 'rodWidth' || name === 'height') && !formData.tapeType) {
-      setTapeError(
-        'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
-      );
-      return;
-    } else if (name === 'tapeType' && value) {
-      setTapeError(null);
-      // Pokaż zdjęcie taśmy jeśli wybrano taśmę
-      const tape = TAPE_TYPES.find((t) => t.id === value);
-      if (tape && tape.imagePath) {
-        setSelectedTapeImage(tape.imagePath);
-        setShowTapeImage(true);
+    if (name === 'tapeType') {
+      if (value === '') {
+        setTapeError(
+          'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+        );
       } else {
-        setShowTapeImage(false);
+        setTapeError(null);
       }
     }
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === 'selectedProduct' ? { selectedImageIndex: 0 } : {}),
     }));
   };
 
@@ -831,18 +824,6 @@ export default function OrderForm({
                             required
                             disabled={!formData.tapeType}
                           />
-                          {formData.tapeType && formData.rodWidth && (
-                            <div className='mt-2 p-2 bg-gray-50 rounded-lg'>
-                              <div className='flex justify-between items-center'>
-                                <span className='text-sm font-medium'>
-                                  Koszt materiału:
-                                </span>
-                                <span className='text-sm font-bold text-deep-navy'>
-                                  {formatPrice(calculateMaterialPrice())} zł/mb
-                                </span>
-                              </div>
-                            </div>
-                          )}
                         </div>
                         <div className='w-1/2'>
                           <label className='block text-sm font-medium text-gray-700 mb-1'>
@@ -980,11 +961,27 @@ export default function OrderForm({
                       <div className='pt-4 border-t border-gray-200 mt-4'>
                         <div className='flex justify-between items-center'>
                           <span className='text-lg font-medium text-deep-navy'>
-                            Razem:
+                            Razem (materiał):
+                          </span>
+                          <span className='text-xl font-bold text-deep-navy'>
+                            {formatPrice(calculateMaterialPrice())} zł
+                          </span>
+                        </div>
+                        <div className='flex justify-between items-center mt-2'>
+                          <span className='text-lg font-medium text-deep-navy'>
+                            Razem (materiał + szycie):
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
                             {formatPrice(calculatePrice())} zł
                           </span>
+                        </div>
+                        {calculatePrice() > 399 && (
+                          <div className='mt-2 text-green-600 font-medium'>
+                            Darmowa dostawa
+                          </div>
+                        )}
+                        <div className='mt-2 text-gray-500 text-sm'>
+                          Darmowa dostawa od 399 zł
                         </div>
                       </div>
                     </div>
