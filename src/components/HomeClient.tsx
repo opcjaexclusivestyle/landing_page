@@ -93,16 +93,21 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           console.log('Pobrane produkty pościelowe:', linenData);
 
           // Mapowanie produktów pościelowych
-          const mappedLinenProducts = linenData.map((product) => ({
-            id: Number(product.id) || 0,
-            name: product.name,
-            description: product.description || '',
-            currentPrice: product.price || 0,
-            regularPrice: (product.price || 0) * 1.2,
-            lowestPrice: (product.price || 0) * 0.9,
-            image: product.image || '',
-            category: 'bedding' as const,
-          }));
+          const mappedLinenProducts = linenData.map((product) => {
+            console.log('Mapowanie produktu pościelowego:', product);
+            const imageUrl = product.image || '';
+            console.log('Ścieżka obrazka pościel:', imageUrl);
+            return {
+              id: Number(product.id) || 0,
+              name: product.name,
+              description: product.description || '',
+              currentPrice: product.price || 0,
+              regularPrice: (product.price || 0) * 1.2,
+              lowestPrice: (product.price || 0) * 0.9,
+              image: imageUrl,
+              category: 'bedding' as const,
+            };
+          });
 
           setBeddingProducts(mappedLinenProducts);
         }
@@ -121,6 +126,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           // Mapowanie produktów firanowych
           const mappedCurtainProducts = (curtainData || []).map((product) => {
             console.log('Mapowanie produktu firany:', product);
+            const imageUrl = product.image_path || product.imagePath || '';
+            console.log('Ścieżka obrazka firany:', imageUrl);
             return {
               id: Number(product.id) || 0,
               name: product.name || 'Brak nazwy',
@@ -133,7 +140,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               lowestPrice:
                 (product.fabric_price_per_mb || product.fabricPricePerMB || 0) *
                 0.9,
-              image: product.image_path || product.imagePath || '',
+              image: imageUrl,
               category: 'curtains' as const,
             };
           });

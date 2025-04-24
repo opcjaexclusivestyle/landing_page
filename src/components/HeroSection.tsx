@@ -199,15 +199,24 @@ const HeroSection = () => {
                     className='object-cover object-center'
                   />
                 </div>
-                <div className='bg-white-pure/60 backdrop-blur-sm rounded-xl p-6 w-full h-full flex items-center justify-center'>
-                  <div className='text-center'>
+                <div className='bg-white-pure/60 backdrop-blur-sm rounded-xl p-6 w-full h-full flex flex-col justify-between'>
+                  <div className='text-center flex flex-col items-center'>
                     <span className='font-semibold text-xl text-black-800 block mb-2 group-hover:scale-105 transition-transform'>
                       Nowa kolekcja!
                     </span>
-                    <span className='text-black-700'>
+                    <span className='text-black-700 mb-4'>
                       Już wkrótce nowa oferta - zapisz się, aby otrzymać
                       powiadomienie!
                     </span>
+                  </div>
+                  <div className='flex justify-center mt-6'>
+                    <Image
+                      src='/images/hero/logoliniowe.png'
+                      alt='Logo zasłonex'
+                      width={80}
+                      height={80}
+                      className='object-contain'
+                    />
                   </div>
                 </div>
               </div>
