@@ -72,7 +72,7 @@ export default function RecommendedProducts({
     if (firstProduct?.category === 'curtains') {
       return '/firany-premium';
     } else if (firstProduct?.category === 'bedding') {
-      return '/posciel';
+      return '/posciel-premium';
     }
     return moreProductsLink;
   };
@@ -93,13 +93,13 @@ export default function RecommendedProducts({
       if (product.category === 'curtains' && product.slug) {
         buttonLink = `/firany-premium/${encodeURIComponent(product.slug)}`;
       } else if (product.category === 'bedding' && product.slug) {
-        buttonLink = `/posciel/${product.slug}`;
+        buttonLink = `/${product.slug}`;
       } else if (product.category === 'curtains') {
         buttonLink = `/firany-premium/${encodeURIComponent(
           `product-${product.id}`,
         )}`;
       } else if (product.category === 'bedding') {
-        buttonLink = `/posciel/product-${product.id}`;
+        buttonLink = `/posciel-premium/${product.id}`;
       }
 
       const discount =

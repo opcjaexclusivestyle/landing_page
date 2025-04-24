@@ -96,8 +96,24 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           // Mapowanie produktów pościelowych
           const mappedLinenProducts = linenData.map((product) => {
             console.log('Mapowanie produktu pościelowego:', product);
-            const imageUrl = product.image || '';
+
+            // Pobieranie pierwszego koloru i jego pierwszego obrazu
+            let imageUrl = '';
+            if (product.colors && typeof product.colors === 'object') {
+              const colorKeys = Object.keys(product.colors);
+              if (colorKeys.length > 0) {
+                const firstColorKey = colorKeys[0];
+                if (product.colors[firstColorKey]?.images?.length > 0) {
+                  imageUrl = product.colors[firstColorKey].images[0];
+                }
+              }
+            } else if (product.image) {
+              // Fallback do starego sposobu, jeśli kolory nie są dostępne
+              imageUrl = product.image || '';
+            }
+
             console.log('Ścieżka obrazka pościel:', imageUrl);
+
             return {
               id: Number(product.id) || 0,
               name: product.name,
@@ -107,6 +123,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               lowestPrice: (product.price || 0) * 0.9,
               image: imageUrl,
               category: 'bedding' as const,
+              slug: `posciel-premium/${product.id}`,
             };
           });
 
@@ -219,6 +236,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         background='gray'
         buttonText='SPRAWDŹ SZCZEGÓŁY'
         className='mt-8'
+        moreProductsLink='/posciel-premium'
       />
 
       {/* Rekomendowane firany */}

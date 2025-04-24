@@ -62,6 +62,12 @@ export default function SellingCard({
   const getProperImagePath = (imagePath: string) => {
     if (!imagePath) return '/placeholder-image.jpg';
 
+    // Fix dla ścieżek pochodzących z obiektu colors
+    // (sprawdzamy, czy to URL zawierający supabase storage)
+    if (imagePath.includes('supabase.co/storage')) {
+      return imagePath;
+    }
+
     // Fix for image_path/image[0] format
     if (imagePath.includes('[')) {
       return imagePath.replace(/\[(\d+)\]/g, '$1');
