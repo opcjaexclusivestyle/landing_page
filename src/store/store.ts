@@ -7,6 +7,12 @@ export const store = configureStore({
     cart: cartReducer,
     customer: customerReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST'],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

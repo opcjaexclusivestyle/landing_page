@@ -40,6 +40,8 @@ export default function Navbar() {
 
           if (profile?.role === 'admin') {
             setIsAdmin(true);
+            // Zapisz status w pamięci podręcznej na czas trwania sesji
+            sessionStorage.setItem('adminVerified', 'true');
           }
         }
       } catch (error) {
@@ -91,6 +93,40 @@ export default function Navbar() {
       });
     }
   }, [isMenuOpen]);
+
+  // Funkcja do renderowania ikony koszyka z licznikiem
+  const renderCartIcon = () => {
+    return (
+      <Link
+        href='/cart'
+        className='relative flex items-center text-gray-700 hover:text-[var(--gold)] transition-colors'
+        aria-label={`Koszyk, ${itemCount} produktów`}
+      >
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          className='h-6 w-6'
+          fill='none'
+          viewBox='0 0 24 24'
+          stroke='currentColor'
+        >
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            strokeWidth={2}
+            d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
+          />
+        </svg>
+        {itemCount > 0 && (
+          <span
+            className='absolute -top-2 -right-2 bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'
+            key={itemCount} // Dodanie klucza wymusi ponowne renderowanie przy zmianie
+          >
+            {itemCount}
+          </span>
+        )}
+      </Link>
+    );
+  };
 
   return (
     <nav
@@ -190,30 +226,7 @@ export default function Navbar() {
               )}
 
               {/* Koszyk */}
-              <Link
-                href='/cart'
-                className='relative flex items-center text-gray-700 hover:text-[var(--gold)] transition-colors'
-              >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-6 w-6'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
-                  />
-                </svg>
-                {itemCount > 0 && (
-                  <span className='absolute -top-2 -right-2 bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
-                    {itemCount}
-                  </span>
-                )}
-              </Link>
+              {renderCartIcon()}
             </div>
 
             {/* Przycisk menu mobilnego */}
@@ -241,141 +254,90 @@ export default function Navbar() {
               )}
 
               {/* Ikona koszyka na urządzeniach mobilnych */}
-              <Link
-                href='/cart'
-                className='relative flex items-center text-gray-700 hover:text-[var(--gold)] transition-colors'
+              {renderCartIcon()}
+
+              {/* Przycisk menu */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className='inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-[var(--gold)] focus:outline-none'
               >
+                <span className='sr-only'>Otwórz menu</span>
                 <svg
+                  className={`${isMenuOpen ? 'hidden' : 'block'} h-6 w-6`}
                   xmlns='http://www.w3.org/2000/svg'
-                  className='h-6 w-6'
                   fill='none'
                   viewBox='0 0 24 24'
                   stroke='currentColor'
+                  aria-hidden='true'
                 >
                   <path
                     strokeLinecap='round'
                     strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
+                    strokeWidth='2'
+                    d='M4 6h16M4 12h16M4 18h16'
                   />
                 </svg>
-                {itemCount > 0 && (
-                  <span className='absolute -top-2 -right-2 bg-[var(--gold)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
-                    {itemCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* Przycisk menu */}
-              <button
-                type='button'
-                className='text-gray-700 hover:text-[var(--gold)] focus:outline-none'
-                aria-controls='mobile-menu'
-                aria-expanded={isMenuOpen}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                <span className='sr-only'>Otwórz menu główne</span>
-                {isMenuOpen ? (
-                  <svg
-                    className='h-6 w-6'
-                    xmlns='http://www.w3.org/2000/svg'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M6 18L18 6M6 6l12 12'
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className='h-6 w-6'
-                    xmlns='http://www.w3.org/2000/svg'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M4 6h16M4 12h16M4 18h16'
-                    />
-                  </svg>
-                )}
+                <svg
+                  className={`${isMenuOpen ? 'block' : 'hidden'} h-6 w-6`}
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                  aria-hidden='true'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M6 18L18 6M6 6l12 12'
+                  />
+                </svg>
               </button>
             </div>
           </div>
         </div>
 
         {/* Menu mobilne */}
-        <div className='mobile-menu md:hidden overflow-hidden h-0 opacity-0'>
-          <div className='px-2 pt-2 pb-3 space-y-1 bg-white'>
+        <div
+          className={`mobile-menu overflow-hidden opacity-0 h-0 md:hidden ${
+            isMenuOpen ? 'block' : 'hidden'
+          }`}
+        >
+          <div className='px-4 pt-4 pb-8 space-y-6'>
             <Link
               href='/zaslony'
-              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              className='block text-gray-700 hover:text-[var(--gold)] transition-colors'
               onClick={() => setIsMenuOpen(false)}
             >
               Zasłony
             </Link>
             <Link
               href='/firany'
-              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              className='block text-gray-700 hover:text-[var(--gold)] transition-colors'
               onClick={() => setIsMenuOpen(false)}
             >
               Firany
             </Link>
             <Link
-              href='/przescieradlo'
-              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              href='/posciel-premium'
+              className='block text-gray-700 hover:text-[var(--gold)] transition-colors'
               onClick={() => setIsMenuOpen(false)}
             >
               Pościel
             </Link>
             <Link
               href='/rolety'
-              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              className='block text-gray-700 hover:text-[var(--gold)] transition-colors'
               onClick={() => setIsMenuOpen(false)}
             >
               Rolety
             </Link>
             <Link
               href='/kontakt'
-              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)]'
+              className='block text-gray-700 hover:text-[var(--gold)] transition-colors'
               onClick={() => setIsMenuOpen(false)}
             >
               Kontakt
-            </Link>
-            {isAdmin && (
-              <Link
-                href='/admin'
-                className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)] flex items-center'
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  fill='currentColor'
-                  className='w-5 h-5 mr-2'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M11.484 2.17a.75.75 0 0 1 1.032 0 11.209 11.209 0 0 0 7.877 3.08.75.75 0 0 1 .722.515 12.74 12.74 0 0 1 .635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 0 1-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 0 1 .722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75ZM12 15a.75.75 0 0 0 0 1.5h.007a.75.75 0 0 0 0-1.5H12Z'
-                    clipRule='evenodd'
-                  />
-                </svg>
-                Panel Administratora
-              </Link>
-            )}
-            <Link
-              href='/cart'
-              className='block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-[var(--light-gold)] hover:text-[var(--deep-navy)] flex items-center'
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <span className='mr-2'>Koszyk</span>
             </Link>
           </div>
         </div>

@@ -23,7 +23,7 @@ export default function StripeCheckoutPage() {
 
   useEffect(() => {
     if (!sessionId) {
-      setError('Brak identyfikatora sesji');
+      setError('Brak identyfikatora sesji płatności');
       setIsLoading(false);
       return;
     }
