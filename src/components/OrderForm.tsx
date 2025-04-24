@@ -238,20 +238,14 @@ export default function OrderForm({
     if (!selectedTape || !selectedTape.ratio || !rodWidth || !selectedProduct)
       return 0;
 
-    // Obliczanie szerokości materiału po marszczeniu
-    const materialWidth = rodWidth * selectedTape.ratio;
+    // Obliczanie ilości potrzebnego materiału
+    const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
 
-    // Dla kalkulacji samego materiału przyjmujemy wysokość 1 metra
-    const defaultHeight = 100; // 1 metr w cm
-
-    // Obliczanie metrów bieżących
-    const meters = (materialWidth * defaultHeight) / 10000; // konwersja z cm² na m²
-
-    // Obliczanie ceny materiału za metr bieżący
-    const materialCost = meters * MATERIAL_PRICE_PER_METER;
+    // Obliczanie kosztu materiału
+    const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
 
     // Zaokrąglenie do 2 miejsc po przecinku
-    return Math.round(materialCost * 100) / 100;
+    return Math.round(kosztMaterialu * 100) / 100;
   };
 
   // Pełna kalkulacja ceny (materiał + szycie)
@@ -271,21 +265,21 @@ export default function OrderForm({
     )
       return 0;
 
-    // Obliczanie szerokości materiału po marszczeniu
-    const materialWidth = rodWidth * selectedTape.ratio;
+    // Obliczanie ilości potrzebnego materiału
+    const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
 
-    // Obliczanie metrów bieżących
-    const meters = (materialWidth * height) / 10000; // konwersja z cm² na m²
+    // Obliczanie kosztu materiału
+    const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
 
-    // Obliczanie ceny materiału
-    const materialCost = meters * MATERIAL_PRICE_PER_METER;
+    // Obliczanie metrów bieżących do szycia
+    const szerokoscPoTasmie = rodWidth * selectedTape.ratio;
+    const metryBiezaceSzycie = (2 * szerokoscPoTasmie + 2 * height) / 100; // konwersja z cm na metry
 
-    // Obliczanie kosztu szycia - 4 zł za każde 0,5 mb
-    const sewingUnits = Math.ceil(meters / 0.5); // Zaokrąglenie w górę do pełnych 0,5 mb
-    const sewingCost = sewingUnits * 4;
+    // Obliczanie kosztu szycia
+    const kosztSzycia = metryBiezaceSzycie * 8; // 8 zł za metr bieżący szycia
 
     // Zaokrąglenie do 2 miejsc po przecinku
-    return Math.round((materialCost + sewingCost) * 100) / 100;
+    return Math.round((kosztMaterialu + kosztSzycia) * 100) / 100;
   };
 
   // Funkcja pomocnicza do formatowania kwoty
