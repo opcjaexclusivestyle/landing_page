@@ -504,26 +504,19 @@ const NewProductsSection = () => {
         >
           <p
             ref={(el) => addToParagraphRefs(el)}
-            className='text-base md:text-lg lg:text-xl tracking-wide text-center mb-6 leading-relaxed font-light transition-colors duration-700'
+            className='text-sm md:text-base lg:text-lg tracking-wide text-center mb-6 leading-relaxed font-light transition-colors duration-700'
+            style={{ color: '#6b7280' }}
           >
-            Nasze produkty powstają w{' '}
-            <span className='font-medium text-gold'>lokalnej szwalni</span>, z
-            najwyższej jakości materiałów, gdzie każda nić jest starannie
-            dobierana.
+            Nasze produkty powstają w lokalnej szwalni, z najwyższej jakości
+            materiałów. Każde zamówienie traktujemy indywidualnie, z dbałością o
+            detale i potrzeby naszych klientów.
           </p>
           <p
             ref={(el) => addToParagraphRefs(el)}
-            className='text-base md:text-lg lg:text-xl tracking-wide text-center mb-6 leading-relaxed font-light transition-colors duration-700'
+            className='text-sm md:text-base lg:text-lg tracking-wide text-center mb-6 leading-relaxed font-light transition-colors duration-700'
+            style={{ color: '#6b7280' }}
           >
-            Każde zamówienie traktujemy{' '}
-            <span className='italic text-gold'>indywidualnie</span>, z dbałością
-            o detale i potrzeby naszych klientów.
-          </p>
-          <p
-            ref={(el) => addToParagraphRefs(el)}
-            className='text-base md:text-lg lg:text-xl tracking-wide text-center mb-6 leading-relaxed font-light transition-colors duration-700'
-          >
-            Dzięki temu uszyliśmy już ponad{' '}
+            Dzięki takiemu podejściu, uszyliśmy już ponad{' '}
             <span className='text-xl md:text-2xl lg:text-3xl font-semibold text-gold'>
               100 000
             </span>{' '}
@@ -532,13 +525,13 @@ const NewProductsSection = () => {
           </p>
           <p
             ref={(el) => addToParagraphRefs(el)}
-            className='text-base md:text-lg lg:text-xl tracking-wide text-center leading-relaxed font-light transition-colors duration-700'
+            className='text-sm md:text-base lg:text-lg tracking-wide text-center leading-relaxed font-light transition-colors duration-700'
+            style={{ color: '#6b7280' }}
           >
-            Klienci którzy nam zaufali, chętnie wracają – bo wiedzą, że w
+            Klienci którzy nam zaufali, chętnie wracają – bo wiedzą, że w{' '}
             <span className='text-lg md:text-xl lg:text-2xl font-medium text-gold'>
-              {' '}
-              Zasłonex{' '}
-            </span>
+              Zasłonex
+            </span>{' '}
             liczy się nie tylko{' '}
             <span className='text-gold font-medium'>piękno</span>, ale i{' '}
             <span className='text-white font-medium'>jakość</span>.

@@ -1,32 +1,24 @@
 {
   "faqItems": [
     {
-      "question": "Jak poprawnie zmierzyć szerokość karnisza?",
-      "answer": "Szerokość karnisza należy mierzyć od końca do końca, wliczając w to ozdobne zakończenia. Jeśli planujesz zakup nowego karnisza, zalecamy, aby był co najmniej 20-30 cm szerszy niż samo okno, co pozwoli na odpowiednie odsłonięcie okna."
-    },
-    {
-      "question": "Jaką wysokość zasłon wybrać?",
-      "answer": "Wysokość zasłon zależy od efektu, jaki chcesz osiągnąć. Klasycznie zasłony powinny sięgać do podłogi lub kończyć się 1-2 cm nad nią. Możesz też wybrać dłuższe zasłony z efektem 'kałuży' na podłodze, dodając 5-10 cm do wymaganej długości."
-    },
-    {
-      "question": "Jaka taśma marszcząca będzie najlepsza?",
-      "answer": "Najczęściej wybierane są taśmy ołówkowe 8 cm, które dają elegancki wygląd z równomiernym marszczeniem. Taśma ołówek 2,5 cm jest bardziej dyskretna, natomiast taśma smok tworzy bardzo ozdobny efekt. Wszystkie nasze taśmy dają marszczenie w stosunku 1:2."
+      "question": "Jak obliczyć ilość materiału potrzebnego do zawieszenia zasłony lub firany?",
+      "answer": "Wystarczy, że zmierzysz długość karnisza w miejscu, gdzie planujesz zawiesić zasłonę lub firanę. Następnie wpisz tę wartość w nasz kalkulator, a on automatycznie wyliczy odpowiednią ilość materiału, by uzyskać efektowne, eleganckie fale w Twoim oknie."
     },
     {
       "question": "Czy mogę zamówić próbkę materiału przed zakupem?",
-      "answer": "Tak, oferujemy możliwość zamówienia próbek materiałów. Skontaktuj się z nami telefonicznie lub przez formularz kontaktowy, a wyślemy Ci wybrane próbki, abyś mógł ocenić kolor i strukturę materiału we własnym domu."
+      "answer": "Tak, oferujemy możliwość zamówienia próbek materiałów. Skontaktuj się z nami telefonicznie, a wyślemy Ci wybrane próbki, abyś mógł ocenić kolor i strukturę materiału we własnym domu."
     },
     {
-      "question": "Jaki jest czas realizacji zamówienia?",
-      "answer": "Standardowy czas realizacji to 10-14 dni roboczych od momentu potwierdzenia zamówienia. W przypadku materiałów sprowadzanych na zamówienie czas może ulec wydłużeniu do 3-4 tygodni."
+      "question": "Jak mogę otrzymać 20% rabatu na kolejne zakupy?",
+      "answer": "To proste! Odmień swoje wnętrze z naszymi firanami lub zasłonami i pochwal się efektem! Prześlij nam zdjęcia pomieszczenia przed i po metamorfozie, a my nagrodzimy Cię 20% rabatem na kolejne zakupy. Zainspiruj innych swoją aranżacją i zgarnij zniżkę na kolejne piękne dodatki do domu!"
     },
     {
-      "question": "Czy oferujecie montaż zasłon?",
-      "answer": "Tak, oferujemy usługę profesjonalnego montażu zasłon na terenie większych miast. Koszt usługi jest wyceniany indywidualnie w zależności od lokalizacji i zakresu prac."
+      "question": "Od jakiej kwoty mogę skorzystać z darmowej dostawy?",
+      "answer": "Darmowa dostawa przysługuje przy zamówieniach od 399 zł! Zrób zakupy już teraz i skorzystaj z tej wygodnej opcji – nie przepłacaj za przesyłkę!"
     },
     {
-      "question": "Jak prać i konserwować zasłony?",
-      "answer": "Większość naszych zasłon można prać w pralce w temperaturze 30°C, używając delikatnego programu i łagodnych detergentów. Nie zalecamy używania wybielaczy. Po praniu najlepiej rozwiesić zasłony jeszcze wilgotne, co pomoże uniknąć nadmiernych zagnieceń."
+      "question": "Jaka taśma marszcząca będzie najlepsza?",
+      "answer": "W naszym sklepie znajdziesz starannie wyselekcjonowany asortyment taśm marszczących – oferujemy najczęściej wybierane i najpopularniejsze modele w Polsce. Dzięki temu masz pewność, że każdy z naszych produktów to sprawdzony i topowy wybór. Do zasłon najczęściej polecana jest taśma ołówkowa o szerokości 8 cm, która zapewnia elegancki wygląd i równomierne marszczenie. Dla osób preferujących bardziej dyskretne rozwiązania, idealna będzie taśma ołówkowa 2,5 cm – doskonale sprawdzi się tam, gdzie taśma ma pozostać niewidoczna. Z kolei do firan szczególnie polecana jest taśma SMOK o szerokości 5 cm. To uniwersalne rozwiązanie, które pasuje do każdego wnętrza i pięknie eksponuje lekkość tkaniny. Dla miłośników nowoczesnego designu doskonałym wyborem będzie taśma wave. To wyjątkowe rozwiązanie, które tworzy idealnie regularne fale, niezależnie od rodzaju tkaniny. Taśma wave świetnie sprawdza się w eleganckich, przestronnych wnętrzach – szczególnie w salonach i pokojach dziennych, gdzie liczy się efekt lekkości, harmonii i nowoczesnej estetyki."
     }
   ]
 }
