@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { SectionConfig } from '@/config/sections';
+import { onBackgroundMessage } from 'firebase/messaging/sw';
 
 interface SectionPanelProps {
   section: SectionConfig;
@@ -107,7 +108,11 @@ export default function SectionPanel({
           {section.description}
         </p>
 
-        <Link href={section.link} className='premium-button'>
+        <Link
+          href={section.link}
+          //  className='premium-button'
+          style={{ backgroundColor: 'yellow' }}
+        >
           {section.buttonText}
         </Link>
       </div>
