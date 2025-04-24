@@ -1163,7 +1163,8 @@ export default function OrderForm({
                 <button
                   type='submit'
                   disabled={isLoading}
-                  className='magic-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
+                  className='premium-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
+                  // className='magic-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
                 >
                   {isLoading ? (
                     <span className='flex items-center justify-center'>
@@ -1190,10 +1191,7 @@ export default function OrderForm({
                       Przetwarzanie...
                     </span>
                   ) : (
-                    <span
-                      className='flex items-center justify-center'
-                      style={{ color: 'white' }}
-                    >
+                    <span className='flex items-center'>
                       Dodaj do koszyka
                       <svg
                         xmlns='http://www.w3.org/2000/svg'
