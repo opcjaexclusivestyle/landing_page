@@ -22,13 +22,26 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout>();
+
+  // Sprawdzanie czy jesteśmy na urządzeniu mobilnym
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Funkcja do przewijania karuzeli
   const scrollToIndex = (index: number) => {
     if (carouselRef.current) {
-      const itemWidth = 176; // 160px (w-40) + 16px (gap-4)
+      const itemWidth = isMobile ? 160 : 176; // Dostosowanie szerokości do widoku mobilnego
       carouselRef.current.scrollTo({
         left: index * itemWidth,
         behavior: 'smooth',
@@ -36,16 +49,16 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
     }
   };
 
-  // Automatyczne przewijanie
+  // Automatyczne przewijanie tylko na desktopie
   useEffect(() => {
-    if (!isPaused && products.length > 0) {
+    if (!isPaused && products.length > 0 && !isMobile) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % products.length;
           scrollToIndex(nextIndex);
           return nextIndex;
         });
-      }, 3000); // Przewijanie co 3 sekundy
+      }, 3000);
 
       return () => {
         if (intervalRef.current) {
@@ -53,18 +66,22 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
         }
       };
     }
-  }, [isPaused, products.length]);
+  }, [isPaused, products.length, isMobile]);
 
-  // Obsługa pauzy przy najechaniu myszką
+  // Obsługa pauzy przy najechaniu myszką (tylko na desktopie)
   const handleMouseEnter = () => {
-    setIsPaused(true);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (!isMobile) {
+      setIsPaused(true);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     }
   };
 
   const handleMouseLeave = () => {
-    setIsPaused(false);
+    if (!isMobile) {
+      setIsPaused(false);
+    }
   };
 
   // Obsługa kliknięcia w strzałki
@@ -88,7 +105,9 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
     <div className='relative'>
       <div
         ref={carouselRef}
-        className='flex overflow-x-auto gap-4 pb-4 scrollbar-hide'
+        className={`flex overflow-x-auto gap-4 pb-4 scrollbar-hide ${
+          isMobile ? 'px-4' : ''
+        }`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -120,10 +139,12 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
         ))}
       </div>
 
-      {/* Strzałki nawigacyjne */}
+      {/* Strzałki nawigacyjne - zawsze widoczne na mobile, na desktop tylko przy hover */}
       <button
         onClick={handlePrevClick}
-        className='absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg z-10'
+        className={`absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg z-10 ${
+          isMobile ? 'block' : 'hidden group-hover:block'
+        }`}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -143,7 +164,9 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
 
       <button
         onClick={handleNextClick}
-        className='absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg z-10'
+        className={`absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg z-10 ${
+          isMobile ? 'block' : 'hidden group-hover:block'
+        }`}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -160,6 +183,24 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
           />
         </svg>
       </button>
+
+      {/* Wskaźniki na dole karuzeli - tylko na mobile */}
+      {isMobile && (
+        <div className='flex justify-center gap-2 mt-4'>
+          {products.map((_, index) => (
+            <button
+              key={index}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                currentIndex === index ? 'bg-royal-gold' : 'bg-gray-300'
+              }`}
+              onClick={() => {
+                setCurrentIndex(index);
+                scrollToIndex(index);
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
