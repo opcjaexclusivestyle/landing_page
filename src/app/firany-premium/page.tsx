@@ -97,6 +97,8 @@ export default function FiranyPremiumPage() {
     );
   }
 
+  console.log('producttesss', `${currentProducts[0].image_path}/1.webp`);
+
   return (
     <>
       <SimpleHeader
@@ -135,52 +137,52 @@ export default function FiranyPremiumPage() {
 
         {/* Siatka produktów */}
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
-          {currentProducts.map((product) => (
-            <Link
-              key={product.id || product.name}
-              href={`/firany-premium/${encodeURIComponent(
-                product.slug || product.name,
-              )}`}
-              className='block group'
-            >
-              <div className='bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg'>
-                <div className='relative h-64 w-full'>
-                  <Image
-                    src={
-                      product.imagePath ||
-                      (product.image_path
-                        ? `${product.image_path}/1.webp`
-                        : null) ||
-                      '/images/placeholder.jpg'
-                    }
-                    alt={product.name}
-                    fill
-                    sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw'
-                    className='object-cover'
-                  />
-                </div>
-                <div className='p-4'>
-                  <h3 className='text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors'>
-                    {product.name}
-                  </h3>
-                  <p className='mt-1 text-gray-600 line-clamp-2'>
-                    {product.description || 'Wysokiej jakości firany premium'}
-                  </p>
-                  <div className='mt-2 flex justify-between items-center'>
-                    <span className='text-indigo-600 font-medium'>
-                      {(
-                        product.fabricPricePerMB ||
-                        product.fabric_price_per_mb ||
-                        0
-                      ).toFixed(2)}{' '}
-                      zł/mb
-                    </span>
-                    <span className='text-sm text-gray-500'>Szczegóły →</span>
+          {currentProducts.map((product) => {
+            console.log('productxx', `/${product.image_path}/1.webp`);
+            return (
+              <Link
+                key={product.id || product.name}
+                href={`/firany-premium/${encodeURIComponent(
+                  product.slug || product.name,
+                )}`}
+                className='block group'
+              >
+                <div className='bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg'>
+                  <div className='relative h-64 w-full'>
+                    <Image
+                      src={
+                        `${product.image_path}/1.webp` ||
+                        '/images/placeholder.jpg'
+                      }
+                      alt={product.name}
+                      fill
+                      sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw'
+                      className='object-cover'
+                    />
+                  </div>
+                  <div className='p-4'>
+                    <h3 className='text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors'>
+                      {product.name}
+                    </h3>
+                    <p className='mt-1 text-gray-600 line-clamp-2'>
+                      {product.description || 'Wysokiej jakości firany premium'}
+                    </p>
+                    <div className='mt-2 flex justify-between items-center'>
+                      <span className='text-indigo-600 font-medium'>
+                        {(
+                          product.fabricPricePerMB ||
+                          product.fabric_price_per_mb ||
+                          0
+                        ).toFixed(2)}{' '}
+                        zł/mb
+                      </span>
+                      <span className='text-sm text-gray-500'>Szczegóły →</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Paginacja */}

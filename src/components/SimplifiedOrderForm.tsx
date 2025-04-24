@@ -7,6 +7,7 @@ import { setCustomerInfo } from '@/store/customerSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import { fetchCalculatorProducts, CalcProduct } from '@/lib/supabase';
+import AccordionCertificates from './AccordionCertificates';
 
 interface SimplifiedOrderFormProps {
   productName: string;
@@ -22,6 +23,10 @@ interface FormData {
   tapeType: string;
   quantity: number;
   comments: string;
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
 }
 
 // Takie same typy taśm jak w oryginalnym komponencie
@@ -74,6 +79,10 @@ export default function SimplifiedOrderForm({
     tapeType: '',
     quantity: 1,
     comments: '',
+    street: '',
+    houseNumber: '',
+    postalCode: '',
+    city: '',
   });
 
   // Pobieranie produktów tylko po to, aby znaleźć wybrany produkt
@@ -91,7 +100,7 @@ export default function SimplifiedOrderForm({
     }
 
     loadProducts();
-  }, []);
+  }, [productName]);
 
   // Znajdź aktualnie wybrany produkt
   const selectedProduct = products.find(
@@ -116,12 +125,21 @@ export default function SimplifiedOrderForm({
   // Obliczanie ceny tylko materiału (bez szycia)
   const calculateMaterialPrice = () => {
     const rodWidth = parseFloat(formData.rodWidth) || 0;
-    if (!selectedTape || !selectedTape.ratio || !rodWidth) return 0;
+    const height = parseFloat(formData.height) || 0;
 
-    // Obliczanie ilości potrzebnego materiału
-    const materialAmount = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
-    const materialCost = materialAmount * MATERIAL_PRICE_PER_METER;
-    return Math.round(materialCost * 100) / 100;
+    if (!selectedTape || !selectedTape.ratio || !rodWidth || !height) return 0;
+
+    // Obliczanie ilości potrzebnego materiału zgodnie z OrderForm
+    const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
+
+    // Obliczanie kosztu materiału
+    const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
+
+    // Uwzględniamy ilość sztuk
+    const totalMaterialCost = kosztMaterialu * formData.quantity;
+
+    // Zaokrąglenie do 2 miejsc po przecinku
+    return Math.round(totalMaterialCost * 100) / 100;
   };
 
   // Obliczanie pełnej ceny (materiał + szycie)
@@ -137,9 +155,12 @@ export default function SimplifiedOrderForm({
     // Obliczanie kosztu materiału
     const materialCost = materialAmount * MATERIAL_PRICE_PER_METER;
 
+    // Obliczanie metrów bieżących do szycia - obliczenie zgodne z OrderForm
+    const szerokoscPoTasmie = rodWidth * selectedTape.ratio;
+    const metryBiezaceSzycie = (2 * szerokoscPoTasmie + 2 * height) / 100; // konwersja z cm na metry
+
     // Obliczanie kosztu szycia
-    const sewingWidth = rodWidth / 100; // szerokość w metrach
-    const sewingCost = sewingWidth * SEWING_PRICE_PER_METER;
+    const sewingCost = metryBiezaceSzycie * SEWING_PRICE_PER_METER;
 
     // Łączny koszt
     const totalCost = (materialCost + sewingCost) * formData.quantity;
@@ -247,6 +268,10 @@ export default function SimplifiedOrderForm({
         tapeType: '',
         quantity: 1,
         comments: '',
+        street: '',
+        houseNumber: '',
+        postalCode: '',
+        city: '',
       });
 
       // Resetowanie stanu wyświetlania obrazka taśmy
@@ -262,7 +287,8 @@ export default function SimplifiedOrderForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
+    <div className='space-y-6'>
+      {/* Komunikat o sukcesie */}
       {orderSuccess && (
         <div className='p-4 mb-4 rounded-md bg-green-50 border border-green-200'>
           <div className='flex'>
@@ -288,232 +314,265 @@ export default function SimplifiedOrderForm({
         </div>
       )}
 
+      {/* Informacja o wybranym materiale */}
       <div className='bg-blue-50 p-4 rounded-lg mb-6'>
         <h3 className='font-semibold text-blue-800 mb-2'>Wybrany materiał</h3>
         <p className='text-lg'>{productName}</p>
       </div>
 
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-        <div className='form-group'>
-          <label
-            htmlFor='firstName'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Imię*
-          </label>
-          <input
-            type='text'
-            id='firstName'
-            name='firstName'
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-          />
-        </div>
+      {/* Formularz zamówienia */}
+      <form onSubmit={handleSubmit} className='space-y-6'>
+        {/* Dane klienta */}
 
-        <div className='form-group'>
-          <label
-            htmlFor='lastName'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Nazwisko*
-          </label>
-          <input
-            type='text'
-            id='lastName'
-            name='lastName'
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-          />
-        </div>
-      </div>
+        {/* Wymiary i taśma */}
+        <div className='space-y-4 pt-4 border-t border-gray-200'>
+          <h3 className='text-lg font-medium text-gray-700'>Wymiary i taśma</h3>
 
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-        <div className='form-group'>
-          <label
-            htmlFor='email'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Email*
-          </label>
-          <input
-            type='email'
-            id='email'
-            name='email'
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-          />
-        </div>
+          <div>
+            <label
+              htmlFor='tapeType'
+              className='block text-sm font-medium text-gray-700 mb-1'
+            >
+              Rodzaj taśmy marszczącej*
+            </label>
+            <select
+              id='tapeType'
+              name='tapeType'
+              value={formData.tapeType}
+              onChange={handleChange}
+              required
+              className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+            >
+              {TAPE_TYPES.map((tape) => (
+                <option key={tape.id} value={tape.id}>
+                  {tape.name}
+                </option>
+              ))}
+            </select>
+            {tapeError && (
+              <p className='mt-1 text-sm text-amber-600'>{tapeError}</p>
+            )}
+            {showTapeImage && (
+              <div className='mt-2'>
+                <div className='relative h-32 w-full'>
+                  <Image
+                    src={selectedTapeImage}
+                    alt='Taśma marszcząca'
+                    fill
+                    sizes='100vw'
+                    className='object-contain'
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
-        <div className='form-group'>
-          <label
-            htmlFor='phone'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Telefon*
-          </label>
-          <input
-            type='tel'
-            id='phone'
-            name='phone'
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-          />
-        </div>
-      </div>
-
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-        <div className='form-group'>
-          <label
-            htmlFor='rodWidth'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Szerokość karnisza (cm)*
-          </label>
-          <input
-            type='number'
-            id='rodWidth'
-            name='rodWidth'
-            value={formData.rodWidth}
-            onChange={handleChange}
-            min='1'
-            required
-            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-          />
-        </div>
-
-        <div className='form-group'>
-          <label
-            htmlFor='height'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Wysokość firanki (cm)*
-          </label>
-          <input
-            type='number'
-            id='height'
-            name='height'
-            value={formData.height}
-            onChange={handleChange}
-            min='1'
-            required
-            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-          />
-        </div>
-      </div>
-
-      <div className='form-group'>
-        <label
-          htmlFor='tapeType'
-          className='block text-sm font-medium text-gray-700 mb-1'
-        >
-          Rodzaj taśmy marszczącej*
-        </label>
-        <select
-          id='tapeType'
-          name='tapeType'
-          value={formData.tapeType}
-          onChange={handleChange}
-          required
-          className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-        >
-          {TAPE_TYPES.map((tape) => (
-            <option key={tape.id} value={tape.id}>
-              {tape.name}
-            </option>
-          ))}
-        </select>
-
-        {tapeError && (
-          <p className='mt-1 text-sm text-amber-600'>{tapeError}</p>
-        )}
-
-        {showTapeImage && (
-          <div className='mt-2'>
-            <div className='relative h-32 w-full'>
-              <Image
-                src={selectedTapeImage}
-                alt='Taśma marszćząca'
-                fill
-                sizes='100vw'
-                className='object-contain'
+          {/* Wymiary - w jednej kolumnie */}
+          <div className='space-y-4'>
+            <div>
+              <label
+                htmlFor='rodWidth'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                Szerokość karnisza (cm)*
+              </label>
+              <input
+                type='number'
+                id='rodWidth'
+                name='rodWidth'
+                value={formData.rodWidth}
+                onChange={handleChange}
+                min='1'
+                required
+                className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+              />
+            </div>
+            <div>
+              <label
+                htmlFor='height'
+                className='block text-sm font-medium text-gray-700 mb-1'
+              >
+                Wysokość firanki (cm)*
+              </label>
+              <input
+                type='number'
+                id='height'
+                name='height'
+                value={formData.height}
+                onChange={handleChange}
+                min='1'
+                required
+                className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
               />
             </div>
           </div>
-        )}
-      </div>
+        </div>
 
-      <div className='form-group'>
-        <label
-          htmlFor='quantity'
-          className='block text-sm font-medium text-gray-700 mb-1'
+        {/* Ilość */}
+        <div className='pt-4 border-t border-gray-200'>
+          <label
+            htmlFor='quantity'
+            className='block text-sm font-medium text-gray-700 mb-1'
+          >
+            Ilość sztuk
+          </label>
+          <input
+            type='number'
+            id='quantity'
+            name='quantity'
+            value={formData.quantity}
+            onChange={handleChange}
+            min='1'
+            required
+            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+          />
+        </div>
+
+        {/* Uwagi */}
+        <div className='pt-4 border-t border-gray-200'>
+          <label
+            htmlFor='comments'
+            className='block text-sm font-medium text-gray-700 mb-1'
+          >
+            Uwagi do zamówienia
+          </label>
+          <textarea
+            id='comments'
+            name='comments'
+            value={formData.comments}
+            onChange={handleChange}
+            rows={3}
+            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+          ></textarea>
+        </div>
+
+        {/* Kalkulacja - pod inputami */}
+        <div className='bg-gray-50 p-4 rounded-lg mt-4'>
+          <h3 className='text-lg font-medium mb-3'>Szczegóły kalkulacji</h3>
+          <div className='space-y-2'>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Wybrany materiał:</span>
+              <span className='font-medium'>{productName}</span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Cena materiału (za mb):</span>
+              <span className='font-medium'>
+                {selectedProduct
+                  ? formatPrice(MATERIAL_PRICE_PER_METER).replace(' zł', '') +
+                    ' zł/mb'
+                  : '-'}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Koszt szycia (za mb):</span>
+              <span className='font-medium'>
+                {selectedProduct
+                  ? formatPrice(SEWING_PRICE_PER_METER).replace(' zł', '') +
+                    ' zł/mb'
+                  : '-'}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Szerokość materiału:</span>
+              <span className='font-medium'>
+                {formData.rodWidth && selectedTape?.ratio
+                  ? `${(
+                      parseFloat(formData.rodWidth) * selectedTape.ratio
+                    ).toFixed(1)} cm`
+                  : '-'}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Metry bieżące szycia:</span>
+              <span className='font-medium'>
+                {formData.rodWidth && formData.height && selectedTape?.ratio
+                  ? (() => {
+                      const szerokoscPoTasmie =
+                        parseFloat(formData.rodWidth) * selectedTape.ratio;
+                      const metryBiezace =
+                        (2 * szerokoscPoTasmie +
+                          2 * parseFloat(formData.height)) /
+                        100;
+                      return `${metryBiezace.toFixed(2)} mb`;
+                    })()
+                  : '-'}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Koszt materiału:</span>
+              <span className='font-medium'>
+                {formData.rodWidth &&
+                formData.height &&
+                selectedProduct &&
+                formData.tapeType
+                  ? (() => {
+                      const materialAmount =
+                        (parseFloat(formData.rodWidth) *
+                          (selectedTape?.ratio || 0)) /
+                        100;
+                      const materialCost =
+                        materialAmount *
+                        MATERIAL_PRICE_PER_METER *
+                        formData.quantity;
+                      return formatPrice(materialCost);
+                    })()
+                  : '-'}
+              </span>
+            </div>
+            <div className='flex justify-between items-center text-sm'>
+              <span className='text-gray-600'>Koszt szycia:</span>
+              <span className='font-medium'>
+                {formData.rodWidth &&
+                formData.height &&
+                selectedProduct &&
+                formData.tapeType
+                  ? formatPrice(calculatePrice() - calculateMaterialPrice())
+                  : '-'}
+              </span>
+            </div>
+          </div>
+          <div className='pt-4 border-t border-gray-200 mt-4'>
+            <div className='flex justify-between items-center'>
+              <span className='text-lg font-medium text-deep-navy'>
+                Razem (materiał):
+              </span>
+              <span className='text-xl font-bold text-deep-navy'>
+                {formatPrice(calculateMaterialPrice())}
+              </span>
+            </div>
+            <div className='flex justify-between items-center mt-2'>
+              <span className='text-lg font-medium text-deep-navy'>
+                Razem (materiał + szycie):
+              </span>
+              <span className='text-xl font-bold text-deep-navy'>
+                {formatPrice(calculatePrice())}
+              </span>
+            </div>
+            {calculatePrice() > 399 && (
+              <div className='mt-2 text-green-600 font-medium'>
+                Darmowa dostawa
+              </div>
+            )}
+            <div className='mt-2 text-gray-500 text-sm'>
+              Darmowa dostawa od 399 zł
+            </div>
+          </div>
+        </div>
+
+        {/* Przycisk złożenia zamówienia */}
+        <button
+          type='submit'
+          disabled={isLoading}
+          className='premium-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
         >
-          Ilość sztuk
-        </label>
-        <input
-          type='number'
-          id='quantity'
-          name='quantity'
-          value={formData.quantity}
-          onChange={handleChange}
-          min='1'
-          required
-          className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-        />
-      </div>
+          {isLoading ? 'Dodawanie do koszyka...' : 'Złóż zamówienie'}
+        </button>
 
-      <div className='form-group'>
-        <label
-          htmlFor='comments'
-          className='block text-sm font-medium text-gray-700 mb-1'
-        >
-          Uwagi do zamówienia
-        </label>
-        <textarea
-          id='comments'
-          name='comments'
-          value={formData.comments}
-          onChange={handleChange}
-          rows={3}
-          className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-        ></textarea>
-      </div>
-
-      <div className='bg-gray-50 p-4 rounded-lg'>
-        <div className='flex justify-between items-center'>
-          <span className='text-gray-700'>Cena materiału:</span>
-          <span className='font-medium'>
-            {formatPrice(calculateMaterialPrice())}
-          </span>
+        {/* Certyfikaty - pod przyciskiem */}
+        <div className='mt-6'>
+          <AccordionCertificates />
         </div>
-        <div className='flex justify-between items-center mt-1'>
-          <span className='text-gray-700'>Koszt szycia:</span>
-          <span className='font-medium'>
-            {formatPrice(calculatePrice() - calculateMaterialPrice())}
-          </span>
-        </div>
-        <div className='flex justify-between items-center mt-3 text-lg font-bold'>
-          <span>Całkowita cena:</span>
-          <span className='text-indigo-700'>
-            {formatPrice(calculatePrice())}
-          </span>
-        </div>
-      </div>
-
-      <button
-        type='submit'
-        disabled={isLoading}
-        className='w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
-      >
-        {isLoading ? 'Dodawanie do koszyka...' : 'Dodaj do koszyka'}
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }

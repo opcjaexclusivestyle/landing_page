@@ -11,6 +11,7 @@ interface CartItem {
     embroidery: boolean;
     curtainRod: boolean;
   };
+  image?: string;
 }
 
 interface CartState {
