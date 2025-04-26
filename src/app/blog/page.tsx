@@ -1,6 +1,7 @@
 import BlogPostCard from '../components/BlogPostCard';
 import BlogLayout from '../components/BlogLayout';
 import { fetchBlogPosts } from '../../lib/supabase';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Blog - Inspiracje i porady wnętrzarskie',
@@ -8,8 +9,53 @@ export const metadata = {
     'Odkryj najnowsze trendy wnętrzarskie, porady ekspertów i inspirujące historie, które pomogą stworzyć wymarzony dom.',
 };
 
-export default async function BlogPage() {
-  const posts = await fetchBlogPosts(12); // Pobieramy maksymalnie 12 postów na stronę
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  // Pobieramy numer strony z parametrów URL lub używamy 1 jako domyślnej
+  const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
+  const postsPerPage = 6; // Liczba postów na stronę
+
+  // Pobieramy wszystkie posty, aby znać ich całkowitą liczbę
+  const allPosts = await fetchBlogPosts();
+  const totalPosts = allPosts.length;
+
+  // Obliczamy całkowitą liczbę stron
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+  // Pobieramy tylko posty dla bieżącej strony
+  const skip = (currentPage - 1) * postsPerPage;
+  const posts = allPosts.slice(skip, skip + postsPerPage);
+
+  // Funkcja generująca URL dla strony paginacji
+  const getPageUrl = (pageNum: number) => {
+    return `/blog?page=${pageNum}`;
+  };
+
+  // Funkcja generująca numery stron do wyświetlenia w paginacji
+  const getPaginationNumbers = () => {
+    const pageNumbers = [];
+    const maxDisplayedPages = 5; // Maksymalna liczba przycisków numerycznych
+
+    let startPage = Math.max(
+      1,
+      currentPage - Math.floor(maxDisplayedPages / 2),
+    );
+    let endPage = Math.min(totalPages, startPage + maxDisplayedPages - 1);
+
+    // Dostosowanie, jeśli jesteśmy blisko końca
+    if (endPage - startPage + 1 < maxDisplayedPages) {
+      startPage = Math.max(1, endPage - maxDisplayedPages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return pageNumbers;
+  };
 
   return (
     <BlogLayout>
@@ -27,7 +73,7 @@ export default async function BlogPage() {
 
         {/* Filtry kategorii */}
         <div className='flex flex-wrap justify-center gap-3 mb-12'>
-          <button className='px-4 py-2 rounded-full bg-primary text-white'>
+          <button className='px-4 py-2 rounded-full bg-royal-gold text-white'>
             Wszystkie
           </button>
           <button className='px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800'>
@@ -55,40 +101,52 @@ export default async function BlogPage() {
           </div>
         )}
 
-        {/* Paginacja - do rozbudowy w przyszłości */}
-        {posts.length > 0 && (
+        {/* Paginacja */}
+        {totalPages > 1 && (
           <div className='mt-16 flex justify-center'>
             <nav className='inline-flex rounded-md shadow'>
-              <a
-                href='#'
-                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-l-md hover:bg-gray-50'
-              >
-                Poprzednia
-              </a>
-              <a
-                href='#'
-                className='py-2 px-4 bg-primary text-white border border-primary'
-              >
-                1
-              </a>
-              <a
-                href='#'
-                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-              >
-                2
-              </a>
-              <a
-                href='#'
-                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-              >
-                3
-              </a>
-              <a
-                href='#'
-                className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-r-md hover:bg-gray-50'
-              >
-                Następna
-              </a>
+              {/* Przycisk Poprzednia */}
+              {currentPage > 1 ? (
+                <Link
+                  href={getPageUrl(currentPage - 1)}
+                  className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-l-md hover:bg-gray-50'
+                >
+                  Poprzednia
+                </Link>
+              ) : (
+                <span className='py-2 px-4 bg-gray-100 text-gray-400 border border-gray-200 rounded-l-md cursor-not-allowed'>
+                  Poprzednia
+                </span>
+              )}
+
+              {/* Numery stron */}
+              {getPaginationNumbers().map((page) => (
+                <Link
+                  key={page}
+                  href={getPageUrl(page)}
+                  className={`py-2 px-4 border ${
+                    currentPage === page
+                      ? 'bg-royal-gold text-white border-royal-gold'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </Link>
+              ))}
+
+              {/* Przycisk Następna */}
+              {currentPage < totalPages ? (
+                <Link
+                  href={getPageUrl(currentPage + 1)}
+                  className='py-2 px-4 bg-white text-gray-700 border border-gray-200 rounded-r-md hover:bg-gray-50'
+                >
+                  Następna
+                </Link>
+              ) : (
+                <span className='py-2 px-4 bg-gray-100 text-gray-400 border border-gray-200 rounded-r-md cursor-not-allowed'>
+                  Następna
+                </span>
+              )}
             </nav>
           </div>
         )}

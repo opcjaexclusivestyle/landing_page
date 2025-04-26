@@ -1820,3 +1820,69 @@ html {
   text-shadow: 1px 1px 0 var(--beige), 2px 2px 0 rgba(87, 96, 104, 0.3);
   color: var(--deep-navy);
 }
+
+/* Styles dla zawartości Markdown */
+.markdown-content h1 {
+  @apply text-3xl font-bold mt-8 mb-4;
+}
+
+.markdown-content h2 {
+  @apply text-2xl font-bold mt-8 mb-4;
+}
+
+.markdown-content h3 {
+  @apply text-xl font-bold mt-6 mb-3;
+}
+
+.markdown-content p {
+  @apply mb-4 text-gray-700 leading-relaxed;
+}
+
+.markdown-content ul {
+  @apply ml-6 mb-6 list-disc;
+}
+
+.markdown-content ol {
+  @apply ml-6 mb-6 list-decimal;
+}
+
+.markdown-content li {
+  @apply mb-2;
+}
+
+.markdown-content blockquote {
+  @apply pl-4 border-l-4 border-royal-gold italic my-6 text-gray-600;
+}
+
+.markdown-content img {
+  @apply rounded-lg mx-auto my-8;
+}
+
+.markdown-content a {
+  @apply text-royal-gold hover:underline;
+}
+
+.markdown-content code {
+  @apply bg-gray-100 px-2 py-1 rounded text-sm;
+}
+
+.markdown-content pre {
+  @apply bg-gray-800 text-white p-4 rounded-lg overflow-x-auto my-6;
+}
+
+.markdown-content table {
+  @apply w-full border-collapse my-6;
+}
+
+.markdown-content th,
+.markdown-content td {
+  @apply border border-gray-300 p-2;
+}
+
+.markdown-content th {
+  @apply bg-gray-100;
+}
+
+.markdown-content hr {
+  @apply my-8 border-t border-gray-200;
+}

@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 // Zdefiniowanie interfejsu BlogPost bezpośrednio w tym pliku
 interface BlogPost {
@@ -24,6 +25,20 @@ interface BlogPostCardProps {
 
 export default function BlogPostCard({ post }: BlogPostCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  // Funkcja do renderowania tytułu z Markdown bez paragrafów
+  const renderTitleWithoutParagraphs = (title: string) => {
+    return (
+      <ReactMarkdown
+        components={{
+          // Usuwamy znaczniki <p> i style z tytułu
+          p: ({ children }) => <>{children}</>,
+        }}
+      >
+        {title}
+      </ReactMarkdown>
+    );
+  };
 
   return (
     <div
@@ -55,15 +70,15 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
         <div className='p-6 bg-white relative z-10'>
           <div className='flex items-center text-xs text-gray-500 mb-3 space-x-4'>
             <div className='flex items-center'>
-              <span className='inline-block h-3 w-3 rounded-full bg-primary mr-1'></span>
+              <span className='inline-block h-3 w-3 rounded-full bg-royal-gold mr-1'></span>
               <span>{post.publishDate}</span>
             </div>
             <div>{post.readTime} min czytania</div>
           </div>
 
           <Link href={`/blog/${post.id}`} className='block'>
-            <h3 className='text-xl font-medium text-gray-900 mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-primary'>
-              {post.title}
+            <h3 className='text-xl font-medium text-gray-900 mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-royal-gold'>
+              {renderTitleWithoutParagraphs(post.title)}
             </h3>
           </Link>
 

@@ -4,6 +4,8 @@ import BlogLayout from '../../components/BlogLayout';
 import BlogPostCard from '../../components/BlogPostCard';
 import { fetchBlogPostById, fetchBlogPostsByCategory } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export async function generateMetadata({
   params,
@@ -19,8 +21,11 @@ export async function generateMetadata({
     };
   }
 
+  // Usuwamy tagi markdown z tytułu dla metatagów
+  const plainTitle = post.title.replace(/[*_`#]/g, '');
+
   return {
-    title: `${post.title} - Blog Wnętrzarski`,
+    title: `${plainTitle} - Blog Wnętrzarski`,
     description: post.excerpt,
   };
 }
@@ -44,19 +49,45 @@ export default async function SinglePostPage({
     (relatedPost) => relatedPost.id !== post.id,
   );
 
+  // Przykładowa zawartość artykułu (powinno być pobierane z API)
+  const articleContent =
+    post.content ||
+    `
+## Wprowadzenie
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis accumsan orci felis, vel hendrerit felis fermentum ac. Etiam scelerisque suscipit justo, at malesuada massa convallis ut. Nulla facilisi. Sed hendrerit pharetra lectus, vitae lobortis nibh volutpat vel.
+
+## Główne zasady projektowania wnętrz
+
+Vivamus dictum, massa eget accumsan sollicitudin, dolor purus volutpat massa, in posuere magna mauris vel dui. Duis in faucibus eros. Suspendisse potenti.
+
+* Harmonia i balans kolorów
+* Praktyczne wykorzystanie przestrzeni
+* Odpowiednie oświetlenie
+* Dobór mebli proporcjonalnych do pomieszczenia
+
+Pellentesque in neque bibendum, aliquet ipsum sed, convallis enim. Sed tempor arcu id nibh tristique pharetra. Mauris imperdiet, magna in tincidunt ultrices, enim massa tempus urna, at gravida odio ipsum quis nisl.
+
+> "Projektowanie to nie tylko wygląd, ale przede wszystkim funkcjonalność. Piękne wnętrze to takie, w którym czujesz się dobrze."
+
+## Podsumowanie
+
+Fusce lacinia dolor quis justo sagittis placerat. Duis nec tincidunt ex. Suspendisse eleifend, risus a sagittis tempus, sem turpis porta sem, eget interdum est justo id nulla.
+  `;
+
   return (
     <BlogLayout>
       <article className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
         {/* Breadcrumbs */}
         <div className='mb-8 text-sm'>
-          <Link href='/' className='text-gray-500 hover:text-primary'>
+          <Link href='/' className='text-gray-500 hover:text-royal-gold'>
             Strona główna
           </Link>{' '}
           /{' '}
-          <Link href='/blog' className='text-gray-500 hover:text-primary'>
+          <Link href='/blog' className='text-gray-500 hover:text-royal-gold'>
             Blog
           </Link>{' '}
-          / <span className='text-primary'>{post.title}</span>
+          / <span className='text-royal-gold'>{post.title}</span>
         </div>
 
         {/* Nagłówek artykułu */}
@@ -64,14 +95,26 @@ export default async function SinglePostPage({
           <div className='mb-4'>
             <Link
               href={`/blog/kategoria/${post.category.toLowerCase()}`}
-              className='inline-block px-3 py-1 bg-primary/10 rounded-full text-primary text-sm font-medium'
+              className='inline-block px-3 py-1 bg-royal-gold/10 rounded-full text-royal-gold text-sm font-medium'
             >
               {post.category}
             </Link>
           </div>
 
           <h1 className='text-3xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight'>
-            {post.title}
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <>{children}</>,
+                strong: ({ children }) => (
+                  <span className='font-bold'>{children}</span>
+                ),
+                em: ({ children }) => (
+                  <span className='italic'>{children}</span>
+                ),
+              }}
+            >
+              {post.title}
+            </ReactMarkdown>
           </h1>
 
           <div className='flex items-center text-gray-600 mb-8'>
@@ -107,54 +150,71 @@ export default async function SinglePostPage({
           />
         </div>
 
-        {/* Treść artykułu */}
+        {/* Treść artykułu z obsługą Markdown */}
         <div className='prose prose-lg max-w-none'>
           <p className='text-xl text-gray-700 leading-relaxed mb-6'>
             {post.excerpt}
           </p>
 
-          <h2>Wprowadzenie</h2>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis
-            accumsan orci felis, vel hendrerit felis fermentum ac. Etiam
-            scelerisque suscipit justo, at malesuada massa convallis ut. Nulla
-            facilisi. Sed hendrerit pharetra lectus, vitae lobortis nibh
-            volutpat vel.
-          </p>
-
-          <h2>Główne zasady projektowania wnętrz</h2>
-          <p>
-            Vivamus dictum, massa eget accumsan sollicitudin, dolor purus
-            volutpat massa, in posuere magna mauris vel dui. Duis in faucibus
-            eros. Suspendisse potenti.
-          </p>
-
-          <ul>
-            <li>Harmonia i balans kolorów</li>
-            <li>Praktyczne wykorzystanie przestrzeni</li>
-            <li>Odpowiednie oświetlenie</li>
-            <li>Dobór mebli proporcjonalnych do pomieszczenia</li>
-          </ul>
-
-          <p>
-            Pellentesque in neque bibendum, aliquet ipsum sed, convallis enim.
-            Sed tempor arcu id nibh tristique pharetra. Mauris imperdiet, magna
-            in tincidunt ultrices, enim massa tempus urna, at gravida odio ipsum
-            quis nisl.
-          </p>
-
-          <blockquote>
-            "Projektowanie to nie tylko wygląd, ale przede wszystkim
-            funkcjonalność. Piękne wnętrze to takie, w którym czujesz się
-            dobrze."
-          </blockquote>
-
-          <h2>Podsumowanie</h2>
-          <p>
-            Fusce lacinia dolor quis justo sagittis placerat. Duis nec tincidunt
-            ex. Suspendisse eleifend, risus a sagittis tempus, sem turpis porta
-            sem, eget interdum est justo id nulla.
-          </p>
+          <div className='markdown-content'>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({ children }) => (
+                  <h1 className='text-3xl font-bold mt-8 mb-4'>{children}</h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className='text-2xl font-bold mt-8 mb-4'>{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className='text-xl font-bold mt-6 mb-3'>{children}</h3>
+                ),
+                p: ({ children }) => (
+                  <p className='mb-4 text-gray-700'>{children}</p>
+                ),
+                ul: ({ children }) => (
+                  <ul className='ml-6 mb-6 list-disc'>{children}</ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className='ml-6 mb-6 list-decimal'>{children}</ol>
+                ),
+                li: ({ children }) => <li className='mb-2'>{children}</li>,
+                blockquote: ({ children }) => (
+                  <blockquote className='pl-4 border-l-4 border-royal-gold italic my-6 text-gray-600'>
+                    {children}
+                  </blockquote>
+                ),
+                img: ({ src, alt }) => (
+                  <div className='my-8 relative'>
+                    <Image
+                      src={src || ''}
+                      alt={alt || 'Zdjęcie do artykułu'}
+                      width={800}
+                      height={500}
+                      className='rounded-lg mx-auto'
+                    />
+                  </div>
+                ),
+                a: ({ href, children }) => (
+                  <a href={href} className='text-royal-gold hover:underline'>
+                    {children}
+                  </a>
+                ),
+                code: ({ children }) => (
+                  <code className='bg-gray-100 px-2 py-1 rounded text-sm'>
+                    {children}
+                  </code>
+                ),
+                pre: ({ children }) => (
+                  <pre className='bg-gray-800 text-white p-4 rounded-lg overflow-x-auto my-6'>
+                    {children}
+                  </pre>
+                ),
+              }}
+            >
+              {articleContent}
+            </ReactMarkdown>
+          </div>
         </div>
 
         {/* Tagi */}

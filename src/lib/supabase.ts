@@ -167,6 +167,7 @@ export interface BlogPost {
     avatar: string;
   };
   readTime: number;
+  content?: string; // Dodajemy opcjonalne pole content
 }
 
 // Pobierz wszystkie zatwierdzone opinie
@@ -478,6 +479,7 @@ export async function fetchBlogPosts(limit: number = 10): Promise<BlogPost[]> {
             getAvatarPlaceholder(post.author_name || 'Admin'),
         },
         readTime: post.read_time || calculateReadTime(post.content),
+        content: post.content,
       };
     });
 
@@ -530,6 +532,7 @@ export async function fetchBlogPostById(id: number): Promise<BlogPost | null> {
           getAvatarPlaceholder(data.author_name || 'Admin'),
       },
       readTime: data.read_time || calculateReadTime(data.content),
+      content: data.content,
     };
   } catch (error) {
     console.error(`Błąd podczas pobierania posta blogowego o ID ${id}:`, error);
@@ -580,6 +583,7 @@ export async function fetchBlogPostsByCategory(
             getAvatarPlaceholder(post.author_name || 'Admin'),
         },
         readTime: post.read_time || calculateReadTime(post.content),
+        content: post.content,
       };
     });
 

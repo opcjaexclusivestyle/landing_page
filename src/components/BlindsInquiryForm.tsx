@@ -30,6 +30,7 @@ const BlindsInquiryForm = () => {
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     message: string;
@@ -58,6 +59,7 @@ const BlindsInquiryForm = () => {
       setCity('');
       setPostalCode('');
       setName('');
+      setEmail('');
     } catch (error) {
       console.error('Błąd podczas wysyłania formularza:', error);
       setSubmitStatus({
@@ -178,6 +180,24 @@ const BlindsInquiryForm = () => {
             onChange={(e) => setName(e.target.value)}
             className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
             required
+          />
+        </div>
+
+        <div className='mb-6'>
+          <label
+            htmlFor='email'
+            className='block text-gray-700 mb-2 font-medium'
+          >
+            Adres e-mail:
+          </label>
+          <input
+            type='email'
+            id='email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+            required
+            placeholder='adres@example.com'
           />
         </div>
 
