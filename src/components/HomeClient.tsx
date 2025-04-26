@@ -217,7 +217,6 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
   return (
     <main className='flex flex-col min-h-screen'>
       {/* Header */}
-      <Navbar />
 
       {/* Hero Section */}
       <HeroSection />

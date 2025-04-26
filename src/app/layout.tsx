@@ -45,7 +45,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ReduxProvider>
           <Navbar />
-          <main>{children}</main>
+          <main className='pt-20'>{children}</main>
           <Footer />
         </ReduxProvider>
         <Script
