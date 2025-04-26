@@ -17,11 +17,11 @@ export default function Login() {
   const returnUrl = '/admin';
 
   const dispatch = useAppDispatch();
-  const {
-    isAuthenticated,
-    isAdmin,
-    loading: authLoading,
-  } = useSelector((state: RootState) => state.auth);
+  // Bezpieczne pobieranie stanu auth z Redux
+  const authState = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = authState?.isAuthenticated ?? false;
+  const isAdmin = authState?.isAdmin ?? false;
+  const authLoading = authState?.loading ?? false;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

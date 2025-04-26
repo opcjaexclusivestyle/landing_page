@@ -17,7 +17,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   console.log('🔷 Renderowanie layoutu administratora');
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const authState = useSelector((state: RootState) => state.auth);
+  const user = authState?.user;
 
   // Używamy naszego hooka do weryfikacji uprawnień
   const { isVerifying } = useAdminAuth();
