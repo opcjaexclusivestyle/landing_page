@@ -245,7 +245,7 @@ const Footer = () => {
                 />
                 <label htmlFor='consent' className='text-xs text-gray-500'>
                   Wyrażam zgodę na otrzymywanie informacji handlowych od firmy
-                  FAUXIS.{' '}
+                  Zasłonex .{' '}
                   <Link
                     href='/polityka-prywatnosci'
                     className='text-[var(--deep-gold)] hover:underline'
