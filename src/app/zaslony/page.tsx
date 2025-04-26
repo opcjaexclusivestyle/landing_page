@@ -117,7 +117,7 @@ export default function Zaslony() {
           {/* <CommercialResidentialSection /> */}
           <WorkProcess />
           {/* Sekcja Testimoniali */}
-          <TestimonialsSection />
+          <TestimonialsSection type='zaslony' />
 
           {/* Formularz zamówienia */}
           <OrderForm productType='zaslony' />

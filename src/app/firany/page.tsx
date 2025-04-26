@@ -88,7 +88,7 @@ export default function Firany() {
           <WorkProcess />
           {/* Sekcja Testimoniali */}
 
-          <TestimonialsSection />
+          <TestimonialsSection type='firany' />
 
           {/* Formularz zamówienia */}
           <OrderForm />

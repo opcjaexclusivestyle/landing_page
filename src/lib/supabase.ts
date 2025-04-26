@@ -99,6 +99,7 @@ export interface Testimonial {
   quote?: string; // pole alternatywne dla content
   image?: string;
   created_at?: string;
+  type?: string; // Typ opinii, np. 'firany', 'zaslony', itp.
 }
 
 // Interfejs dla danych z formularza
@@ -108,6 +109,7 @@ export interface TestimonialFormData {
   rating: number;
   content: string;
   created_at?: string;
+  type?: string; // Typ opinii, np. 'firany', 'zaslony', itp.
 }
 
 // Interfejs dla danych z bazy
@@ -118,6 +120,7 @@ export interface TestimonialData {
   rating: number;
   location?: string;
   created_at: string;
+  type?: string; // Typ opinii, np. 'firany', 'zaslony', itp.
 }
 
 // Interfejs dla produktów kalkulatora
@@ -166,11 +169,18 @@ export interface BlogPost {
 }
 
 // Pobierz wszystkie zatwierdzone opinie
-export async function fetchTestimonials(): Promise<Testimonial[]> {
-  const { data, error } = await supabase
+export async function fetchTestimonials(type?: string): Promise<Testimonial[]> {
+  let query = supabase
     .from('testimonials')
     .select('*')
     .order('created_at', { ascending: false });
+
+  // Jeśli podano typ, filtruj według niego
+  if (type) {
+    query = query.eq('type', type);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Błąd podczas pobierania opinii:', error);
@@ -205,6 +215,7 @@ export async function addTestimonial(formData: TestimonialFormData) {
     message: formData.content, // Konwersja z content na message
     rating: formData.rating,
     location: formData.location || null,
+    type: formData.type || null, // Dodajemy pole type
     // created_at jest automatycznie ustawiane przez bazę
   };
 

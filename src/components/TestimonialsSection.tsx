@@ -5,7 +5,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import TestimonialForm from './TestimonialForm';
 import { fetchTestimonials } from '@/lib/supabase';
 
-const TestimonialsSection: React.FC = () => {
+interface TestimonialsSectionProps {
+  type?: string;
+}
+
+const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ type }) => {
   const [showForm, setShowForm] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
@@ -14,6 +18,8 @@ const TestimonialsSection: React.FC = () => {
   const floatingFlowersRef = useRef<(HTMLDivElement | null)[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -107,8 +113,13 @@ const TestimonialsSection: React.FC = () => {
         },
         '-=0.5',
       );
+  }, []);
 
-    // Animacja testimoniali
+  // Osobny efekt do animacji testimoniali, uruchamiany przy zmianie strony
+  useEffect(() => {
+    // Resetowanie referencji nie jest potrzebne, bo są one ustawiane przy renderowaniu
+
+    // Animacja testimoniali po zmianie strony
     testimonialRefs.current.forEach((testimonial, index) => {
       if (!testimonial) return;
 
@@ -124,21 +135,17 @@ const TestimonialsSection: React.FC = () => {
           duration: 0.7,
           delay: 0.2 * index,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: testimonial,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
         },
       );
     });
-  }, []);
+  }, [currentPage]); // Uruchomienie efektu przy zmianie strony
 
   useEffect(() => {
     const loadTestimonials = async () => {
       setIsLoading(true);
+      setCurrentPage(1);
       try {
-        const data = await fetchTestimonials();
+        const data = await fetchTestimonials(type);
         if (data && data.length > 0) {
           setTestimonials(data);
           console.log('data', data);
@@ -216,16 +223,17 @@ const TestimonialsSection: React.FC = () => {
     };
 
     loadTestimonials();
-  }, []);
+  }, [type]);
 
   const handleFormSuccess = () => {
     setShowForm(false);
+    setCurrentPage(1);
 
     // Odświeżenie listy opinii po dodaniu nowej
     const loadTestimonials = async () => {
       setIsLoading(true);
       try {
-        const data = await fetchTestimonials();
+        const data = await fetchTestimonials(type);
         if (data && data.length > 0) {
           console.log('data', data);
           setTestimonials(data);
@@ -243,6 +251,24 @@ const TestimonialsSection: React.FC = () => {
   const handleFormCancel = () => {
     setShowForm(false);
   };
+
+  // Funkcja do zmiany strony
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    // Przewijanie do początku sekcji opinii
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Obliczenie całkowitej liczby stron
+  const totalPages = Math.ceil(testimonials.length / itemsPerPage);
+
+  // Pobierz aktualną porcję danych do wyświetlenia
+  const currentTestimonials = testimonials.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   return (
     <section
@@ -325,6 +351,7 @@ const TestimonialsSection: React.FC = () => {
           <TestimonialForm
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}
+            type={type}
           />
         </div>
       ) : (
@@ -351,11 +378,15 @@ const TestimonialsSection: React.FC = () => {
               </button>
             </div>
           ) : (
-            // Wyświetlanie opinii
-            testimonials.map((testimonial, index) => (
+            // Wyświetlanie opinii - tylko aktualną porcję
+            currentTestimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id || index}
                 ref={(el) => {
+                  // Czyszczenie poprzednich referencji przy zmianie strony
+                  if (index === 0 && el) {
+                    testimonialRefs.current = [];
+                  }
                   testimonialRefs.current[index] = el;
                 }}
                 className='bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-md border border-[var(--light-gold)] transition-transform duration-500 hover:shadow-lg hover:-translate-y-2'
@@ -423,6 +454,61 @@ const TestimonialsSection: React.FC = () => {
                 </div>
               </div>
             ))
+          )}
+
+          {/* Paginacja - widoczna tylko jeśli mamy więcej niż jedną stronę */}
+          {totalPages > 1 && (
+            <div className='col-span-2 mt-10 flex flex-col items-center'>
+              {/* Informacja o liczbie opinii i aktualnej stronie */}
+              <p className='text-sm text-gray-600 mb-3'>
+                Wyświetlanie {(currentPage - 1) * itemsPerPage + 1} -{' '}
+                {Math.min(currentPage * itemsPerPage, testimonials.length)} z{' '}
+                {testimonials.length} opinii
+              </p>
+
+              <div className='flex space-x-2'>
+                {/* Przycisk do poprzedniej strony */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === 1
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  &laquo;
+                </button>
+
+                {/* Przyciski numeryczne */}
+                {[...Array(totalPages)].map((_, index) => (
+                  <button
+                    key={index + 1}
+                    onClick={() => handlePageChange(index + 1)}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === index + 1
+                        ? 'bg-[var(--primary-color)] text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+
+                {/* Przycisk do następnej strony */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === totalPages
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  &raquo;
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}

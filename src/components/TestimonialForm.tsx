@@ -5,6 +5,7 @@ import StarRating from './StarRating';
 interface TestimonialFormProps {
   onSuccess: () => void;
   onCancel: () => void;
+  type?: string;
 }
 
 interface ErrorWithMessage {
@@ -12,7 +13,11 @@ interface ErrorWithMessage {
   // inne właściwości błędu, jeśli są znane
 }
 
-const TestimonialForm = ({ onSuccess, onCancel }: TestimonialFormProps) => {
+const TestimonialForm = ({
+  onSuccess,
+  onCancel,
+  type,
+}: TestimonialFormProps) => {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [rating, setRating] = useState(5);
@@ -90,6 +95,7 @@ const TestimonialForm = ({ onSuccess, onCancel }: TestimonialFormProps) => {
         location,
         rating,
         content,
+        type,
       });
 
       setSuccessMessage(
