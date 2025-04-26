@@ -344,6 +344,45 @@ export async function fetchCalculatorProducts(): Promise<CalcProduct[]> {
   }
 }
 
+// Funkcja do pobierania produktów zasłon z kalkulatora
+export async function fetchCurtainProducts(): Promise<CalcProduct[]> {
+  console.log('Pobieranie produktów zasłon do kalkulatora...');
+
+  try {
+    const { data, error } = await supabase
+      .from('calculator_zaslony')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.error('Błąd podczas pobierania produktów zasłon:', error);
+      throw new Error(`Błąd Supabase: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      console.warn('Brak produktów w bazie danych calculator_zaslony');
+    } else {
+      console.log(`Pobrano ${data.length} produktów zasłon`);
+
+      // Dodajemy slug do każdego produktu, jeśli jeszcze go nie posiada
+      data.forEach((product, index) => {
+        console.log(`Produkt zasłon #${index + 1}:`, product);
+
+        // Jeśli produkt nie ma sluga, generujemy go
+        if (!product.slug) {
+          product.slug = generateSlug(product.name, product.id);
+        }
+      });
+    }
+
+    // Zwracamy produkty z dodanymi slugami
+    return data || [];
+  } catch (err) {
+    console.error('Wyjątek podczas pobierania produktów zasłon:', err);
+    throw err;
+  }
+}
+
 // Funkcja do pobierania wszystkich postów blogowych
 export async function fetchBlogPosts(limit: number = 10): Promise<BlogPost[]> {
   try {

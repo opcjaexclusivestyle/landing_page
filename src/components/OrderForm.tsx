@@ -7,7 +7,11 @@ import { setCustomerInfo } from '@/store/customerSlice';
 import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import productsConfig from '@/config/products.json';
-import { fetchCalculatorProducts, CalcProduct } from '@/lib/supabase';
+import {
+  fetchCalculatorProducts,
+  fetchCurtainProducts,
+  CalcProduct,
+} from '@/lib/supabase';
 import AccordionCertificates from './AccordionCertificates';
 import CarouselOfCurtains from './CarouselOfCurtains';
 import FlyingPackage from './FlyingPackage';
@@ -142,9 +146,16 @@ export default function OrderForm({
     async function loadProducts() {
       try {
         setProductsLoading(true);
-        const productsData = await fetchCalculatorProducts();
+        // W zależności od typu produktu, pobieramy odpowiednie dane
+        const productsData =
+          productType === 'zaslony'
+            ? await fetchCurtainProducts()
+            : await fetchCalculatorProducts();
 
-        console.log('Surowe dane produktów z bazy:', productsData);
+        console.log(
+          `Surowe dane produktów z bazy (${productType || 'firany'}):`,
+          productsData,
+        );
 
         // Sprawdźmy format obrazów
         if (productsData.length > 0) {
@@ -174,7 +185,10 @@ export default function OrderForm({
           maintenance: product.maintenance || '',
         }));
 
-        console.log('Zmapowane produkty:', mappedProducts);
+        console.log(
+          `Zmapowane produkty (${productType || 'firany'}):`,
+          mappedProducts,
+        );
         setProducts(mappedProducts);
 
         // Jeśli nie ma aktualnie wybranego produktu, a mamy produkty, wybierz pierwszy
@@ -204,7 +218,7 @@ export default function OrderForm({
     }
 
     loadProducts();
-  }, []);
+  }, [productType]);
 
   // Znajdź aktualnie wybrany produkt
   const selectedProduct = products.find(

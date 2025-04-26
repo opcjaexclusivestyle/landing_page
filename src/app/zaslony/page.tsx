@@ -1,17 +1,18 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SimpleHeader from '../components/SimpleHeader';
-import OrderForm from '../../components/OrderForm';
+import OrderForm from '@/components/OrderForm';
 import Certification from '../../components/Certification';
-import MeasuringGuide from '../../components/MeasuringGuide';
-import TestimonialsSection from '../../components/TestimonialsSection';
-import WorkProcess from '../../components/WorkProcess';
-export default function Firany() {
+import MeasuringGuide from '@/components/MeasuringGuide';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import WorkProcess from '@/components/WorkProcess';
+
+export default function Zaslony() {
   const contentRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef(null);
 
   // Rejestracja pluginów GSAP
@@ -42,6 +43,39 @@ export default function Firany() {
     );
   }, []);
 
+  useEffect(() => {
+    const contentElement = contentRef.current;
+    const headerElement = headerRef.current;
+
+    const handleScroll = () => {
+      if (!contentElement || !headerElement) return;
+
+      const scrollPosition = window.scrollY;
+      const contentOffsetTop = contentElement.offsetTop;
+
+      // Gdy scrollujemy poniżej contentu, dodajemy cień do nagłówka
+      if (scrollPosition > contentOffsetTop) {
+        headerElement.classList.add('shadow-md');
+        headerElement.classList.add('bg-white');
+        headerElement.classList.add('sticky');
+        headerElement.classList.add('top-0');
+        headerElement.classList.add('z-10');
+      } else {
+        headerElement.classList.remove('shadow-md');
+        headerElement.classList.remove('bg-white');
+        headerElement.classList.remove('sticky');
+        headerElement.classList.remove('top-0');
+        headerElement.classList.remove('z-10');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <>
       {/* Używamy nowego komponentu SimpleHeader */}
@@ -66,16 +100,13 @@ export default function Firany() {
           >
             &larr; Powrót do strony głównej
           </Link>
-          <h2 className='text-3xl md:text-4xl font-light text-gray-800'>
-            Zasłony
-          </h2>
+          <h2 className='text-3xl md:text-4xl luxury-heading'>Zasłony</h2>
           <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
         </div>
 
         <div>
           {/* Sekcja About */}
           {/* <About /> */}
-          <Certification />
           {/* Sekcja typów zasłon */}
           {/* <TypesSection /> */}
 
@@ -89,7 +120,8 @@ export default function Firany() {
           <TestimonialsSection />
 
           {/* Formularz zamówienia */}
-          <OrderForm />
+          <OrderForm productType='zaslony' />
+          {/* <Certification /> */}
 
           {/* Jak mierzyć */}
           <MeasuringGuide />

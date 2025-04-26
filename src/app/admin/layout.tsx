@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   console.log('🔷 Renderuję pełny layout administratora');
   return (
-    <div className='flex min-h-screen'>
+    <div className='flex min-h-screen pt-36'>
       {/* Sidebar nawigacyjny */}
       <aside className='w-64 bg-[var(--deep-navy)] text-white p-6'>
         <h1 className='text-2xl font-bold mb-6'>Panel Admina</h1>
@@ -93,18 +93,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             href='/admin/produkty-lniane'
             className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
           >
-            Produkty lniane
+            Pościel
           </Link>
 
           <Link
             href='/admin/kalkulator-produkty'
             className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
           >
-            Produkty kalkulatora
+            Firany
           </Link>
 
           <Link
-            href='/admin/produkty-zaslony'
+            href='/admin/kalkulator-zaslony'
             className='block py-2 px-4 hover:bg-[var(--gold)] rounded transition-colors'
           >
             Zasłony
