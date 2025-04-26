@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { addTestimonial, testSupabaseConnection } from '@/lib/supabase';
 import StarRating from './StarRating';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface TestimonialFormProps {
   onSuccess: () => void;
@@ -28,11 +29,18 @@ const TestimonialForm = ({
   const [connectionStatus, setConnectionStatus] = useState<string>(
     'Sprawdzanie połączenia...',
   );
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [ripples, setRipples] = useState<
     Array<{ x: number; y: number; id: number }>
   >([]);
   const nextRippleId = useRef(0);
   const submitBtnRef = useRef<HTMLButtonElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  // Handler dla zakończonej weryfikacji reCAPTCHA
+  const handleCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token);
+  };
 
   // Obsługa efektu falowania (ripple effect)
   const handleRippleEffect = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -86,6 +94,12 @@ const TestimonialForm = ({
       return;
     }
 
+    // Sprawdzenie reCAPTCHA
+    if (!captchaToken) {
+      setError('Proszę potwierdzić, że nie jesteś robotem');
+      return;
+    }
+
     setIsSubmitting(true);
     setError('');
 
@@ -96,6 +110,7 @@ const TestimonialForm = ({
         rating,
         content,
         type,
+        captcha: captchaToken, // Dodajemy token captcha
       });
 
       setSuccessMessage(
@@ -107,6 +122,10 @@ const TestimonialForm = ({
       setLocation('');
       setRating(5);
       setContent('');
+      setCaptchaToken(null);
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
 
       // Callback po pomyślnym dodaniu
       setTimeout(() => {
@@ -117,6 +136,11 @@ const TestimonialForm = ({
       setError(
         'Wystąpił błąd podczas dodawania opinii. Proszę spróbować ponownie.',
       );
+      // Reset captcha w przypadku błędu
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
+      setCaptchaToken(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -207,6 +231,45 @@ const TestimonialForm = ({
           />
         </div>
 
+        {/* reCAPTCHA */}
+        <div className='mb-6'>
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={
+              process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
+              '6LdxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxA'
+            }
+            onChange={handleCaptchaChange}
+            hl='pl' // Język polski
+          />
+          {!captchaToken && (
+            <p className='text-sm text-gray-500 mt-2'>
+              Proszę potwierdzić, że nie jesteś robotem.
+            </p>
+          )}
+          <p className='text-xs text-gray-400 mt-2'>
+            Ta strona jest chroniona przez reCAPTCHA, stosują się do niej
+            <a
+              href='https://policies.google.com/privacy'
+              className='text-blue-500 hover:underline ml-1'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              polityka prywatności
+            </a>
+            <span className='mx-1'>i</span>
+            <a
+              href='https://policies.google.com/terms'
+              className='text-blue-500 hover:underline'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              warunki korzystania z usługi
+            </a>
+            <span className='mx-1'>Google.</span>
+          </p>
+        </div>
+
         <div className='flex justify-end space-x-4'>
           <button
             type='button'
@@ -223,7 +286,9 @@ const TestimonialForm = ({
               active:transform active:scale-95
               transition-all duration-300 relative overflow-hidden
               ${isSubmitting ? 'pl-10' : ''}`}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !captchaToken}
+            ref={submitBtnRef}
+            onClick={handleRippleEffect}
           >
             {isSubmitting && (
               <span className='absolute left-0 inset-y-0 flex items-center justify-center w-10'>

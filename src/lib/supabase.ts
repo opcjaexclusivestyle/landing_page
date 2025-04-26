@@ -110,6 +110,7 @@ export interface TestimonialFormData {
   content: string;
   created_at?: string;
   type?: string; // Typ opinii, np. 'firany', 'zaslony', itp.
+  captcha?: string; // Token reCAPTCHA
 }
 
 // Interfejs dla danych z bazy
@@ -205,9 +206,39 @@ export async function testSupabaseConnection() {
   }
 }
 
+// Funkcja do weryfikacji tokenu reCAPTCHA
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  try {
+    // Używamy naszego API endpoint zamiast bezpośredniego wywołania Google API
+    const response = await fetch('/api/verify-recaptcha', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    console.error('Błąd weryfikacji reCAPTCHA:', error);
+    return false;
+  }
+}
+
 // Funkcja do dodawania opinii
 export async function addTestimonial(formData: TestimonialFormData) {
   console.log('Dodawanie opinii:', formData);
+
+  // Weryfikacja reCAPTCHA
+  if (formData.captcha) {
+    const isValidCaptcha = await verifyRecaptcha(formData.captcha);
+    if (!isValidCaptcha) {
+      throw new Error(
+        'Weryfikacja reCAPTCHA nie powiodła się. Proszę spróbować ponownie.',
+      );
+    }
+  }
 
   // Mapowanie pól formularza na pola w bazie danych
   const testimonialData = {
