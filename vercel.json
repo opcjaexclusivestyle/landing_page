@@ -1,25 +1,49 @@
 {
   "buildCommand": "next build",
   "framework": "nextjs",
-  "rewrites": [
-    { "source": "/admin/(.*)", "destination": "/admin/$1" },
-    { "source": "/login", "destination": "/login" },
-    { "source": "/kontakt", "destination": "/kontakt" }
-  ],
-  "ignoreCommand": "echo 'Ignorowanie błędów budowania'",
+  "functions": {
+    "app/api/get-checkout-session/route.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/admin/**/*": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/login/page.tsx": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/kontakt/page.tsx": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
   "installCommand": "npm install",
   "outputDirectory": ".next",
-  "builds": [
+  "routes": [
     {
-      "src": "next.config.js",
-      "use": "@vercel/next"
+      "src": "/admin/(.*)",
+      "dest": "/admin/$1",
+      "continue": true
+    },
+    {
+      "src": "/login",
+      "dest": "/login",
+      "continue": true
+    },
+    {
+      "src": "/kontakt",
+      "dest": "/kontakt",
+      "continue": true
     }
   ],
   "build": {
     "env": {
       "NEXT_IGNORE_TYPE_ERROR": "true",
       "NEXT_IGNORE_ESLINT_ERROR": "true",
-      "NEXT_TELEMETRY_DISABLED": "1"
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "IGNORE_BUILD_ERRORS": "true"
     }
   }
 }

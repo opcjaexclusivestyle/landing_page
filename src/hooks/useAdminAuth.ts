@@ -92,6 +92,11 @@ async function refreshJWTAndSession() {
  * Sprawdza zarówno stan Redux jak i sessionStorage, a także bezpośrednio w Supabase
  */
 export function useAdminAuth() {
+  // Zabezpieczenie, gdy hook jest wywoływany podczas SSR/budowania
+  if (typeof window === 'undefined') {
+    return { isAuthenticated: false, isAdmin: false, isVerifying: false };
+  }
+
   const router = useRouter();
   const dispatch = useAppDispatch();
 

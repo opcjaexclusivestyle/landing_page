@@ -8,11 +8,17 @@ import SimpleHeader from '../components/SimpleHeader';
 
 // Ustawienie dla Next.js - strona będzie renderowana dynamicznie
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 // Dynamicznie importuj komponenty Leaflet
 const DynamicMap = dynamicImport(
   () =>
     import('react-leaflet').then((mod) => {
+      // Sprawdzenie czy window istnieje (czy jesteśmy w przeglądarce)
+      if (typeof window === 'undefined') {
+        return () => <div>Mapa dostępna po załadowaniu strony</div>;
+      }
+
       return import('leaflet').then((L) => {
         // Fix Leaflet icon issues
         // @ts-ignore - ikona Leaflet ma właściwość _getIconUrl
@@ -47,7 +53,7 @@ const DynamicMap = dynamicImport(
         return MapComponent;
       });
     }),
-  { ssr: false },
+  { ssr: false, loading: () => <div>Ładowanie mapy...</div> },
 );
 
 export default function Kontakt() {
