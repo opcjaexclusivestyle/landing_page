@@ -280,7 +280,7 @@ const Footer = () => {
 
         <div className='mt-10 pt-6 border-t border-gray-200 text-center'>
           <p className='text-sm text-gray-500'>
-            &copy; {new Date().getFullYear()} FAUXIS. Wszelkie prawa
+            &copy; {new Date().getFullYear()} Zasłonex. Wszelkie prawa
             zastrzeżone.
             <Link
               href='/regulamin'
@@ -295,24 +295,35 @@ const Footer = () => {
               Mapa strony
             </Link>
           </p>
+          <p className='mt-2 text-sm text-gray-500'>
+            Strona stworzona przez{' '}
+            <a
+              href='https://acurgturbo.pl'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-gray-500 hover:text-[var(--deep-gold)]'
+            >
+              Acurg Turbo
+            </a>
+          </p>
         </div>
-      </div>
 
-      <button
-        onClick={scrollToTop}
-        className='back-to-top fixed bottom-5 right-5 w-10 h-10 bg-[var(--beige)] hover:bg-[var(--deep-gold)] text-white flex items-center justify-center rounded transition-all duration-300 shadow-md'
-      >
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          className='h-4 w-4'
-          viewBox='0 0 384 512'
+        <button
+          onClick={scrollToTop}
+          className='back-to-top fixed bottom-5 right-5 w-10 h-10 bg-[var(--beige)] hover:bg-[var(--deep-gold)] text-white flex items-center justify-center rounded transition-all duration-300 shadow-md'
         >
-          <path
-            fill='currentColor'
-            d='M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z'
-          />
-        </svg>
-      </button>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            className='h-4 w-4'
+            viewBox='0 0 384 512'
+          >
+            <path
+              fill='currentColor'
+              d='M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z'
+            />
+          </svg>
+        </button>
+      </div>
     </footer>
   );
 };
