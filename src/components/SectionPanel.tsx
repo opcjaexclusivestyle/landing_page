@@ -108,11 +108,7 @@ export default function SectionPanel({
           {section.description}
         </p>
 
-        <Link
-          href={section.link}
-          //  className='premium-button'
-          style={{ backgroundColor: 'yellow' }}
-        >
+        <Link href={section.link} className='premium-button'>
           {section.buttonText}
         </Link>
       </div>
