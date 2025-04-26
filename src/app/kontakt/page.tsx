@@ -138,7 +138,7 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <p className='text-sm text-gray-300'>TELEFON</p>
-                    <p className='text-lg'>531 400 230</p>
+                    <p className='text-lg'>+48 231 400 230</p>
                   </div>
                 </div>
 
@@ -148,7 +148,7 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <p className='text-sm text-gray-300'>EMAIL</p>
-                    <p className='text-lg'>biuro@zaslonex.pl</p>
+                    <p className='text-lg'>zaslonex.info@gmial.com</p>
                   </div>
                 </div>
 
@@ -159,11 +159,9 @@ export default function Kontakt() {
                   <div>
                     <p className='text-sm text-gray-300'>GODZINY OTWARCIA</p>
                     <p className='text-base'>
-                      Poniedziałek - Piątek: 9:00 - 17:00
+                      Poniedziałek - Piątek: 8:00 – 16:00
                       <br />
-                      Sobota: 10:00 - 14:00
-                      <br />
-                      Niedziela: Zamknięte
+                      Sobota- Niedziela: Zamknięte
                     </p>
                   </div>
                 </div>

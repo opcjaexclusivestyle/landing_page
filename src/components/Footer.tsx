@@ -55,8 +55,8 @@ const Footer = () => {
             </h3>
             <div className='space-y-3 text-sm text-gray-600'>
               <p>Adres: Ul. Redutowa 9 , Radom 26-600 </p>
-              <p>Telefon: 531 400 230</p>
-              <p>E-mail: biuro@zasłonex</p>
+              <p>Telefon:+48 231 400 230</p>
+              <p>E-mail: zaslonex.info@gmial.com</p>
             </div>
             <h3 className='text-lg font-semibold text-[var(--deep-navy)] mt-6 mb-4 relative'>
               Znajdź nas na

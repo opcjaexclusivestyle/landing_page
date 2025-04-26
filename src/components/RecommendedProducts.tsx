@@ -46,6 +46,12 @@ export default function RecommendedProducts({
   const [currentPosition, setCurrentPosition] = useState(0);
   const [cardWidth, setCardWidth] = useState(0);
 
+  // Stan do obsługi przeciągania
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentTranslate, setCurrentTranslate] = useState(0);
+  const [prevTranslate, setPrevTranslate] = useState(0);
+
   // Set background classes based on the selected option
   const getBgClass = () => {
     switch (background) {
@@ -159,6 +165,8 @@ export default function RecommendedProducts({
     if (position > maxPosition) position = maxPosition;
 
     setCurrentPosition(position);
+    setPrevTranslate(position * cardWidth);
+    setCurrentTranslate(position * cardWidth);
 
     if (carouselRef.current && cardWidth > 0) {
       carouselRef.current.style.transform = `translateX(-${
@@ -180,6 +188,92 @@ export default function RecommendedProducts({
     if (currentPosition < maxPosition) {
       scrollTo(currentPosition + 1);
     }
+  };
+
+  // Funkcje obsługi przeciągania
+  const touchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    setIsDragging(true);
+    if ('touches' in e) {
+      setStartX(e.touches[0].clientX);
+    } else {
+      setStartX(e.clientX);
+    }
+
+    // Wyłączamy animację podczas rozpoczęcia przeciągania
+    if (carouselRef.current) {
+      carouselRef.current.style.transition = 'none';
+    }
+  };
+
+  const touchMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+
+    // Zapobiegaj domyślnemu zachowaniu przeglądarki przy przeciąganiu
+    e.preventDefault();
+
+    let currentX;
+    if ('touches' in e) {
+      currentX = e.touches[0].clientX;
+    } else {
+      currentX = e.clientX;
+    }
+
+    const diff = startX - currentX;
+    const newTranslate = prevTranslate + diff;
+
+    // Ograniczamy przesuwanie poza granice, ale umożliwiamy elastyczne przekroczenie o 25% szerokości
+    const totalItems = safeProducts.length + 1; // +1 dla kafelka "pokaż więcej"
+    const maxTranslate = (totalItems - 2) * cardWidth;
+    const elasticLimit = cardWidth * 0.25;
+
+    if (
+      newTranslate < -elasticLimit ||
+      newTranslate > maxTranslate + elasticLimit
+    )
+      return;
+
+    setCurrentTranslate(newTranslate);
+
+    if (carouselRef.current) {
+      carouselRef.current.style.transform = `translateX(-${newTranslate}px)`;
+    }
+  };
+
+  const touchEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    // Przywracamy animację po zakończeniu przeciągania
+    if (carouselRef.current) {
+      carouselRef.current.style.transition = 'transform 500ms ease-in-out';
+    }
+
+    const movedBy = currentTranslate - prevTranslate;
+
+    // Jeśli przesunięto o więcej niż 100px lub 1/3 szerokości karty, przechodzimy do następnej/poprzedniej pozycji
+    if (Math.abs(movedBy) > Math.max(50, cardWidth / 4)) {
+      if (movedBy > 0) {
+        // Przesunięto w prawo
+        const maxPosition = Math.max(0, safeProducts.length - 1); // -1 aby uwzględnić kafelek "pokaż więcej"
+        if (currentPosition < maxPosition) {
+          scrollTo(currentPosition + 1);
+        } else {
+          scrollTo(currentPosition); // Powrót do bieżącej pozycji
+        }
+      } else {
+        // Przesunięto w lewo
+        if (currentPosition > 0) {
+          scrollTo(currentPosition - 1);
+        } else {
+          scrollTo(0); // Powrót do pierwszej pozycji
+        }
+      }
+    } else {
+      // Powrót do bieżącej pozycji
+      scrollTo(currentPosition);
+    }
+
+    setPrevTranslate(currentPosition * cardWidth);
   };
 
   // Effect to initialize GSAP animations and calculate card width
@@ -249,6 +343,14 @@ export default function RecommendedProducts({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [currentPosition]);
+
+  // Dodajemy obiekt stylów dla karuzeli, uwzględniając tryb przeciągania
+  const carouselStyle = {
+    transform: `translateX(-${currentPosition * cardWidth}px)`,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    transition: isDragging ? 'none' : 'transform 500ms ease-in-out',
+    userSelect: 'none' as 'none', // Zapobiega zaznaczaniu tekstu podczas przeciągania
+  };
 
   // For fewer than 3 products, show grid view
   if (!hasEnoughForCarousel) {
@@ -367,10 +469,24 @@ export default function RecommendedProducts({
           <div className='overflow-hidden'>
             <div
               ref={carouselRef}
-              className='flex transition-transform duration-500 ease-in-out gap-5'
-              style={{
-                transform: `translateX(-${currentPosition * cardWidth}px)`,
+              className='flex gap-5 touch-pan-x select-none'
+              style={carouselStyle}
+              onTouchStart={touchStart}
+              onTouchMove={touchMove}
+              onTouchEnd={touchEnd}
+              onMouseDown={(e) => {
+                // Rozpoczynaj przeciąganie tylko dla lewego przycisku myszy
+                if (e.button === 0) touchStart(e);
               }}
+              onMouseMove={(e) => {
+                // Zapobiegaj domyślnemu zaznaczaniu tekstu podczas przeciągania
+                if (isDragging) {
+                  e.preventDefault();
+                  touchMove(e);
+                }
+              }}
+              onMouseUp={touchEnd}
+              onMouseLeave={touchEnd}
             >
               {/* Product cards - safely iterate with array check */}
               {Array.isArray(productCards) && productCards.length > 0
