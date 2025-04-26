@@ -10,6 +10,7 @@ import productsConfig from '@/config/products.json';
 import { fetchCalculatorProducts, CalcProduct } from '@/lib/supabase';
 import AccordionCertificates from './AccordionCertificates';
 import CarouselOfCurtains from './CarouselOfCurtains';
+import FlyingPackage from './FlyingPackage';
 
 interface Product {
   name: string;
@@ -111,6 +112,9 @@ export default function OrderForm({
   const [showTapeImage, setShowTapeImage] = useState(false);
   const [selectedTapeImage, setSelectedTapeImage] = useState('');
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const [cartAnimation, setCartAnimation] = useState(false);
+  const [showFlyingPackage, setShowFlyingPackage] = useState(false);
+  const [isPackageAnimating, setIsPackageAnimating] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -337,39 +341,65 @@ export default function OrderForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+
+    // Najpierw ustaw animację bez stanu ładowania
+    setIsPackageAnimating(true);
     setError(null);
 
     try {
-      const price = calculatePrice();
-      const productId = uuidv4();
+      // Po 1.5 sekundy dodaj do koszyka i zakończ cały proces
+      setTimeout(() => {
+        try {
+          // Dodaj produkt do koszyka
+          const price = calculatePrice();
+          const productId = uuidv4();
 
-      // Dodaj produkt do koszyka
-      const cartItem: CartItem = {
-        id: productId,
-        name: formData.selectedProduct,
-        price,
-        quantity: formData.quantity,
-        options: {
-          width: formData.rodWidth,
-          height: formData.height,
-          embroidery: false,
-          curtainRod: false,
-        },
-      };
+          const cartItem: CartItem = {
+            id: productId,
+            name: formData.selectedProduct,
+            price,
+            quantity: formData.quantity,
+            options: {
+              width: formData.rodWidth,
+              height: formData.height,
+              embroidery: false,
+              curtainRod: false,
+            },
+          };
 
-      // Dodaj produkt do koszyka
-      dispatch(addToCart(cartItem));
+          // Dodaj produkt do koszyka
+          dispatch(addToCart(cartItem));
 
-      // Przekieruj do koszyka
-      window.location.href = '/cart';
+          // Wyświetl komunikat o dodaniu do koszyka
+          setError(
+            `Produkt "${formData.selectedProduct}" został dodany do koszyka. Możesz kontynuować zakupy.`,
+          );
+
+          // Zakończ animację i zresetuj stan
+          setIsPackageAnimating(false);
+        } catch (error) {
+          console.error('Błąd podczas dodawania do koszyka:', error);
+          setError(
+            error instanceof Error
+              ? error.message
+              : 'Wystąpił nieoczekiwany błąd',
+          );
+          setIsPackageAnimating(false);
+        }
+      }, 1500);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd',
       );
-    } finally {
-      setIsLoading(false);
+      setIsPackageAnimating(false);
     }
+  };
+
+  // Funkcja obsługująca zakończenie animacji - nie jest już używana
+  const handleAnimationComplete = () => {
+    console.log('Animacja zakończona');
+    // Ta funkcja nie jest już potrzebna, ale możemy ją zostawić dla kompatybilności
+    setIsPackageAnimating(false);
   };
 
   // Nawigacja po miniaturkach
@@ -672,8 +702,38 @@ export default function OrderForm({
                 </h1>
 
                 {error && (
-                  <div className='bg-red-50 text-red-700 p-4 rounded-lg mb-4'>
+                  <div
+                    className={`mt-4 p-4 rounded-lg text-sm ${
+                      error.includes('dodany do koszyka')
+                        ? 'bg-green-50 text-green-700'
+                        : 'bg-red-50 text-red-700'
+                    }`}
+                  >
                     {error}
+                    {error.includes('dodany do koszyka') && (
+                      <div className='mt-2'>
+                        <a
+                          href='/cart'
+                          className='inline-flex items-center text-green-700 hover:text-green-900 font-medium'
+                        >
+                          Przejdź do koszyka
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            className='h-4 w-4 ml-1'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            stroke='currentColor'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M14 5l7 7m0 0l-7 7m7-7H3'
+                            />
+                          </svg>
+                        </a>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1069,7 +1129,8 @@ export default function OrderForm({
                   <button
                     type='submit'
                     disabled={isLoading}
-                    className='premium-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
+                    className='premium-button relative w-full py-8 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold overflow-visible'
+                    style={{ minHeight: '80px' }}
                   >
                     {isLoading ? (
                       <span className='flex items-center justify-center'>
@@ -1096,31 +1157,30 @@ export default function OrderForm({
                         Przetwarzanie...
                       </span>
                     ) : (
-                      <span className='flex items-center'>
-                        Dodaj do koszyka
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          className='h-5 w-5 ml-2'
-                          fill='none'
-                          viewBox='0 0 24 24'
-                          stroke='currentColor'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
-                          />
-                        </svg>
-                      </span>
+                      <>
+                        <span className='flex items-center justify-center relative z-10'>
+                          Dodaj do koszyka
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            className='h-5 w-5 ml-2'
+                            fill='none'
+                            viewBox='0 0 24 24'
+                            stroke='currentColor'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
+                            />
+                          </svg>
+                        </span>
+                        {isPackageAnimating && (
+                          <FlyingPackage isAnimating={isPackageAnimating} />
+                        )}
+                      </>
                     )}
                   </button>
-
-                  {error && (
-                    <div className='mt-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm'>
-                      {error}
-                    </div>
-                  )}
                 </form>
               </div>
             </div>
