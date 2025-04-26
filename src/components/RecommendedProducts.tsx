@@ -68,6 +68,11 @@ export default function RecommendedProducts({
   const getCategoryMoreLink = () => {
     if (safeProducts.length === 0) return moreProductsLink;
 
+    // Jeśli moreProductsLink jest już ustawiony, używamy go zamiast domyślnych wartości
+    if (moreProductsLink && moreProductsLink !== '/produkty') {
+      return moreProductsLink;
+    }
+
     const firstProduct = safeProducts[0];
     if (firstProduct?.category === 'curtains') {
       return '/firany-premium';
@@ -85,21 +90,30 @@ export default function RecommendedProducts({
 
     const cards: Card[] = [];
 
+    // Sprawdzamy, czy moreProductsLink wskazuje na zasłony zamiast firan
+    const isZaslonyPage = moreProductsLink.includes('zaslony-premium');
+
     for (const product of productList) {
       if (!product) continue;
 
-      // Determine button URL based on product category
+      // Determine button URL based on product category and moreProductsLink
       let buttonLink = '';
-      if (product.category === 'curtains' && product.slug) {
-        buttonLink = `/firany-premium/${encodeURIComponent(product.slug)}`;
-      } else if (product.category === 'bedding' && product.slug) {
-        buttonLink = `/${product.slug}`;
-      } else if (product.category === 'curtains') {
-        buttonLink = `/firany-premium/${encodeURIComponent(
-          `product-${product.id}`,
-        )}`;
+
+      if (product.category === 'curtains') {
+        // Jeśli jesteśmy na stronie zasłon, kierujemy do zasłon, w przeciwnym razie do firan
+        if (isZaslonyPage) {
+          buttonLink = product.slug
+            ? `/zaslony-premium/${encodeURIComponent(product.slug)}`
+            : `/zaslony-premium/${encodeURIComponent(`product-${product.id}`)}`;
+        } else {
+          buttonLink = product.slug
+            ? `/firany-premium/${encodeURIComponent(product.slug)}`
+            : `/firany-premium/${encodeURIComponent(`product-${product.id}`)}`;
+        }
       } else if (product.category === 'bedding') {
-        buttonLink = `/posciel-premium/${product.id}`;
+        buttonLink = product.slug
+          ? `/${product.slug}`
+          : `/posciel-premium/${product.id}`;
       }
 
       const discount =

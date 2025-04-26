@@ -5,16 +5,10 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { TextPlugin } from 'gsap/TextPlugin';
-import SellingCard, { Card } from './SellingCard';
-
-interface Product {
-  id: number;
-  image: string;
-  alt: string;
-  description: string;
-  example: string;
-  price: string;
-}
+import RecommendedProducts from './RecommendedProducts';
+import { supabase, generateSlug } from '@/lib/supabase';
+import { Product } from './RecommendedProducts';
+import Link from 'next/link';
 
 const NewProductsSection = () => {
   const sectionRef = useRef(null);
@@ -22,54 +16,66 @@ const NewProductsSection = () => {
   const titleInnerRef = useRef(null);
   const textRef = useRef(null);
   const paragraphsRef = useRef<(HTMLParagraphElement | null)[]>([]);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const sectionBgRef = useRef(null);
   const decorativeElementsRef = useRef<(HTMLDivElement | null)[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [curtainProducts, setCurtainProducts] = useState<Product[]>([]);
 
-  // Dane produktów - warto przenieść do osobnego pliku w przyszłości
-  const products: Product[] = [
-    {
-      id: 1,
-      image: '/images/curtains/curtain-1.jpg',
-      alt: 'Zasłona roślinna',
-      description:
-        'Zasłona z tkaniny w elegancki roślinny wzór z połyskującą nicią i efektem 3D, kolor turkusowy, złoty',
-      example: '140×250 cm, taśma 5 cm, kolor turkusowy, złoty',
-      price: '563,25 zł',
-    },
-    {
-      id: 2,
-      image: '/images/curtains/curtain-2.jpg',
-      alt: 'Zasłona pepitka złota',
-      description:
-        'Zasłona z eleganckiej tkaniny z efektem 3D i połyskującym wzorem w pepitkę, kolor złoty',
-      example: '140×250 cm, taśma 5 cm, kolor złoty',
-      price: '459,50 zł',
-    },
-    {
-      id: 3,
-      image: '/images/curtains/curtain-3.jpg',
-      alt: 'Zasłona miętowa',
-      description:
-        'Zasłona z eleganckiej tkaniny z efektem 3D i połyskującym wzorem w pepitkę, kolor miętowy, złoty',
-      example: '140×250 cm, taśma 5 cm, kolor miętowy, złoty',
-      price: '459,50 zł',
-    },
-  ];
+  // Pobieranie produktów przy montowaniu komponentu
+  useEffect(() => {
+    const fetchCurtainProducts = async () => {
+      try {
+        console.log('Rozpoczynam pobieranie zasłon...');
 
-  // Konwertujemy produkty na format karty
-  const convertToCards = (products: Product[]): Card[] => {
-    return products.map((product) => ({
-      id: product.id,
-      title: product.alt,
-      description: product.description,
-      image: product.image,
-      price: parseFloat(product.price.replace(',', '.').replace(' zł', '')),
-      buttonText: 'Zamów',
-      additionalInfo: product.example,
-    }));
-  };
+        // Pobieranie zasłon z tabeli calculator_zaslony zamiast calculator_products
+        const { data: curtainData, error: curtainError } = await supabase
+          .from('calculator_zaslony')
+          .select('*')
+          .limit(3);
+
+        if (curtainError) {
+          console.error('Błąd podczas pobierania zasłon:', curtainError);
+        } else {
+          console.log('Pobrane zasłony (surowe dane):', curtainData);
+
+          // Mapowanie produktów zasłonowych
+          const mappedCurtainProducts = (curtainData || []).map((product) => {
+            console.log('Mapowanie produktu zasłony:', product);
+            // Używamy image_path, albo pierwszego obrazka z tablicy images, albo imagePath
+            const imageUrl = `${product.image_path}//1.webp`;
+            console.log('Ścieżka obrazka zasłony:', `${imageUrl}/1.webp}`);
+
+            // Używamy sluga z bazy danych lub generujemy go za pomocą funkcji generateSlug
+            const slug = product.slug || generateSlug(product.name, product.id);
+
+            return {
+              id: Number(product.id) || 0,
+              name: product.name || 'Brak nazwy',
+              description: product.description || '',
+              currentPrice:
+                product.fabric_price_per_mb || product.fabricPricePerMB || 0,
+              regularPrice:
+                (product.fabric_price_per_mb || product.fabricPricePerMB || 0) *
+                1.2,
+              lowestPrice:
+                (product.fabric_price_per_mb || product.fabricPricePerMB || 0) *
+                0.9,
+              image: imageUrl,
+              category: 'curtains' as const,
+              slug: `zaslony-premium/${slug}`,
+            };
+          });
+
+          console.log('Zmapowane zasłony:', mappedCurtainProducts);
+          setCurtainProducts(mappedCurtainProducts);
+        }
+      } catch (error) {
+        console.error('Błąd podczas pobierania zasłon:', error);
+      }
+    };
+
+    fetchCurtainProducts();
+  }, []);
 
   // Rejestracja pluginów GSAP
   useEffect(() => {
@@ -88,9 +94,6 @@ const NewProductsSection = () => {
         onLeaveBack: () => setIsVisible(false),
       },
     });
-
-    // Przygotowanie tytułu
-    const tytul = 'Nowości — Zasłony szyte na wymiar';
 
     // Ustawienie początkowego stanu tytułu
     gsap.set(titleInnerRef.current, {
@@ -338,123 +341,11 @@ const NewProductsSection = () => {
       }
     });
 
-    // Animacja kart produktów - bardziej efektowne wejście
-    cardsRef.current.forEach((card, index) => {
-      if (card) {
-        // Główna animacja karty
-        gsap.fromTo(
-          card,
-          {
-            y: 120,
-            opacity: 0,
-            rotationY: -15,
-            scale: 0.9,
-            transformOrigin: 'center bottom',
-          },
-          {
-            y: 0,
-            opacity: 1,
-            rotationY: 0,
-            scale: 1,
-            duration: 1,
-            ease: 'power3.out',
-            delay: 0.3 + index * 0.25,
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 90%',
-              toggleActions: 'play none none none',
-            },
-          },
-        );
-
-        // Dodajmy delikatny efekt paralaksy do kart
-        gsap.fromTo(
-          card,
-          { y: 0 },
-          {
-            y: -30,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          },
-        );
-
-        // Bardziej efektowna animacja hover dla kart
-        const image = card.querySelector('.card-image');
-        const cardContent = card.querySelector('.card-content');
-        const priceTag = card.querySelector('.price-tag');
-
-        if (image) {
-          // Animacja obrazu na hover
-          card.addEventListener('mouseenter', () => {
-            gsap.to(image, {
-              scale: 1.15,
-              filter: 'brightness(1.1) saturate(1.2)',
-              duration: 0.5,
-              ease: 'power2.out',
-            });
-
-            if (cardContent) {
-              gsap.to(cardContent, {
-                y: -10,
-                duration: 0.4,
-                ease: 'power1.out',
-              });
-            }
-
-            if (priceTag) {
-              gsap.to(priceTag, {
-                scale: 1.1,
-                color: '#f59e0b',
-                duration: 0.3,
-              });
-            }
-          });
-
-          card.addEventListener('mouseleave', () => {
-            gsap.to(image, {
-              scale: 1,
-              filter: 'brightness(1) saturate(1)',
-              duration: 0.5,
-              ease: 'power2.out',
-            });
-
-            if (cardContent) {
-              gsap.to(cardContent, {
-                y: 0,
-                duration: 0.4,
-                ease: 'power1.out',
-              });
-            }
-
-            if (priceTag) {
-              gsap.to(priceTag, {
-                scale: 1,
-                color: '#111827',
-                duration: 0.3,
-              });
-            }
-          });
-        }
-      }
-    });
-
     // Cleanup funkcji ScrollTrigger
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
-
-  // Funkcja do dodawania kart do referencji
-  const addToRefs = (el: HTMLDivElement | null) => {
-    if (el && !cardsRef.current.includes(el)) {
-      cardsRef.current.push(el);
-    }
-  };
 
   // Funkcja do dodawania paragrafów do referencji
   const addToParagraphRefs = (el: HTMLParagraphElement | null) => {
@@ -539,32 +430,28 @@ const NewProductsSection = () => {
           <div className='absolute inset-0 bg-gradient-radial from-transparent to-black/5 pointer-events-none'></div>
         </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10'>
-          {convertToCards(products).map((card, index) => (
-            <div
-              key={card.id}
-              ref={(el: HTMLDivElement | null) => {
-                cardsRef.current[index] = el;
-              }}
-            >
-              <SellingCard
-                card={card}
-                showPrice={true}
-                buttonVariant='primary'
-              />
-            </div>
-          ))}
-        </div>
+        {/* Używamy komponentu RecommendedProducts do wyświetlenia produktów zasłonowych */}
+        <RecommendedProducts
+          title=''
+          subtitle=''
+          products={curtainProducts}
+          background='light'
+          buttonText='SPRAWDŹ SZCZEGÓŁY'
+          moreProductsLink='/zaslony-premium'
+        />
 
         {/* Przycisk "Zobacz więcej" z efektem błyszczenia */}
         <div className='mt-16 text-center'>
-          <button className='group relative inline-flex items-center justify-center px-8 py-3.5 overflow-hidden font-medium text-white bg-gradient-to-r from-gold to-amber-600 rounded-md shadow-md transition-all duration-300 ease-out hover:scale-105'>
+          <Link
+            href='/zaslony-premium'
+            className='group relative inline-flex items-center justify-center px-8 py-3.5 overflow-hidden font-medium text-white bg-gradient-to-r from-gold to-amber-600 rounded-md shadow-md transition-all duration-300 ease-out hover:scale-105'
+          >
             <span className='absolute inset-0 w-full h-full bg-gradient-to-br from-amber-500 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out'></span>
             <span className='relative z-10 text-lg'>
               Zobacz więcej produktów
             </span>
             <span className='ml-2 relative z-10'>→</span>
-          </button>
+          </Link>
         </div>
       </div>
     </section>
