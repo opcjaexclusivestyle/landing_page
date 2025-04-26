@@ -276,7 +276,8 @@ export default function OrderForm({
     const metryBiezaceSzycie = (2 * szerokoscPoTasmie + 2 * height) / 100; // konwersja z cm na metry
 
     // Obliczanie kosztu szycia
-    const kosztSzycia = metryBiezaceSzycie * 8; // 8 zł za metr bieżący szycia
+    const sewingUnits = Math.ceil(metryBiezaceSzycie / 0.5);
+    const kosztSzycia = sewingUnits * 4; // 4 zł za jednostkę szycia
 
     // Zaokrąglenie do 2 miejsc po przecinku
     return Math.round((kosztMaterialu + kosztSzycia) * 100) / 100;
@@ -342,21 +343,6 @@ export default function OrderForm({
     try {
       const price = calculatePrice();
       const productId = uuidv4();
-
-      // Zapisz dane klienta w Redux
-      dispatch(
-        setCustomerInfo({
-          name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email,
-          phone: formData.phone,
-          address: {
-            street: formData.street,
-            houseNumber: formData.houseNumber,
-            postalCode: formData.postalCode,
-            city: formData.city,
-          },
-        }),
-      );
 
       // Dodaj produkt do koszyka
       const cartItem: CartItem = {
@@ -870,15 +856,9 @@ export default function OrderForm({
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
-                          <span className='text-gray-600'>
-                            Koszt szycia (za mb):
-                          </span>
+                          <span className='text-gray-600'>Rodzaj taśmy:</span>
                           <span className='font-medium'>
-                            {selectedProduct
-                              ? `${formatPrice(
-                                  selectedProduct.sewingPricePerMB,
-                                )} zł/mb`
-                              : '-'}
+                            {selectedTape?.name || '-'}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
@@ -896,42 +876,22 @@ export default function OrderForm({
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            Ilość metrów bieżących:
+                            Wysokość firany:
                           </span>
                           <span className='font-medium'>
-                            {formData.rodWidth &&
-                            formData.height &&
-                            formData.tapeType
-                              ? `${formatPrice(
-                                  (parseFloat(formData.rodWidth) *
-                                    (selectedTape?.ratio || 0) *
-                                    parseFloat(formData.height)) /
-                                    10000,
-                                )} mb`
-                              : '-'}
+                            {formData.height ? `${formData.height} cm` : '-'}
+                          </span>
+                        </div>
+                        <div className='flex justify-between items-center text-sm'>
+                          <span className='text-gray-600'>Sztuk:</span>
+                          <span className='font-medium'>
+                            {formData.quantity}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            Koszt materiału:
+                            Łączny koszt szycia:
                           </span>
-                          <span className='font-medium'>
-                            {formData.rodWidth &&
-                            formData.height &&
-                            selectedProduct &&
-                            formData.tapeType
-                              ? `${formatPrice(
-                                  ((parseFloat(formData.rodWidth) *
-                                    (selectedTape?.ratio || 0) *
-                                    parseFloat(formData.height)) /
-                                    10000) *
-                                    selectedProduct.fabricPricePerMB,
-                                )} zł`
-                              : '-'}
-                          </span>
-                        </div>
-                        <div className='flex justify-between items-center text-sm'>
-                          <span className='text-gray-600'>Koszt szycia:</span>
                           <span className='font-medium'>
                             {formData.rodWidth &&
                             formData.height &&
@@ -944,32 +904,23 @@ export default function OrderForm({
                                       parseFloat(formData.height)) /
                                     10000;
                                   const sewingUnits = Math.ceil(meters / 0.5);
-                                  return `${formatPrice(
-                                    sewingUnits * 4,
-                                  )} zł (${sewingUnits} x 4 zł)`;
+                                  return `${formatPrice(sewingUnits * 4)} zł`;
                                 })()
                               : '-'}
                           </span>
                         </div>
                       </div>
                       <div className='pt-4 border-t border-gray-200 mt-4'>
-                        <div className='flex justify-between items-center'>
-                          <span className='text-lg font-medium text-deep-navy'>
-                            Razem (materiał):
-                          </span>
-                          <span className='text-xl font-bold text-deep-navy'>
-                            {formatPrice(calculateMaterialPrice())} zł
-                          </span>
-                        </div>
                         <div className='flex justify-between items-center mt-2'>
                           <span className='text-lg font-medium text-deep-navy'>
-                            Razem (materiał + szycie):
+                            Razem:
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
-                            {formatPrice(calculatePrice())} zł
+                            {formatPrice(calculatePrice() * formData.quantity)}{' '}
+                            zł
                           </span>
                         </div>
-                        {calculatePrice() > 399 && (
+                        {calculatePrice() * formData.quantity > 399 && (
                           <div className='mt-2 text-green-600 font-medium'>
                             Darmowa dostawa
                           </div>
@@ -997,13 +948,60 @@ export default function OrderForm({
                     />
                   </div>
 
-                  {/* 5. Certyfikaty */}
-                  <div className='mb-6'>
-                    <AccordionCertificates />
+                  {/* 5. Certyfikaty w nowym układzie */}
+                  <div className='mb-8 space-y-4'>
+                    <div className='flex flex-col space-y-3'>
+                      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
+                        <div className='flex items-center'>
+                          <div className='eco-icon mr-3'></div>
+                          <h3 className='font-medium'>CERTYFIKAT OEKO-TEX</h3>
+                        </div>
+                        <p className='mt-2 text-sm text-gray-600'>
+                          Nasze produkty są wolne od szkodliwych substancji
+                          chemicznych. Przebadane pod kątem bezpieczeństwa dla
+                          skóry człowieka z bezpośrednim długotrwałym kontaktem
+                          z tkaniną. Co potwierdza międzynarodowy certyfikat
+                          OEKO-TEX.
+                        </p>
+                      </div>
+
+                      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
+                        <div className='flex items-center'>
+                          <div className='warranty-card mr-3'>
+                            <div className='warranty-card-text'>
+                              GWARANCJA JAKOŚCI
+                            </div>
+                            <div className='warranty-seal'></div>
+                          </div>
+                          <h3 className='font-medium'>
+                            GWARANCJA NAJWYŻSZEJ JAKOŚCI
+                          </h3>
+                        </div>
+                        <p className='mt-2 text-sm text-gray-600'>
+                          Do każdego zakupionego produktu dołączamy pisemną
+                          gwarancję z pieczęcią, potwierdzającą autentyczność i
+                          jakość naszych wyrobów oraz dającą pewność
+                          satysfakcji.
+                        </p>
+                      </div>
+
+                      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
+                        <div className='flex items-center'>
+                          <div className='poland-shape mr-3'></div>
+                          <h3 className='font-medium'>PRODUKT POLSKI</h3>
+                        </div>
+                        <p className='mt-2 text-sm text-gray-600'>
+                          Wszystkie nasze firany są produkowane w Polskiej
+                          szwalni przez doświadczonych rzemieślników, co
+                          gwarantuje najwyższą jakość wykonania i wsparcie
+                          lokalnej gospodarki.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Przewodnik pomiarowy */}
-                  <div className='bg-gray-50 p-4 rounded-lg border border-gray-100'>
+                  <div className='bg-gray-50 p-4 rounded-lg border border-gray-100 mb-8'>
                     <div className='flex items-start'>
                       <div className='mr-4 text-deep-navy'>
                         <svg
@@ -1053,130 +1051,8 @@ export default function OrderForm({
                     </div>
                   </div>
 
-                  {/* Sekcja danych osobowych */}
-                  <div className='space-y-6 mb-8 border-t border-gray-200 pt-6'>
-                    <h2 className='text-lg font-medium text-deep-navy'>
-                      Dane osobowe
-                    </h2>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Imię
-                        </label>
-                        <input
-                          type='text'
-                          name='firstName'
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Nazwisko
-                        </label>
-                        <input
-                          type='text'
-                          name='lastName'
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Email
-                        </label>
-                        <input
-                          type='email'
-                          name='email'
-                          value={formData.email}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Telefon
-                        </label>
-                        <input
-                          type='tel'
-                          name='phone'
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Dane do dostawy */}
-                  <div className='space-y-6 mb-8 border-t border-gray-200 pt-6'>
-                    <h2 className='text-lg font-medium text-deep-navy'>
-                      Dane do dostawy
-                    </h2>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Ulica
-                        </label>
-                        <input
-                          type='text'
-                          name='street'
-                          value={formData.street}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Numer domu/mieszkania
-                        </label>
-                        <input
-                          type='text'
-                          name='houseNumber'
-                          value={formData.houseNumber}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Kod pocztowy
-                        </label>
-                        <input
-                          type='text'
-                          name='postalCode'
-                          value={formData.postalCode}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Miasto
-                        </label>
-                        <input
-                          type='text'
-                          name='city'
-                          value={formData.city}
-                          onChange={handleChange}
-                          className='form-input-focus w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none'
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Dodatkowe uwagi do zamówienia */}
-                  <div className='mb-8 border-t border-gray-200 pt-6'>
+                  <div className='mb-8'>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Dodatkowe uwagi do zamówienia
                     </label>
@@ -1194,7 +1070,6 @@ export default function OrderForm({
                     type='submit'
                     disabled={isLoading}
                     className='premium-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
-                    // className='magic-button w-full py-4 px-6 text-white rounded-lg font-medium text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 shadow-lg bg-deep-navy hover:bg-gradient-to-r hover:from-royal-gold hover:to-gold'
                   >
                     {isLoading ? (
                       <span className='flex items-center justify-center'>
