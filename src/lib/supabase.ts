@@ -209,7 +209,7 @@ export async function testSupabaseConnection() {
 // Funkcja do weryfikacji tokenu reCAPTCHA
 async function verifyRecaptcha(token: string): Promise<boolean> {
   try {
-    // Używamy naszego API endpoint zamiast bezpośredniego wywołania Google API
+    // Używamy naszego API endpoint do weryfikacji reCAPTCHA Enterprise
     const response = await fetch('/api/verify-recaptcha', {
       method: 'POST',
       headers: {
@@ -218,8 +218,25 @@ async function verifyRecaptcha(token: string): Promise<boolean> {
       body: JSON.stringify({ token }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Błąd odpowiedzi API reCAPTCHA:', errorText);
+      return false;
+    }
+
     const data = await response.json();
-    return data.success;
+
+    if (data.success) {
+      console.log('reCAPTCHA zweryfikowana pomyślnie, score:', data.score);
+      return true;
+    } else {
+      console.error(
+        'Weryfikacja reCAPTCHA nieudana:',
+        data.message,
+        data.details,
+      );
+      return false;
+    }
   } catch (error) {
     console.error('Błąd weryfikacji reCAPTCHA:', error);
     return false;
