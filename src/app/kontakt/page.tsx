@@ -65,9 +65,9 @@ export default function Kontakt() {
       />
 
       <div className='min-h-screen bg-gradient-to-br from-[#f0f7fd] to-[#e1edf9] relative'>
-        {/* Mapa w tle */}
+        {/* Mapa na górze jako pasek */}
         {mapReady && (
-          <div className='absolute inset-0 z-0 opacity-75'>
+          <div className='w-full h-[400px] sm:h-[450px] md:h-[500px] relative z-0'>
             <DynamicMap
               center={position}
               zoom={14}
@@ -91,8 +91,8 @@ export default function Kontakt() {
           </div>
         )}
 
-        {/* Zawartość na pierwszym planie */}
-        <div className='relative z-10 py-10 px-4 md:px-8 lg:px-16'>
+        {/* Zawartość, która nachodzi na mapę */}
+        <div className='px-4 md:px-8 lg:px-16 relative z-10 -mt-[150px] sm:-mt-[200px] md:-mt-[250px]'>
           {/* Nagłówek z przyciskiem powrotu */}
           <div className='mb-12 flex justify-between items-center'>
             <Link
@@ -101,9 +101,7 @@ export default function Kontakt() {
             >
               &larr; Powrót do strony głównej
             </Link>
-            <h1 className='text-4xl md:text-5xl lg:text-6xl text-center luxury-heading font-light text-[var(--deep-navy)] bg-white bg-opacity-90 px-8 py-4 rounded-lg shadow-lg'>
-              Kontakt
-            </h1>
+
             <div className='w-[100px]'></div>
           </div>
 
