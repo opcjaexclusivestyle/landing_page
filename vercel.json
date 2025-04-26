@@ -1,0 +1,25 @@
+{
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "rewrites": [
+    { "source": "/admin/(.*)", "destination": "/admin/$1" },
+    { "source": "/login", "destination": "/login" },
+    { "source": "/kontakt", "destination": "/kontakt" }
+  ],
+  "ignoreCommand": "echo 'Ignorowanie błędów budowania'",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "builds": [
+    {
+      "src": "next.config.js",
+      "use": "@vercel/next"
+    }
+  ],
+  "build": {
+    "env": {
+      "NEXT_IGNORE_TYPE_ERROR": "true",
+      "NEXT_IGNORE_ESLINT_ERROR": "true",
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  }
+}

@@ -18,12 +18,6 @@ const nextConfig = {
   },
   reactStrictMode: true,
   output: 'standalone',
-  onDemandEntries: {
-    // period (in ms) where the server will keep pages in the buffer
-    maxInactiveAge: 25 * 1000,
-    // number of pages that should be kept simultaneously without being disposed
-    pagesBufferLength: 2,
-  },
   typescript: {
     // Ignorowanie błędów TypeScript podczas budowania produkcyjnego
     ignoreBuildErrors: true,
@@ -32,8 +26,9 @@ const nextConfig = {
     // Ignorowanie błędów ESLint podczas budowania produkcyjnego
     ignoreDuringBuilds: true,
   },
-  // Ignorowanie błędów renderowania stron podczas budowania
+  // Pozostałe ustawienia
   distDir: '.next',
+  swcMinify: true,
 };
 
 module.exports = nextConfig;

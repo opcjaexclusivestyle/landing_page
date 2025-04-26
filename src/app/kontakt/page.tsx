@@ -1,38 +1,53 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock } from 'react-icons/fa';
 import SimpleHeader from '../components/SimpleHeader';
 
-// Fix Leaflet icon issue
-const MarkerIcon = () => {
-  useEffect(() => {
-    (async function init() {
-      // @ts-ignore
-      delete L.Icon.Default.prototype._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl:
-          'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-        shadowUrl:
-          'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+// Ustawienie dla Next.js - strona będzie renderowana dynamicznie
+export const dynamic = 'force-dynamic';
+
+// Dynamicznie importuj komponenty Leaflet
+const DynamicMap = dynamicImport(
+  () =>
+    import('react-leaflet').then((mod) => {
+      return import('leaflet').then((L) => {
+        // Fix Leaflet icon issues
+        // @ts-ignore - ikona Leaflet ma właściwość _getIconUrl
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl:
+            'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+          iconUrl:
+            'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+          shadowUrl:
+            'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+        });
+
+        // Zwróć komponent mapy
+        const { MapContainer, TileLayer, Marker, Popup } = mod;
+        const MapComponent = (props: any) => (
+          <MapContainer {...props}>
+            <TileLayer
+              url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker position={props.center}>
+              <Popup>
+                Zasłonex
+                <br />
+                ul. Redutowa 9<br />
+                26-600 Radom
+              </Popup>
+            </Marker>
+          </MapContainer>
+        );
+        return MapComponent;
       });
-    })();
-  }, []);
-
-  return null;
-};
-
-// Dynamicznie importuj MapContainer, aby uniknąć błędów SSR
-const DynamicMap = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  {
-    ssr: false,
-  },
+    }),
+  { ssr: false },
 );
 
 export default function Kontakt() {
@@ -73,21 +88,7 @@ export default function Kontakt() {
               zoom={14}
               style={{ height: '100%', width: '100%' }}
               scrollWheelZoom={false}
-            >
-              <MarkerIcon />
-              <TileLayer
-                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              <Marker position={position}>
-                <Popup>
-                  Zasłonex
-                  <br />
-                  ul. Redutowa 9<br />
-                  26-600 Radom
-                </Popup>
-              </Marker>
-            </DynamicMap>
+            />
           </div>
         )}
 

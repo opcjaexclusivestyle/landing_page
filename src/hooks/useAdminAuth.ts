@@ -94,15 +94,24 @@ async function refreshJWTAndSession() {
 export function useAdminAuth() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, isAdmin, user } = useSelector(
-    (state: RootState) => state.auth,
-  );
+
+  // Dodajemy domyślne wartości dla stanu Redux w przypadku braku kontekstu
+  const {
+    isAuthenticated = false,
+    isAdmin = false,
+    user = null,
+  } = useSelector((state: RootState) => state.auth) || {
+    isAuthenticated: false,
+    isAdmin: false,
+    user: null,
+  };
+
   const [isVerifying, setIsVerifying] = useState(true);
   const [jwtClaims, setJwtClaims] = useState(null);
+  let redirectTimeout: NodeJS.Timeout | null = null;
 
   useEffect(() => {
     let isMounted = true;
-    let redirectTimeout: NodeJS.Timeout | null = null;
 
     // Funkcja do bezpiecznego przekierowania z opóźnieniem
     const safeRedirect = (path: string) => {
