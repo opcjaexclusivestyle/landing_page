@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import ReduxProvider from '@/providers/ReduxProvider';
 import Navbar from '@/components/Navbar';
-// import Footer from '@/components/Footer';
+import Footer from '@/components/Footer';
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -46,7 +46,7 @@ export default function RootLayout({
         <ReduxProvider>
           <Navbar />
           <main>{children}</main>
-          {/* <Footer /> */}
+          <Footer />
         </ReduxProvider>
         <Script
           id='typekit'
