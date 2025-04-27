@@ -436,7 +436,7 @@ const NewProductsSection = () => {
           subtitle=''
           products={curtainProducts}
           background='light'
-          buttonText='SPRAWDŹ SZCZEGÓŁY'
+          buttonText='ZAMÓW, SPRAWDŹ'
           moreProductsLink='/zaslony-premium'
         />
 

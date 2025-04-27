@@ -233,7 +233,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         subtitle='Komfort i elegancja dla Twojej sypialni'
         products={beddingProducts}
         background='gray'
-        buttonText='SPRAWDŹ SZCZEGÓŁY'
+        buttonText='ZAMÓW, SPRAWDŹ'
         className='mt-8'
         moreProductsLink='/posciel-premium'
       />
@@ -243,6 +243,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         title='Wybrane dla Ciebie'
         subtitle='Najlepsze firany w wyjątkowych cenach'
         products={curtainProducts}
+        buttonText='ZAMÓW, SPRAWDŹ'
         background='light'
         moreProductsLink='/firany-premium'
       />
