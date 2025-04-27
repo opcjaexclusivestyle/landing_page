@@ -140,12 +140,14 @@ export default function ZaslonyPremiumPage() {
         {/* Siatka produktów */}
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
           {currentProducts.map((product) => {
-            const imageSrc = product.image_path
-              ? product.image_path
-              : product.images && product.images.length > 0
-              ? product.images[0]
-              : '/images/placeholder.jpg';
-
+            // const imageSrc = product.image_path
+            //   ? product.image_path
+            //   : product.images && product.images.length > 0
+            //   ? product.images[0]
+            //   : '/images/placeholder.jpg';
+            const imageSrc =
+              `${product.image_path}/1.webp` || '/images/placeholder.jpg';
+            console.log('imageSrc', imageSrc);
             return (
               <Link
                 href={`/zaslony-premium/${
