@@ -13,13 +13,9 @@ import MainPageNavigation from '@/components/MainPageNavigation';
 import PortfolioSection from '@/components/PortfolioSection';
 import BlogSection from '@/components/BlogSection';
 // import FAQSection from '@/components/FAQSection';
-import {
-  BlogPost,
-  Product,
-  fetchCalculatorProducts,
-  supabase,
-  generateSlug,
-} from '@/lib/supabase';
+import { BlogPost, supabase, generateSlug } from '@/lib/supabase';
+import { Product } from '@/components/RecommendedProducts'; // Importuj Product z RecommendedProducts
+import { useLinenProducts } from '@/hooks/useLinenProducts';
 
 interface HomeClientProps {
   blogPosts: BlogPost[];
@@ -72,63 +68,89 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
     error?: any;
   } | null>(null);
 
+  // Pobieranie produktów pościelowych za pomocą hooka useLinenProducts
+  // Ograniczamy wyświetlanie do 3 różnych rodzajów pościeli
+  const {
+    products: linenProducts,
+    loading: linenLoading,
+    getMainImage,
+    getProductPrice,
+  } = useLinenProducts({
+    limit: 3, // Pobieramy kilka produktów, aby znaleźć jeden z wariantami kolorów
+  });
+
   // Rejestracja pluginu ScrollTrigger
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
   }, []);
 
-  // Pobieranie produktów przy montowaniu komponentu
+  // Mapowanie produktów pościelowych - tworzymy kafelki dla wariantów kolorystycznych JEDNEGO produktu
   useEffect(() => {
-    const fetchAllProducts = async () => {
-      try {
-        console.log('Rozpoczynam pobieranie produktów...');
+    if (!linenLoading && linenProducts.length > 0) {
+      // Znajdź pierwszy produkt z dostępnymi kolorami
+      const productWithColors = linenProducts.find(
+        (p) => p.colors && Object.keys(p.colors).length > 1,
+      );
 
-        // Pobieranie produktów pościelowych z tabeli products_linen
-        const { data: linenData, error: linenError } = await supabase
-          .from('products_linen')
-          .select('*');
+      if (productWithColors) {
+        console.log('Znaleziono produkt z kolorami:', productWithColors);
+        const price = getProductPrice(productWithColors);
+        const mappedColorVariants: Product[] = [];
 
-        if (linenError) {
-          console.error('Błąd podczas pobierania pościeli:', linenError);
-        } else {
-          console.log('Pobrane produkty pościelowe:', linenData);
-
-          // Mapowanie produktów pościelowych
-          const mappedLinenProducts = linenData.map((product) => {
-            console.log('Mapowanie produktu pościelowego:', product);
-
-            // Pobieranie pierwszego koloru i jego pierwszego obrazu
-            let imageUrl = '';
-            if (product.colors && typeof product.colors === 'object') {
-              const colorKeys = Object.keys(product.colors);
-              if (colorKeys.length > 0) {
-                const firstColorKey = colorKeys[0];
-                if (product.colors[firstColorKey]?.images?.length > 0) {
-                  imageUrl = product.colors[firstColorKey].images[0];
-                }
-              }
-            } else if (product.image) {
-              // Fallback do starego sposobu, jeśli kolory nie są dostępne
-              imageUrl = product.image || '';
+        // Przetwórz warianty kolorystyczne (max 4)
+        Object.entries(productWithColors.colors)
+          .slice(0, 3) // Ograniczamy do 4 kolorów
+          .forEach(([colorCode, colorData]) => {
+            if (colorData.images && colorData.images.length > 0) {
+              mappedColorVariants.push({
+                // Używamy kombinacji ID produktu i kodu koloru jako unikalnego ID dla kafelka
+                // Można też użyć samego product.id, jeśli komponent SellingCard nie wymaga unikalności na tym poziomie
+                id: Number(productWithColors.id) || Math.random(), // Tymczasowe rozwiązanie dla unikalności ID
+                name: `${productWithColors.name} - ${colorData.displayName}`,
+                description: productWithColors.description || '',
+                currentPrice: price,
+                regularPrice: price * 1.2,
+                lowestPrice: price * 0.9,
+                image: colorData.images[0], // Obrazek specyficzny dla koloru
+                category: 'bedding' as const,
+                // Link do produktu z wybranym kolorem
+                slug: `posciel-premium/${productWithColors.id}?color=${colorCode}`,
+              });
             }
-
-            console.log('Ścieżka obrazka pościel:', imageUrl);
-
-            return {
-              id: Number(product.id) || 0,
-              name: product.name,
-              description: product.description || '',
-              currentPrice: product.price || 0,
-              regularPrice: (product.price || 0) * 1.2,
-              lowestPrice: (product.price || 0) * 0.9,
-              image: imageUrl,
-              category: 'bedding' as const,
-              slug: `posciel-premium/${product.id}`,
-            };
           });
 
-          setBeddingProducts(mappedLinenProducts);
-        }
+        console.log('Utworzone kafelki kolorów:', mappedColorVariants);
+        setBeddingProducts(mappedColorVariants);
+      } else {
+        // Fallback: Jeśli nie znaleziono produktu z kolorami, pokaż pierwsze 3 produkty (jak poprzednio)
+        console.log(
+          'Nie znaleziono produktu z wieloma kolorami, pokazuję pierwsze 3 produkty.',
+        );
+        const fallbackProducts = linenProducts.slice(0, 3).map((product) => {
+          const imageUrl = getMainImage(product);
+          const price = getProductPrice(product);
+          return {
+            id: Number(product.id) || 0,
+            name: product.name,
+            description: product.description || '',
+            currentPrice: price,
+            regularPrice: price * 1.2,
+            lowestPrice: price * 0.9,
+            image: imageUrl,
+            category: 'bedding' as const,
+            slug: `posciel-premium/${product.id}`,
+          };
+        });
+        setBeddingProducts(fallbackProducts);
+      }
+    }
+  }, [linenProducts, linenLoading]); // Usunięto getMainImage i getProductPrice z zależności
+
+  // Pobieranie produktów firanowych przy montowaniu komponentu
+  useEffect(() => {
+    const fetchCurtainProducts = async () => {
+      try {
+        console.log('Rozpoczynam pobieranie firan...');
 
         // Pobieranie tylko 3 pierwszych firan z tabeli calculator_products
         const { data: curtainData, error: curtainError } = await supabase
@@ -181,7 +203,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       }
     };
 
-    fetchAllProducts();
+    fetchCurtainProducts();
   }, []);
 
   // Główne animacje przy wczytywaniu strony

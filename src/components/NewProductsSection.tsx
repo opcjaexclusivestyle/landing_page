@@ -10,6 +10,35 @@ import { supabase, generateSlug } from '@/lib/supabase';
 import { Product } from './RecommendedProducts';
 import Link from 'next/link';
 
+// Funkcja pomocnicza do zapewnienia, że ścieżka obrazu jest poprawna dla Next.js Image
+const ensureValidImagePath = (path: string): string => {
+  if (!path) return '/placeholder.jpg';
+
+  // Jeśli ścieżka już jest pełnym URL, zwracamy ją bez zmian
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+
+  // Jeśli ścieżka zaczyna się od ukośnika, jest już poprawna (ale usuń podwójne ukośniki)
+  if (path.startsWith('/')) {
+    return path.replace(/\/+/g, '/');
+  }
+
+  // Usuń ewentualne podwójne ukośniki
+  const cleanPath = path.replace(/\/+/g, '/');
+
+  // Dodajemy ukośnik na początku
+  return `/${cleanPath}`;
+};
+
+// Interfejs dla kolorów produktu
+interface CurtainColor {
+  code: string;
+  displayName: string;
+  displayColor: string;
+  image: string;
+}
+
 const NewProductsSection = () => {
   const sectionRef = useRef(null);
   const titleRef = useRef(null);
@@ -42,8 +71,12 @@ const NewProductsSection = () => {
           const mappedCurtainProducts = (curtainData || []).map((product) => {
             console.log('Mapowanie produktu zasłony:', product);
             // Używamy image_path, albo pierwszego obrazka z tablicy images, albo imagePath
-            const imageUrl = `${product.image_path}//1.webp`;
-            console.log('Ścieżka obrazka zasłony:', `${imageUrl}/1.webp}`);
+            const imageUrl = ensureValidImagePath(
+              product.image_path
+                ? `${product.image_path}/1.webp`
+                : '/placeholder.jpg',
+            );
+            console.log('Ścieżka obrazka zasłony:', imageUrl);
 
             // Używamy sluga z bazy danych lub generujemy go za pomocą funkcji generateSlug
             const slug = product.slug || generateSlug(product.name, product.id);

@@ -86,11 +86,11 @@ export default function SellingCard({
       className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'
       onClick={handleCardClick}
     >
-      {card.discount && (
+      {/* {card.discount && (
         <div className='absolute top-2 right-2 bg-primary text-white text-sm px-2 py-1 rounded-md z-10'>
           -{card.discount}%
         </div>
-      )}
+      )} */}
 
       <div className='relative w-full h-48 md:h-64 rounded-t-lg overflow-hidden'>
         {card.image && !imageError ? (
