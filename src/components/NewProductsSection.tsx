@@ -62,7 +62,7 @@ const NewProductsSection = () => {
                 0.9,
               image: imageUrl,
               category: 'curtains' as const,
-              slug: `zaslony-premium/${slug}`,
+              slug: `${slug}`,
             };
           });
 

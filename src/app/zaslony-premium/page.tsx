@@ -147,7 +147,7 @@ export default function ZaslonyPremiumPage() {
             //   : '/images/placeholder.jpg';
             const imageSrc =
               `${product.image_path}/1.webp` || '/images/placeholder.jpg';
-            console.log('imageSrc', imageSrc);
+
             return (
               <Link
                 href={`/zaslony-premium/${
