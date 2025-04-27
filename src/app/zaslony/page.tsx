@@ -100,7 +100,6 @@ export default function Zaslony() {
           >
             &larr; Powrót do strony głównej
           </Link>
-          <h2 className='text-3xl md:text-4xl luxury-heading'>Zasłony</h2>
           <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
         </div>
 
