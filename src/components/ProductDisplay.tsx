@@ -15,24 +15,29 @@ interface SizeVariant {
   price: number;
 }
 
-interface ColorVariant {
-  color: string;
-  name: string;
-  images: string[];
+interface ColorData {
+  code: string;
+  displayName: string;
+  displayColor: string;
 }
 
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   description: string;
-  regular_price: number;
-  current_price: number;
-  lowest_price: number;
-  sizes: SizeVariant[];
-  color_variants: ColorVariant[];
-  sheet_prices: { [key: string]: number };
-  benefits: string[];
-  main_image: string;
+  regular_price?: number;
+  current_price?: number;
+  lowest_price?: number;
+  base_product: string;
+  default_color: string;
+  default_variant: string;
+  images: string[];
+  color: ColorData;
+  variants: SizeVariant[];
+  additional_options?: {
+    sheets?: { [key: string]: number };
+  };
+  features?: string[];
 }
 
 interface ProductDisplayProps {
@@ -42,47 +47,38 @@ interface ProductDisplayProps {
 const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
   const dispatch = useDispatch();
   const [selectedSize, setSelectedSize] = useState<SizeVariant>(
-    product.sizes[0] || { id: '0', label: '', price: 0 },
+    product.variants[0] || { id: '0', label: '', price: 0 },
   );
   const [includeSheet, setIncludeSheet] = useState(false);
   const [selectedSheetSize, setSelectedSheetSize] = useState<string>(
-    Object.keys(product.sheet_prices)[0] || '',
+    product.additional_options?.sheets
+      ? Object.keys(product.additional_options.sheets)[0] || ''
+      : '',
   );
-  const [selectedColor, setSelectedColor] = useState<string>(
-    product.color_variants[0]?.color || '',
-  );
-  const [mainImage, setMainImage] = useState<string>(
-    product.color_variants[0]?.images[0] || product.main_image || '',
-  );
+  const [mainImage, setMainImage] = useState<string>(product.images[0] || '');
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
-
-  // Aktualizacja głównego obrazu po zmianie koloru
-  useEffect(() => {
-    const colorVariant = product.color_variants.find(
-      (c) => c.color === selectedColor,
-    );
-    if (colorVariant && colorVariant.images.length > 0) {
-      setMainImage(colorVariant.images[0]);
-    }
-  }, [selectedColor, product.color_variants]);
 
   // Aktualizacja domyślnego rozmiaru prześcieradła na podstawie wybranego rozmiaru pościeli
   useEffect(() => {
     if (
       selectedSize?.beddingSize &&
-      Object.keys(product.sheet_prices).includes(selectedSize.beddingSize)
+      product.additional_options?.sheets &&
+      Object.keys(product.additional_options.sheets).includes(
+        selectedSize.beddingSize,
+      )
     ) {
       setSelectedSheetSize(selectedSize.beddingSize);
     }
-  }, [selectedSize, product.sheet_prices]);
+  }, [selectedSize, product.additional_options?.sheets]);
 
   // Obliczanie całkowitej ceny
   const calculateTotalPrice = () => {
-    const basePrice = selectedSize?.price || product.current_price;
-    const sheetPrice = includeSheet
-      ? product.sheet_prices[selectedSheetSize] || 0
-      : 0;
+    const basePrice = selectedSize?.price || 0;
+    const sheetPrice =
+      includeSheet && product.additional_options?.sheets
+        ? product.additional_options.sheets[selectedSheetSize] || 0
+        : 0;
     return (basePrice + sheetPrice) * quantity;
   };
 
@@ -90,11 +86,6 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
 
   // Funkcja do dodania produktu do koszyka
   const handleAddToCart = () => {
-    const colorVariant = product.color_variants.find(
-      (c) => c.color === selectedColor,
-    );
-    const colorName = colorVariant?.name || selectedColor;
-
     const productDetails = [
       selectedSize?.label ? `${selectedSize.label}` : '',
       selectedSize?.beddingSize && selectedSize?.pillowSize
@@ -110,9 +101,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
     dispatch(
       addToCart({
         id: uuidv4(),
-        name: `${product.name} - ${colorName}${
-          productDetails ? ` (${productDetails})` : ''
-        }`,
+        name: `${product.name}${productDetails ? ` (${productDetails})` : ''}`,
         price: totalPrice,
         quantity: quantity,
         options: {
@@ -162,52 +151,23 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
 
         {/* Miniatury zdjęć */}
         <div className='grid grid-cols-4 gap-2'>
-          {product.color_variants
-            .find((c) => c.color === selectedColor)
-            ?.images.map((img, idx) => (
-              <div
-                key={idx}
-                className={`relative h-20 cursor-pointer rounded overflow-hidden border-2 ${
-                  mainImage === img ? 'border-[var(--gold)]' : 'border-gray-200'
-                }`}
-                onClick={() => setMainImage(img)}
-                data-testid={`thumbnail-${idx}`}
-              >
-                <Image
-                  src={img}
-                  alt={`${product.name} miniatura ${idx + 1}`}
-                  fill
-                  className='object-cover'
-                />
-              </div>
-            ))}
-        </div>
-
-        {/* Wybór koloru */}
-        <div className='mt-4'>
-          <h3 className='text-sm font-medium text-gray-700 mb-2'>
-            Wybierz kolor:
-          </h3>
-          <div className='flex space-x-3'>
-            {product.color_variants.map((colorVariant, idx) => (
-              <button
-                key={idx}
-                className={`w-8 h-8 rounded-full border ${
-                  selectedColor === colorVariant.color
-                    ? 'ring-2 ring-[var(--gold)]'
-                    : 'border-gray-300'
-                }`}
-                style={{
-                  backgroundColor: colorVariant.color.startsWith('#')
-                    ? colorVariant.color
-                    : '',
-                }}
-                onClick={() => setSelectedColor(colorVariant.color)}
-                aria-label={colorVariant.name}
-                data-testid={`color-${colorVariant.color}`}
+          {product.images.map((img, idx) => (
+            <div
+              key={idx}
+              className={`relative h-20 cursor-pointer rounded overflow-hidden border-2 ${
+                mainImage === img ? 'border-[var(--gold)]' : 'border-gray-200'
+              }`}
+              onClick={() => setMainImage(img)}
+              data-testid={`thumbnail-${idx}`}
+            >
+              <Image
+                src={img}
+                alt={`${product.name} miniatura ${idx + 1}`}
+                fill
+                className='object-cover'
               />
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -217,9 +177,7 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
           className='text-2xl font-bold text-[var(--deep-navy)]'
           data-testid='product-title'
         >
-          {product.name} –{' '}
-          {product.color_variants.find((c) => c.color === selectedColor)
-            ?.name || selectedColor}
+          {product.name}
         </h1>
 
         <div className='flex items-center gap-2'>
@@ -230,11 +188,13 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
             {totalPrice.toFixed(2)} zł
           </div>
 
-          {product.regular_price > product.current_price && (
-            <div className='text-sm text-gray-400 line-through'>
-              {product.regular_price.toFixed(2)} zł
-            </div>
-          )}
+          {product.regular_price &&
+            product.current_price &&
+            product.regular_price > product.current_price && (
+              <div className='text-sm text-gray-400 line-through'>
+                {product.regular_price.toFixed(2)} zł
+              </div>
+            )}
         </div>
 
         <p className='text-gray-600'>{product.description}</p>
@@ -249,13 +209,15 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
               value={selectedSize?.id || ''}
               onChange={(e) => {
                 const setId = e.target.value;
-                const newSize = product.sizes.find((set) => set.id === setId);
+                const newSize = product.variants.find(
+                  (set) => set.id === setId,
+                );
                 if (newSize) setSelectedSize(newSize);
               }}
               className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
               data-testid='bedding-set-select'
             >
-              {product.sizes.map((size) => (
+              {product.variants.map((size) => (
                 <option
                   key={size.id}
                   value={size.id}
@@ -268,54 +230,55 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
           </div>
 
           {/* Opcja prześcieradła */}
-          {Object.keys(product.sheet_prices).length > 0 && (
-            <div>
-              <div className='flex items-center'>
-                <input
-                  type='checkbox'
-                  id='includeSheet'
-                  checked={includeSheet}
-                  onChange={(e) => setIncludeSheet(e.target.checked)}
-                  className='h-4 w-4 text-[var(--gold)] focus:ring-[var(--gold)] border-gray-300 rounded'
-                  data-testid='sheet-checkbox'
-                />
-                <label
-                  htmlFor='includeSheet'
-                  className='ml-2 block text-gray-700'
-                >
-                  Dodaj prześcieradło bez gumki
-                </label>
-              </div>
-
-              {/* Wybór rozmiaru prześcieradła - pojawia się tylko gdy checkbox jest zaznaczony */}
-              {includeSheet && (
-                <div className='mt-3 ml-6'>
-                  <label className='block mb-2 text-sm text-gray-700'>
-                    Wybierz rozmiar prześcieradła:
-                  </label>
-                  <select
-                    value={selectedSheetSize}
-                    onChange={(e) => setSelectedSheetSize(e.target.value)}
-                    className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
-                    data-testid='sheet-size-select'
+          {product.additional_options?.sheets &&
+            Object.keys(product.additional_options.sheets).length > 0 && (
+              <div>
+                <div className='flex items-center'>
+                  <input
+                    type='checkbox'
+                    id='includeSheet'
+                    checked={includeSheet}
+                    onChange={(e) => setIncludeSheet(e.target.checked)}
+                    className='h-4 w-4 text-[var(--gold)] focus:ring-[var(--gold)] border-gray-300 rounded'
+                    data-testid='sheet-checkbox'
+                  />
+                  <label
+                    htmlFor='includeSheet'
+                    className='ml-2 block text-gray-700'
                   >
-                    {Object.entries(product.sheet_prices).map(
-                      ([size, price]) => (
-                        <option
-                          key={size}
-                          value={size}
-                          data-testid={`option-sheet-${size}`}
-                        >
-                          {size} (+
-                          {price.toFixed(2)} zł)
-                        </option>
-                      ),
-                    )}
-                  </select>
+                    Dodaj prześcieradło bez gumki
+                  </label>
                 </div>
-              )}
-            </div>
-          )}
+
+                {/* Wybór rozmiaru prześcieradła - pojawia się tylko gdy checkbox jest zaznaczony */}
+                {includeSheet && (
+                  <div className='mt-3 ml-6'>
+                    <label className='block mb-2 text-sm text-gray-700'>
+                      Wybierz rozmiar prześcieradła:
+                    </label>
+                    <select
+                      value={selectedSheetSize}
+                      onChange={(e) => setSelectedSheetSize(e.target.value)}
+                      className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold)]'
+                      data-testid='sheet-size-select'
+                    >
+                      {Object.entries(product.additional_options.sheets).map(
+                        ([size, price]) => (
+                          <option
+                            key={size}
+                            value={size}
+                            data-testid={`option-sheet-${size}`}
+                          >
+                            {size} (+
+                            {price.toFixed(2)} zł)
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
 
           {/* Wybór ilości */}
           <div>
@@ -372,12 +335,12 @@ const ProductDisplay: React.FC<ProductDisplayProps> = ({ product }) => {
         </div>
 
         {/* Korzyści produktu */}
-        {product.benefits && product.benefits.length > 0 && (
+        {product.features && product.features.length > 0 && (
           <div className='border-t border-gray-200 pt-4 mt-6'>
             <h3 className='font-medium text-gray-800 mb-2'>Korzyści:</h3>
             <ul className='list-disc list-inside space-y-1 text-gray-600'>
-              {product.benefits.map((benefit, idx) => (
-                <li key={idx}>{benefit}</li>
+              {product.features.map((feature, idx) => (
+                <li key={idx}>{feature}</li>
               ))}
             </ul>
           </div>

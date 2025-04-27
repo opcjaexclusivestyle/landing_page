@@ -10,7 +10,7 @@ import BeddingForm, {
 } from '@/components/BeddingForm';
 import Loading from '@/app/components/Loading';
 import { LinenProduct } from '@/components/LinenProductsList';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useSearchParams } from 'next/navigation';
 import SimpleHeader from '@/app/components/SimpleHeader';
 
 export default function ProductDetails({ params }: { params: { id: string } }) {
@@ -18,6 +18,8 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const colorFromUrl = searchParams ? searchParams.get('color') : null;
 
   useEffect(() => {
     async function fetchProductDetails() {
@@ -48,6 +50,7 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
         // Dodatkowe logowanie kolorów
         console.log('Kolory produktu:', data.colors);
         console.log('Domyślny kolor:', data.default_color);
+        console.log('Kolor z URL:', colorFromUrl);
       } catch (error) {
         console.error('Błąd podczas pobierania danych produktu:', error);
         setError('Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.');
@@ -59,7 +62,7 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
     if (params.id) {
       fetchProductDetails();
     }
-  }, [params.id]);
+  }, [params.id, colorFromUrl]);
 
   // Przekształcenie danych produktu do formatu oczekiwanego przez BeddingForm
   const prepareBeddingProductData = (
@@ -133,13 +136,19 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
       features = product.features;
     }
 
+    // Ustalenie domyślnego koloru - użyj koloru z URL jeśli istnieje w produkcie
+    let defaultColor = product.default_color;
+    if (colorFromUrl && Object.keys(colors).includes(colorFromUrl)) {
+      defaultColor = colorFromUrl;
+    }
+
     const result = {
       name: product.name,
       description: product.description,
       beddingSets,
       sheetPrices,
       colors: colors as any, // Type assertion, ponieważ TypeScript nie może zweryfikować, że wszystkie wymagane kolory są
-      defaultColor: product.default_color as ColorOption,
+      defaultColor: defaultColor as ColorOption,
       features,
     };
 
