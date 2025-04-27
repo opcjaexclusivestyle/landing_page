@@ -19,8 +19,8 @@ interface FAQSectionProps {
 }
 
 export default function FAQSection({
-  title = 'Najczęściej zadawane pytania',
-  subtitle = 'Znajdź odpowiedzi na najczęstsze pytania dotyczące naszych produktów i usług',
+  title = 'Najczęściej zadawane pytania o rolety',
+  subtitle = 'Znajdź odpowiedzi na najczęstsze pytania dotyczące rolet rzymskich i plisowanych',
   className = '',
 }: FAQSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -32,30 +32,35 @@ export default function FAQSection({
   // Przykładowe dane FAQ
   const faqItems: FAQItem[] = [
     {
+      question: 'Czy rolety rzymskie można prać?',
+      answer:
+        'Tak, większość rolet rzymskich posiada materiał zdejmowany na rzepy lub haczyki, co umożliwia pranie ręczne lub w pralce – najlepiej w delikatnym programie i niskiej temperaturze (do 30°C). Zawsze warto sprawdzić zalecenia producenta.',
+    },
+    {
+      question: 'Czy rolety rzymskie nadają się do kuchni lub łazienki?',
+      answer:
+        'Tak, ale najlepiej wybrać tkaniny odporne na wilgoć i łatwe do czyszczenia. Do kuchni polecane są tkaniny syntetyczne lub z powłoką teflonową, a do łazienki materiały o właściwościach antygrzybicznych.',
+    },
+    {
+      question: 'Jak montuje się rolety rzymskie?',
+      answer:
+        'Rolety rzymskie można montować na kilka sposobów: do ściany, do sufitu lub bezinwazyjnie na ramę okna (przy pomocy specjalnych uchwytów). Wybór zależy od preferencji i rodzaju okna.',
+    },
+    {
+      question: 'Czym różnią się rolety plisowane od tradycyjnych rolet?',
+      answer:
+        'Rolety plisowane składają się w harmonijkę i można je regulować zarówno od góry, jak i od dołu, co daje większą swobodę w zasłanianiu wybranej części okna. Są też bardziej estetyczne i zajmują mniej miejsca.',
+    },
+    {
       question:
-        'Jak obliczyć ilość materiału potrzebnego do zawieszenia zasłony lub firany?',
+        'Czy plisy nadają się do okien dachowych lub nietypowych kształtów?',
       answer:
-        'Wystarczy, że zmierzysz długość karnisza w miejscu, gdzie planujesz zawiesić zasłonę lub firanę. Następnie wpisz tę wartość w nasz kalkulator, a on automatycznie wyliczy odpowiednią ilość materiału, by uzyskać efektowne, eleganckie fale w Twoim oknie.',
+        'Tak, rolety plisowane są idealnym rozwiązaniem dla okien dachowych, trapezowych, trójkątnych czy okrągłych. Można je dopasować na wymiar niemal do każdego kształtu.',
     },
     {
-      question: 'Czy mogę zamówić próbkę materiału przed zakupem?',
+      question: 'Jak czyścić rolety plisowane?',
       answer:
-        'Tak, oferujemy możliwość zamówienia próbek materiałów. Skontaktuj się z nami telefonicznie, a wyślemy Ci wybrane próbki, abyś mógł ocenić kolor i strukturę materiału we własnym domu.',
-    },
-    {
-      question: 'Jak mogę otrzymać 20% rabatu na kolejne zakupy?',
-      answer:
-        'To proste! Odmień swoje wnętrze z naszymi firanami lub zasłonami i pochwal się efektem! Prześlij nam zdjęcia pomieszczenia przed i po metamorfozie, a my nagrodzimy Cię 20% rabatem na kolejne zakupy. Zainspiruj innych swoją aranżacją i zgarnij zniżkę na kolejne piękne dodatki do domu!',
-    },
-    {
-      question: 'Od jakiej kwoty mogę skorzystać z darmowej dostawy?',
-      answer:
-        'Darmowa dostawa przysługuje przy zamówieniach od 399 zł! Zrób zakupy już teraz i skorzystaj z tej wygodnej opcji – nie przepłacaj za przesyłkę!',
-    },
-    {
-      question: 'Jaka taśma marszcząca będzie najlepsza?',
-      answer:
-        'W naszym sklepie znajdziesz starannie wyselekcjonowany asortyment taśm marszczących – oferujemy najczęściej wybierane i najpopularniejsze modele w Polsce. Dzięki temu masz pewność, że każdy z naszych produktów to sprawdzony i topowy wybór. Do zasłon najczęściej polecana jest taśma ołówkowa o szerokości 8 cm, która zapewnia elegancki wygląd i równomierne marszczenie. Dla osób preferujących bardziej dyskretne rozwiązania, idealna będzie taśma ołówkowa 2,5 cm – doskonale sprawdzi się tam, gdzie taśma ma pozostać niewidoczna. Z kolei do firan szczególnie polecana jest taśma SMOK o szerokości 5 cm. To uniwersalne rozwiązanie, które pasuje do każdego wnętrza i pięknie eksponuje lekkość tkaniny. Dla miłośników nowoczesnego designu doskonałym wyborem będzie taśma wave. To wyjątkowe rozwiązanie, które tworzy idealnie regularne fale, niezależnie od rodzaju tkaniny. Taśma wave świetnie sprawdza się w eleganckich, przestronnych wnętrzach – szczególnie w salonach i pokojach dziennych, gdzie liczy się efekt lekkości, harmonii i nowoczesnej estetyki.',
+        'Najlepiej używać miękkiej ściereczki lub szczoteczki do kurzu. W przypadku większych zabrudzeń można delikatnie przetrzeć wilgotną ściereczką. Nie zaleca się całkowitego zanurzania w wodzie, chyba że producent na to zezwala.',
     },
   ];
 

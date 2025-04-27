@@ -1,310 +1,266 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Link from 'next/link';
+import FAQSection from '@/components/FAQSection';
 import SimpleHeader from '../components/SimpleHeader';
-import MeasuringGuide from '../../components/MeasuringGuide';
-import BlindsInquiryForm from '../../components/BlindsInquiryForm';
+import AnimatedRoletySection from '@/components/AnimatedRoletySection';
+import Testimonials from '@/components/Testimonials';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import RoletyInfoSection from '@/components/RoletyInfoSection';
 
-// Helper function to scroll to the form
-const scrollToForm = () => {
-  const formElement = document.getElementById('blinds-inquiry-form');
-  if (formElement) {
-    formElement.scrollIntoView({ behavior: 'smooth' });
-  }
-};
+const Rolety = () => {
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: '',
+    windowType: '',
+    windowWidth: '',
+    windowHeight: '',
+    windowQuantity: '',
+  });
 
-export default function Rolety() {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef(null);
-  const descriptionRef = useRef(null);
-
-  // Rejestracja pluginów GSAP
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-  }, []);
-
-  // Efekt animacji przy ładowaniu strony
-  useEffect(() => {
-    const tl = gsap.timeline();
-
-    tl.from(headerRef.current, {
-      opacity: 0,
-      y: -50,
-      duration: 1,
-      ease: 'power3.out',
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
     });
+  };
 
-    tl.from(
-      descriptionRef.current,
-      {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        ease: 'power2.out',
-      },
-      '-=0.5',
-    );
-  }, []);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Tutaj można dodać logikę wysyłania formularza
+    console.log(formData);
+    alert('Formularz został wysłany!');
+  };
+
+  const handleSelectType = (type: string) => {
+    setSelectedType(type);
+    const formElement = document.getElementById('form-section');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <>
-      {/* Używamy nowego komponentu SimpleHeader */}
+    <div className='min-h-screen bg-gray-50'>
+      {/* Nagłówek */}
       <SimpleHeader
-        videoSrc='/video/curtains.mp4'
-        title='ROLETY I ZASŁONY'
-        subtitle='Estetyka i funkcjonalność dla Twoich okien'
-        description='Odkryj rolety rzymskie, plisowane i klasyczne zasłony'
-        height='60vh'
+        title='Rolety i Zasłony'
+        description='Wybierz idealne rozwiązanie dla Twojego domu'
+        videoSrc='/video/blinds.mp4'
       />
 
-      {/* Główna zawartość strony */}
-      <div
-        ref={contentRef}
-        className='min-h-screen py-10 px-4 md:px-8 lg:px-16 bg-[var(--light-gold)] text-[var(--deep-navy)]'
-      >
-        {/* Nagłówek z przyciskiem powrotu */}
-        <div
-          className='mb-12 flex justify-between items-center'
-          ref={headerRef}
-        >
-          <Link
-            href='/'
-            className='text-[var(--deep-navy)] hover:text-[var(--gold)] transition-colors'
-          >
-            &larr; Powrót do strony głównej
-          </Link>
-          <h1 className='text-4xl md:text-5xl lg:text-6xl text-center luxury-heading font-light text-[var(--deep-navy)]'>
-            Rolety i Zasłony
-          </h1>
-          <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
-        </div>
+      {/* Sekcja kafelków z animacjami */}
+      <AnimatedRoletySection onSelectType={handleSelectType} />
 
-        <div
-          ref={descriptionRef}
-          className='max-w-4xl mx-auto mb-16 text-center'
-        >
-          <p className='text-lg md:text-xl leading-relaxed mb-6'>
-            Rolety to nie tylko praktyczne rozwiązanie chroniące przed
-            nadmiernym światłem i zapewniające prywatność. To także ważny
-            element dekoracyjny, który wpływa na atmosferę całego pomieszczenia.
-            W naszej ofercie znajdziesz starannie wykonane rolety rzymskie oraz
-            rolety plisowane, które łączą estetykę z funkcjonalnością na
-            najwyższym poziomie.
-          </p>
-        </div>
+      {/* Sekcja informacyjna o roletach */}
+      <RoletyInfoSection />
 
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8 mb-16'>
-          <div className='border border-[var(--gold)] p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow bg-white flex flex-col items-center text-center'>
-            <Image
-              src='/images/placeholder-roman.jpg'
-              alt='Rolety rzymskie'
-              width={300}
-              height={200}
-              className='rounded mb-4 object-cover'
-            />
-            <h3 className='text-2xl font-semibold mb-2 text-[var(--deep-navy)]'>
-              Rolety Rzymskie
-            </h3>
-            <p className='text-sm mb-4 text-[var(--gold)] font-medium'>
-              Nowoczesność, wygoda, elegancja
+      <TestimonialsSection type='rolety' />
+      {/* Sekcja formularza */}
+      <section id='form-section' className='py-16 bg-gray-50'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='text-center mb-12'>
+            <h2 className='text-3xl font-extrabold text-gray-900'>
+              {selectedType === 'rzymskie'
+                ? 'Zamów rolety rzymskie'
+                : selectedType === 'plisowane'
+                ? 'Zamów rolety plisowane'
+                : 'Zamów swoje idealne rolety'}
+            </h2>
+            <p className='mt-4 text-xl text-gray-600'>
+              Wypełnij formularz, a nasz ekspert skontaktuje się z Tobą
             </p>
-            <p className='text-base leading-relaxed mb-4 text-gray-700'>
-              Doskonały kompromis między zasłoną a roletą. Układają się w
-              miękkie fałdy, nadając wnętrzu przytulności. Precyzyjna regulacja
-              światła i subtelny wygląd.
-            </p>
-            <button
-              onClick={scrollToForm}
-              className='mt-auto bg-[var(--deep-navy)] text-white py-2 px-6 rounded hover:bg-[var(--gold)] transition-colors'
-            >
-              Wyceń rolety rzymskie
-            </button>
           </div>
 
-          <div className='border border-[var(--gold)] p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow bg-white flex flex-col items-center text-center'>
-            <Image
-              src='/images/placeholder-pleated.jpg'
-              alt='Rolety plisowane'
-              width={300}
-              height={200}
-              className='rounded mb-4 object-cover'
-            />
-            <h3 className='text-2xl font-semibold mb-2 text-[var(--deep-navy)]'>
-              Rolety Plisowane
-            </h3>
-            <p className='text-sm mb-4 text-[var(--gold)] font-medium'>
-              Prywatność, design, komfort
-            </p>
-            <p className='text-base leading-relaxed mb-4 text-gray-700'>
-              Wyjątkowa funkcjonalność i nowoczesna estetyka. Składane w
-              harmonijkę, regulowane od góry i dołu. Idealne do nowoczesnych
-              wnętrz i nietypowych okien.
-            </p>
-            <button
-              onClick={scrollToForm}
-              className='mt-auto bg-[var(--deep-navy)] text-white py-2 px-6 rounded hover:bg-[var(--gold)] transition-colors'
-            >
-              Wyceń rolety plisowane
-            </button>
-          </div>
-
-          <div className='border border-[var(--gold)] p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow bg-white flex flex-col items-center text-center'>
-            <Image
-              src='/images/placeholder-curtains.jpg'
-              alt='Zasłony'
-              width={300}
-              height={200}
-              className='rounded mb-4 object-cover'
-            />
-            <h3 className='text-2xl font-semibold mb-2 text-[var(--deep-navy)]'>
-              Zasłony
-            </h3>
-            <p className='text-sm mb-4 text-[var(--gold)] font-medium'>
-              Klimat, dekoracja, funkcjonalność
-            </p>
-            <p className='text-base leading-relaxed mb-4 text-gray-700'>
-              Klasyczne rozwiązanie, które dodaje ciepła i elegancji. Skutecznie
-              regulują światło i temperaturę. Szeroka gama materiałów i kolorów
-              do każdego stylu.
-            </p>
-            <Link
-              href='/zaslony'
-              className='mt-auto bg-[var(--deep-navy)] text-white py-2 px-6 rounded hover:bg-[var(--gold)] transition-colors block w-full'
-            >
-              Zobacz zasłony
-            </Link>
-          </div>
-        </div>
-
-        <div className='max-w-4xl mx-auto mb-16 text-center p-8 bg-white rounded-lg shadow-md border border-[var(--gold)]'>
-          <h2 className='text-3xl font-semibold mb-4 text-[var(--deep-navy)]'>
-            Profesjonalne Doradztwo i Bezpłatny Pomiar
-          </h2>
-          <p className='text-lg md:text-xl leading-relaxed mb-6 text-gray-700'>
-            Stawiamy na profesjonalne podejście, dlatego chętnie zadzwonimy i
-            doradzimy najlepsze rozwiązanie. Oferujemy bezpłatne pomiary na
-            terenie Radomia i okolic, dzięki czemu możemy idealnie dobrać rolety
-            rzymskie lub plisowane do Państwa okien.
-          </p>
-          <p className='text-lg md:text-xl leading-relaxed text-gray-700'>
-            Wypełnij poniższy formularz, abyśmy mogli przygotować ofertę
-            dopasowaną do Twoich potrzeb.
-          </p>
-        </div>
-
-        <MeasuringGuide />
-
-        <div className='text-center mb-8 mt-16'>
-          <p className='text-lg md:text-xl font-semibold text-[var(--deep-navy)]'>
-            Chcesz porozmawiać z ekspertem w sprawie rolet do Twojego domu?
-          </p>
-          <a
-            href='tel:531400230'
-            className='text-2xl md:text-3xl text-[var(--gold)] hover:underline font-bold'
-          >
-            Zadzwoń teraz 531 400 230
-          </a>
-        </div>
-
-        <div id='blinds-inquiry-form'>
-          <BlindsInquiryForm />
-        </div>
-
-        <div className='max-w-4xl mx-auto mt-16 p-8 bg-white rounded-lg shadow-md border border-[var(--gold)]'>
-          <h2 className='text-3xl font-semibold mb-8 text-center text-[var(--deep-navy)]'>
-            PYTANIA I ODPOWIEDZI
-          </h2>
-
-          <div className='space-y-6'>
-            <div>
-              <h3 className='text-2xl font-medium mb-4 text-[var(--deep-navy)]'>
-                {' '}
-                Rolety rzymskie
-              </h3>
-              <div className='space-y-4'>
-                <div>
-                  <h4 className='font-semibold text-lg text-gray-800'>
-                    1. Czy rolety rzymskie można prać?
-                  </h4>
-                  <p className='text-gray-700'>
-                    Tak, większość rolet rzymskich posiada materiał zdejmowany
-                    na rzepy lub haczyki, co umożliwia pranie ręczne lub w
-                    pralce – najlepiej w delikatnym programie i niskiej
-                    temperaturze (do 30°C). Zawsze warto sprawdzić zalecenia
-                    producenta.
-                  </p>
-                </div>
-                <div>
-                  <h4 className='font-semibold text-lg text-gray-800'>
-                    2. Czy rolety rzymskie nadają się do kuchni lub łazienki?
-                  </h4>
-                  <p className='text-gray-700'>
-                    Tak, ale najlepiej wybrać tkaniny odporne na wilgoć i łatwe
-                    do czyszczenia. Do kuchni polecane są tkaniny syntetyczne
-                    lub z powłoką teflonową, a do łazienki materiały o
-                    właściwościach antygrzybicznych.
-                  </p>
-                </div>
-                <div>
-                  <h4 className='font-semibold text-lg text-gray-800'>
-                    3. Jak montuje się rolety rzymskie?
-                  </h4>
-                  <p className='text-gray-700'>
-                    Rolety rzymskie można montować na kilka sposobów: do ściany,
-                    do sufitu lub bezinwazyjnie na ramę okna (przy pomocy
-                    specjalnych uchwytów). Wybór zależy od preferencji i rodzaju
-                    okna.
-                  </p>
-                </div>
+          <div className='bg-white p-8 rounded-lg shadow-md mb-8'>
+            <div className='mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200'>
+              <div className='flex items-center'>
+                <span className='text-blue-500 mr-3 text-xl'>📱</span>
+                <p className='text-blue-800'>
+                  <strong>
+                    Chcesz porozmawiać z ekspertem w sprawie rolet do Twojego
+                    domu?
+                  </strong>
+                  <br />
+                  Zadzwoń teraz{' '}
+                  <a
+                    href='tel:531400230'
+                    className='font-bold text-blue-700 hover:underline cursor-pointer'
+                  >
+                    531 400 230
+                  </a>
+                </p>
               </div>
             </div>
 
-            <div>
-              <h3 className='text-2xl font-medium mb-4 text-[var(--deep-navy)]'>
-                🪟 Rolety plisowane
-              </h3>
-              <div className='space-y-4'>
+            <form onSubmit={handleSubmit}>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <div>
-                  <h4 className='font-semibold text-lg text-gray-800'>
-                    1. Czym różnią się rolety plisowane od tradycyjnych rolet?
-                  </h4>
-                  <p className='text-gray-700'>
-                    Rolety plisowane składają się w harmonijkę i można je
-                    regulować zarówno od góry, jak i od dołu, co daje większą
-                    swobodę w zasłanianiu wybranej części okna. Są też bardziej
-                    estetyczne i zajmują mniej miejsca.
-                  </p>
+                  <label
+                    htmlFor='name'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Imię i nazwisko
+                  </label>
+                  <input
+                    type='text'
+                    id='name'
+                    name='name'
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                    required
+                  />
                 </div>
                 <div>
-                  <h4 className='font-semibold text-lg text-gray-800'>
-                    2. Czy plisy nadają się do okien dachowych lub nietypowych
-                    kształtów?
-                  </h4>
-                  <p className='text-gray-700'>
-                    Tak, rolety plisowane są idealnym rozwiązaniem dla okien
-                    dachowych, trapezowych, trójkątnych czy okrągłych. Można je
-                    dopasować na wymiar niemal do każdego kształtu.
-                  </p>
+                  <label
+                    htmlFor='phone'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Numer telefonu
+                  </label>
+                  <input
+                    type='tel'
+                    id='phone'
+                    name='phone'
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                    required
+                  />
                 </div>
                 <div>
-                  <h4 className='font-semibold text-lg text-gray-800'>
-                    3. Jak czyścić rolety plisowane?
-                  </h4>
-                  <p className='text-gray-700'>
-                    Najlepiej używać miękkiej ściereczki lub szczoteczki do
-                    kurzu. W przypadku większych zabrudzeń można delikatnie
-                    przetrzeć wilgotną ściereczką. Nie zaleca się całkowitego
-                    zanurzania w wodzie, chyba że producent na to zezwala.
-                  </p>
+                  <label
+                    htmlFor='email'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Adres e-mail
+                  </label>
+                  <input
+                    type='email'
+                    id='email'
+                    name='email'
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor='windowType'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Rodzaj okna
+                  </label>
+                  <select
+                    id='windowType'
+                    name='windowType'
+                    value={formData.windowType}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                    required
+                  >
+                    <option value=''>Wybierz rodzaj okna</option>
+                    <option value='standardowe'>Okno standardowe</option>
+                    <option value='dachowe'>Okno dachowe</option>
+                    <option value='balkonowe'>Drzwi balkonowe</option>
+                    <option value='inne'>Inne</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor='windowWidth'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Szerokość okna (cm)
+                  </label>
+                  <input
+                    type='text'
+                    id='windowWidth'
+                    name='windowWidth'
+                    value={formData.windowWidth}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor='windowHeight'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Wysokość okna (cm)
+                  </label>
+                  <input
+                    type='text'
+                    id='windowHeight'
+                    name='windowHeight'
+                    value={formData.windowHeight}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor='windowQuantity'
+                    className='block text-sm font-medium text-gray-700 mb-1'
+                  >
+                    Ilość okien
+                  </label>
+                  <input
+                    type='text'
+                    id='windowQuantity'
+                    name='windowQuantity'
+                    value={formData.windowQuantity}
+                    onChange={handleInputChange}
+                    className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                  />
                 </div>
               </div>
-            </div>
+
+              <div className='mt-6'>
+                <label
+                  htmlFor='message'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
+                  Dodatkowe informacje
+                </label>
+                <textarea
+                  id='message'
+                  name='message'
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm'
+                ></textarea>
+              </div>
+
+              <div className='mt-8'>
+                <button
+                  type='submit'
+                  className='w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition duration-300'
+                >
+                  Wysyłam zapytanie
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
-    </>
+      </section>
+
+      {/* Sekcja FAQ */}
+      <FAQSection />
+    </div>
   );
-}
+};
+
+export default Rolety;
