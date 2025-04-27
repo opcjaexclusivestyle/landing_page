@@ -123,19 +123,19 @@ export default function SellingCard({
             <span className='text-xl text-gray-900 font-bold'>
               {card.price.toFixed(2)} zł
             </span>
-            {card.oldPrice && (
+            {/* {card.oldPrice && (
               <span className='ml-2 text-sm text-gray-500 line-through'>
                 {card.oldPrice.toFixed(2)} zł
               </span>
-            )}
+            )} */}
           </div>
         )}
 
-        {card.additionalInfo && (
+        {/* {card.additionalInfo && (
           <div className='text-xs text-gray-500 mt-1 mb-4 whitespace-pre-line'>
             {card.additionalInfo}
           </div>
-        )}
+        )} */}
 
         {card.buttonText && (
           <button

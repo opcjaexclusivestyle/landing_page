@@ -127,12 +127,6 @@ export default function RecommendedProducts({
           ? Math.round((1 - product.currentPrice / product.regularPrice) * 100)
           : undefined;
 
-      const additionalInfo = showPriceDetails
-        ? `Najniższa cena z 30 dni: ${product.lowestPrice?.toFixed(
-            2,
-          )} zł\nCena regularna: ${product.regularPrice?.toFixed(2)} zł`
-        : undefined;
-
       // Truncate description to max 150 characters
       const truncatedDescription = product.description
         ? product.description.length > 150
@@ -150,7 +144,6 @@ export default function RecommendedProducts({
         discount,
         buttonText,
         buttonLink,
-        additionalInfo,
       });
     }
 
