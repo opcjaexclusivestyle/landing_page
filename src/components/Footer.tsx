@@ -254,10 +254,7 @@ const Footer = () => {
                   </Link>
                 </label>
               </div>
-              <button
-                type='submit'
-                className='bg-[var(--beige)] hover:bg-[var(--deep-gold)] text-white py-2 px-4 text-sm rounded transition-all duration-300 flex items-center'
-              >
+              <button type='submit' className='premium-button flex flex-row'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4 mr-2'

@@ -251,7 +251,7 @@ export default function Kontakt() {
                 <div className='text-center pt-4'>
                   <button
                     type='submit'
-                    className='bg-gradient-to-r from-[#0d2b45] to-[#154267] text-white px-10 py-4 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 text-lg font-medium'
+                    className='premium-button flex flex-row'
                   >
                     Wyślij wiadomość
                   </button>
