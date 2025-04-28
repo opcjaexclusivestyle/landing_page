@@ -66,12 +66,12 @@ export default function Firany() {
         <div ref={headerRef} className='mb-8 flex justify-between items-center'>
           <Link
             href='/'
-            className='text-gray-600 hover:text-gray-800 transition-colors duration-300'
+            className='text-gray-600 hover:text-gray-800 transition-colors duration-300 flex-1 text-left'
           >
             &larr; Powrót do strony głównej
           </Link>
-          <h2 className='text-3xl md:text-4xl luxury-heading'>Firany</h2>
-          <div className='w-[100px]'></div> {/* Pusty element dla wyrównania */}
+
+          <div className='flex-1'></div>
         </div>
 
         <div>
