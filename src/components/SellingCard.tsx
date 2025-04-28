@@ -92,14 +92,14 @@ export default function SellingCard({
         </div>
       )} */}
 
-      <div className='relative w-full h-48 md:h-64 rounded-t-lg overflow-hidden'>
+      <div className='relative w-full h-40 sm:h-48 md:h-56 lg:h-64 rounded-t-lg overflow-hidden'>
         {card.image && !imageError ? (
           <Image
             src={getProperImagePath(card.image)}
             alt={card.title || 'Product image'}
             fill
             className='object-cover'
-            sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+            sizes='(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw'
             priority
             onError={handleImageError}
           />
@@ -110,17 +110,17 @@ export default function SellingCard({
         )}
       </div>
 
-      <div className='p-6 flex flex-col flex-grow'>
-        <h3 className='text-xl font-semibold text-gray-800 mb-3'>
+      <div className='p-4 sm:p-6 flex flex-col flex-grow'>
+        <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 sm:mb-3'>
           {card.title}
         </h3>
-        <p className='text-gray-600 text-sm mb-4 flex-grow'>
+        <p className='text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 flex-grow'>
           {card.description}
         </p>
 
         {showPrice && card.price !== undefined && (
-          <div className='flex items-baseline mt-2 mb-4'>
-            <span className='text-xl text-gray-900 font-bold'>
+          <div className='flex items-baseline mt-1 sm:mt-2 mb-3 sm:mb-4'>
+            <span className='text-lg sm:text-xl text-gray-900 font-bold'>
               {card.price.toFixed(2)} zł
             </span>
             {/* {card.oldPrice && (
@@ -139,7 +139,7 @@ export default function SellingCard({
 
         {card.buttonText && (
           <button
-            className={`mt-auto w-full py-2 px-4 rounded-md transition-colors ${getButtonClass()}`}
+            className={`mt-auto w-full py-1.5 sm:py-2 px-3 sm:px-4 rounded-md transition-colors ${getButtonClass()}`}
             onClick={(e) => {
               e.stopPropagation();
               if (card.buttonLink) {

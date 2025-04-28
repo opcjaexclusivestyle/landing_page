@@ -376,24 +376,24 @@ export default function RecommendedProducts({
     return (
       <section
         ref={sectionRef}
-        className={`py-16 md:py-24 relative ${getBgClass()} ${className}`}
+        className={`py-12 md:py-16 lg:py-24 relative ${getBgClass()} ${className}`}
       >
         {/* Decorative element */}
         <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
 
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='text-center max-w-3xl mx-auto mb-12 md:mb-16'>
-            <h2 className='section-heading text-3xl md:text-4xl text-black mb-4 tracking-wider luxury-heading'>
+          <div className='text-center max-w-3xl mx-auto mb-8 md:mb-12 lg:mb-16'>
+            <h2 className='section-heading text-2xl sm:text-3xl md:text-4xl text-black mb-3 md:mb-4 tracking-wider luxury-heading'>
               {title}
             </h2>
             {subtitle && (
-              <p className='section-heading text-gray-600 text-lg'>
+              <p className='section-heading text-gray-600 text-base md:text-lg'>
                 {subtitle}
               </p>
             )}
           </div>
 
-          <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3'>
             {/* Product cards - safely iterate with array check */}
             {Array.isArray(productCards) && productCards.length > 0 ? (
               productCards.map((card) => (
@@ -411,16 +411,18 @@ export default function RecommendedProducts({
 
             {/* "See More" card */}
             <div className='h-full'>
-              <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
+              <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
                 <Link
                   href={getCategoryMoreLink()}
                   className='flex flex-col items-center justify-center w-full h-full'
                 >
-                  <span className='text-4xl text-primary mb-4'>→</span>
-                  <h3 className='text-xl font-semibold text-gray-800 mb-3'>
+                  <span className='text-3xl sm:text-4xl text-primary mb-3 md:mb-4'>
+                    →
+                  </span>
+                  <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 md:mb-3'>
                     Chcesz zobaczyć więcej produktów?
                   </h3>
-                  <p className='text-gray-600 text-sm'>
+                  <p className='text-gray-600 text-xs sm:text-sm'>
                     Naciśnij tutaj aby przejść do pełnej oferty
                   </p>
                 </Link>
@@ -439,23 +441,28 @@ export default function RecommendedProducts({
   return (
     <section
       ref={sectionRef}
-      className={`py-16 md:py-24 relative ${getBgClass()} ${className}`}
+      className={`py-12 md:py-16 lg:py-24 relative ${getBgClass()} ${className}`}
     >
       {/* Decorative element */}
       <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
 
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='text-center max-w-3xl mx-auto mb-12 md:mb-16'>
-          <h2 className='section-heading text-3xl md:text-4xl text-black mb-4 tracking-wider luxury-heading'>
+        <div className='text-center max-w-3xl mx-auto mb-8 md:mb-12 lg:mb-16'>
+          <h2 className='section-heading text-2xl sm:text-3xl md:text-4xl text-black mb-3 md:mb-4 tracking-wider luxury-heading'>
             {title}
           </h2>
           {subtitle && (
-            <p className='section-heading text-gray-600 text-lg'>{subtitle}</p>
+            <p className='section-heading text-gray-600 text-base md:text-lg'>
+              {subtitle}
+            </p>
           )}
         </div>
 
         {/* Carousel container */}
-        <div className='relative px-6 md:px-10' ref={carouselContainerRef}>
+        <div
+          className='relative px-4 sm:px-6 md:px-10'
+          ref={carouselContainerRef}
+        >
           {/* Navigation buttons */}
           <button
             onClick={scrollLeft}
@@ -487,7 +494,7 @@ export default function RecommendedProducts({
           <div className='overflow-hidden'>
             <div
               ref={carouselRef}
-              className='flex gap-5 touch-pan-x select-none'
+              className='flex gap-3 sm:gap-4 md:gap-5 touch-pan-x select-none'
               style={carouselStyle}
               onTouchStart={touchStart}
               onTouchMove={touchMove}

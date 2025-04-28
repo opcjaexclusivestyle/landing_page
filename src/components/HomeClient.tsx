@@ -237,7 +237,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
   };
 
   return (
-    <main className='flex flex-col min-h-screen'>
+    <main className='flex flex-col min-h-screen overflow-x-hidden'>
       {/* Header */}
 
       {/* Hero Section */}
@@ -254,7 +254,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         title='Nasza Pościel'
         subtitle='Komfort i elegancja dla Twojej sypialni'
         products={beddingProducts}
-        background='gray'
+        background='white'
         buttonText='ZAMÓW, SPRAWDŹ'
         className='mt-8'
         moreProductsLink='/posciel-premium'
@@ -266,7 +266,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         subtitle='Najlepsze firany w wyjątkowych cenach'
         products={curtainProducts}
         buttonText='ZAMÓW, SPRAWDŹ'
-        background='light'
+        background='gray'
         moreProductsLink='/firany-premium'
       />
 
