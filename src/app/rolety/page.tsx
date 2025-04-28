@@ -53,7 +53,7 @@ const Rolety = () => {
     <div className='min-h-screen bg-gray-50'>
       {/* Nagłówek */}
       <SimpleHeader
-        title='Rolety i Zasłony'
+        title='Zasłonex'
         description='Wybierz idealne rozwiązanie dla Twojego domu'
         videoSrc='/video/blinds.mp4'
       />
