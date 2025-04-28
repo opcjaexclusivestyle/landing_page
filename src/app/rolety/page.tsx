@@ -245,10 +245,7 @@ const Rolety = () => {
               </div>
 
               <div className='mt-8'>
-                <button
-                  type='submit'
-                  className='w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-sm transition duration-300'
-                >
+                <button type='submit' className='premium-button'>
                   Wysyłam zapytanie
                 </button>
               </div>

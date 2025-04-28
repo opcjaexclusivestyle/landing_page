@@ -77,41 +77,41 @@ export default function SectionPanel({
   const topBottomBorder = index < 2 ? 'border-b' : 'border-t';
 
   return (
-    <section
-      ref={panelRef}
-      className={`panel-section relative min-h-[50vh] overflow-hidden ${topBottomBorder} ${borderClasses}`}
-    >
-      <div className='panel-image absolute inset-0 w-full h-full z-0'>
-        <Image
-          src={section.image}
-          alt={section.title}
-          fill
-          priority
-          quality={100}
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center',
-            transformOrigin: 'center center',
-          }}
-          className='w-full h-full'
-        />
-        <div
-          className={`absolute inset-0 bg-gradient-${section.gradientDirection} from-black/70 via-black/30 to-black/70`}
-        />
-      </div>
+    <Link href={section.link} className='block'>
+      <section
+        ref={panelRef}
+        className={`panel-section relative min-h-[50vh] overflow-hidden ${topBottomBorder} ${borderClasses} cursor-pointer`}
+      >
+        <div className='panel-image absolute inset-0 w-full h-full z-0'>
+          <Image
+            src={section.image}
+            alt={section.title}
+            fill
+            priority
+            quality={100}
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center',
+              transformOrigin: 'center center',
+            }}
+            className='w-full h-full'
+          />
+          <div
+            className={`absolute inset-0 bg-gradient-${section.gradientDirection} from-black/70 via-black/30 to-black/70`}
+          />
+        </div>
 
-      <div className='relative z-10 text-center p-6 md:p-10 flex flex-col items-center justify-center h-full'>
-        <h2 className='text-3xl md:text-5xl lg:text-6xl mb-4 font-light tracking-widest text-gray-800 luxury-heading drop-shadow-lg bg-white/50 px-6 py-3 rounded-lg inline-block'>
-          {section.title}
-        </h2>
-        <p className='text-base md:text-lg lg:text-xl mb-6 md:mb-10 text-white font-light tracking-wide leading-relaxed drop-shadow-md max-w-md mx-auto'>
-          {section.description}
-        </p>
+        <div className='relative z-10 text-center p-6 md:p-10 flex flex-col items-center justify-center h-full'>
+          <h2 className='text-3xl md:text-5xl lg:text-6xl mb-4 font-light tracking-widest text-gray-800 luxury-heading drop-shadow-lg bg-white/50 px-6 py-3 rounded-lg inline-block'>
+            {section.title}
+          </h2>
+          <p className='text-base md:text-lg lg:text-xl mb-6 md:mb-10 text-white font-light tracking-wide leading-relaxed drop-shadow-md max-w-md mx-auto'>
+            {section.description}
+          </p>
 
-        <Link href={section.link} className='premium-button'>
-          {section.buttonText}
-        </Link>
-      </div>
-    </section>
+          <span className='premium-button'>{section.buttonText}</span>
+        </div>
+      </section>
+    </Link>
   );
 }
