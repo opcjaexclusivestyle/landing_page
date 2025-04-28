@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SellingCard, { Card } from './SellingCard';
@@ -52,21 +52,32 @@ export default function RecommendedProducts({
   const [currentTranslate, setCurrentTranslate] = useState(0);
   const [prevTranslate, setPrevTranslate] = useState(0);
 
-  // Calculate number of visible cards based on width
-  const getVisibleCards = () => {
-    if (!carouselContainerRef.current) return 1;
-    const containerWidth = carouselContainerRef.current.clientWidth;
-    if (containerWidth < 640) return 1;
-    if (containerWidth < 1024) return 2;
-    return 3;
-  };
+  // Ensure products is always an array
+  const safeProducts = Array.isArray(products) ? products : [];
 
-  // Calculate max scroll position based on visible cards
-  const calculateMaxPosition = () => {
-    const totalItems = safeProducts.length + 1; // +1 for "See More" card
-    const visibleCards = getVisibleCards();
-    return Math.max(0, totalItems - visibleCards);
-  };
+  // Usuwam logikę wykrywania rozmiaru ekranu i zastępuję ją nowym podejściem
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+
+  // Efekt wykrywający rozmiar ekranu (tylko do kalkulacji szerokości)
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 640);
+      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
+    };
+
+    // Sprawdź rozmiar podczas pierwszego renderowania
+    if (typeof window !== 'undefined') {
+      checkScreenSize();
+    }
+
+    // Nasłuchuj zmian rozmiaru ekranu
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  // Determine if we use carousel (>= 2 products)
+  const hasEnoughForCarousel = safeProducts.length >= 2;
 
   // Set background classes based on the selected option
   const getBgClass = () => {
@@ -80,21 +91,12 @@ export default function RecommendedProducts({
     }
   };
 
-  // Ensure products is always an array
-  const safeProducts = Array.isArray(products) ? products : [];
-
-  // Determine if we have enough products for a carousel
-  const hasEnoughForCarousel = safeProducts.length >= 3;
-
   // Get category-specific link for "See More" card
   const getCategoryMoreLink = () => {
     if (safeProducts.length === 0) return moreProductsLink;
-
-    // Jeśli moreProductsLink jest już ustawiony, używamy go zamiast domyślnych wartości
     if (moreProductsLink && moreProductsLink !== '/produkty') {
       return moreProductsLink;
     }
-
     const firstProduct = safeProducts[0];
     if (firstProduct?.category === 'curtains') {
       return '/firany-premium';
@@ -109,20 +111,12 @@ export default function RecommendedProducts({
     if (!Array.isArray(productList) || productList.length === 0) {
       return []; // Always return an array
     }
-
     const cards: Card[] = [];
-
-    // Sprawdzamy, czy moreProductsLink wskazuje na zasłony zamiast firan
     const isZaslonyPage = moreProductsLink.includes('zaslony-premium');
-
     for (const product of productList) {
       if (!product) continue;
-
-      // Determine button URL based on product category and moreProductsLink
       let buttonLink = '';
-
       if (product.category === 'curtains') {
-        // Jeśli jesteśmy na stronie zasłon, kierujemy do zasłon, w przeciwnym razie do firan
         if (isZaslonyPage) {
           buttonLink = product.slug
             ? `/zaslony-premium/${encodeURIComponent(product.slug)}`
@@ -137,19 +131,15 @@ export default function RecommendedProducts({
           ? `/${product.slug}`
           : `/posciel-premium/${product.id}`;
       }
-
       const discount =
         product.currentPrice < product.regularPrice
           ? Math.round((1 - product.currentPrice / product.regularPrice) * 100)
           : undefined;
-
-      // Truncate description to max 150 characters
       const truncatedDescription = product.description
         ? product.description.length > 150
           ? product.description.substring(0, 147) + '...'
           : product.description
         : '';
-
       cards.push({
         id: product.id,
         title: product.name || '',
@@ -162,42 +152,65 @@ export default function RecommendedProducts({
         buttonLink,
       });
     }
-
     return cards;
   };
 
-  // Function to scroll the carousel by position
-  const scrollTo = (position: number) => {
-    if (position < 0) position = 0;
+  // Calculate number of visible cards based on width - wrapped in useCallback
+  const getVisibleCards = useCallback(() => {
+    if (!carouselContainerRef.current) return 1;
+    const containerWidth = carouselContainerRef.current.clientWidth;
+    if (containerWidth < 640) return 1;
+    if (containerWidth < 1024) return 2;
+    return 3; // Maksymalnie 3 karty na desktopie
+  }, []); // Pusta tablica zależności, bo nie zależy od stanu/propsów
 
-    const maxPosition = calculateMaxPosition();
-    if (position > maxPosition) position = maxPosition;
+  // Obliczamy maksymalną pozycję przewijania
+  const calculateMaxPosition = useCallback(() => {
+    const totalItems = safeProducts.length + 1; // +1 dla kafelka "Zobacz więcej"
+    const visibleCards = getVisibleCards();
+    if (cardWidth <= 0 || visibleCards <= 0) return 0;
+    return Math.max(0, totalItems - visibleCards);
+  }, [safeProducts.length, cardWidth, getVisibleCards]); // Zależność od getVisibleCards
 
-    setCurrentPosition(position);
-    setPrevTranslate(position * cardWidth);
-    setCurrentTranslate(position * cardWidth);
-
-    if (carouselRef.current && cardWidth > 0) {
-      carouselRef.current.style.transform = `translateX(-${
-        position * cardWidth
-      }px)`;
-    }
-  };
+  // Zaktualizowana i uproszczona funkcja przewijania
+  const scrollTo = useCallback(
+    (position: number) => {
+      const carousel = carouselRef.current;
+      if (!carousel || cardWidth <= 0) {
+        console.error(
+          '[scrollTo] Nie można przewinąć: brak elementu karuzeli lub szerokości karty.',
+          { hasCarousel: !!carousel, cardWidth },
+        );
+        return;
+      }
+      const maxPos = calculateMaxPosition();
+      const newPosition = Math.max(0, Math.min(position, maxPos));
+      console.log(
+        `[scrollTo] Próba przewinięcia do pozycji: ${position}, Wynikowa pozycja: ${newPosition}, Max: ${maxPos}`,
+      );
+      if (newPosition !== currentPosition) {
+        setCurrentPosition(newPosition);
+      }
+      const translateX = newPosition * cardWidth;
+      carousel.style.transition = 'transform 500ms ease-in-out';
+      carousel.style.transform = `translateX(-${translateX}px)`;
+      setPrevTranslate(translateX);
+      setCurrentTranslate(translateX);
+    },
+    [cardWidth, currentPosition, calculateMaxPosition], // calculateMaxPosition jest już useCallback
+  );
 
   // Scroll left
-  const scrollLeft = () => {
-    if (currentPosition > 0) {
-      scrollTo(currentPosition - 1);
-    }
-  };
+  const scrollLeft = useCallback(() => {
+    console.log('[scrollLeft] Kliknięto strzałkę w lewo.');
+    scrollTo(currentPosition - 1);
+  }, [currentPosition, scrollTo]);
 
   // Scroll right
-  const scrollRight = () => {
-    const maxPosition = calculateMaxPosition();
-    if (currentPosition < maxPosition) {
-      scrollTo(currentPosition + 1);
-    }
-  };
+  const scrollRight = useCallback(() => {
+    console.log('[scrollRight] Kliknięto strzałkę w prawo.');
+    scrollTo(currentPosition + 1);
+  }, [currentPosition, scrollTo]);
 
   // Funkcje obsługi przeciągania
   const touchStart = (e: React.TouchEvent | React.MouseEvent) => {
@@ -207,8 +220,6 @@ export default function RecommendedProducts({
     } else {
       setStartX(e.clientX);
     }
-
-    // Wyłączamy animację podczas rozpoczęcia przeciągania
     if (carouselRef.current) {
       carouselRef.current.style.transition = 'none';
     }
@@ -216,33 +227,24 @@ export default function RecommendedProducts({
 
   const touchMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging) return;
-
-    // Zapobiegaj domyślnemu zachowaniu przeglądarki przy przeciąganiu
     e.preventDefault();
-
     let currentX;
     if ('touches' in e) {
       currentX = e.touches[0].clientX;
     } else {
       currentX = e.clientX;
     }
-
     const diff = startX - currentX;
     const newTranslate = prevTranslate + diff;
-
-    // Ograniczamy przesuwanie poza granice, ale umożliwiamy elastyczne przekroczenie o 25% szerokości
-    const totalItems = safeProducts.length + 1; // +1 dla kafelka "pokaż więcej"
+    const totalItems = safeProducts.length + 1;
     const maxTranslate = (totalItems - 2) * cardWidth;
     const elasticLimit = cardWidth * 0.25;
-
     if (
       newTranslate < -elasticLimit ||
       newTranslate > maxTranslate + elasticLimit
     )
       return;
-
     setCurrentTranslate(newTranslate);
-
     if (carouselRef.current) {
       carouselRef.current.style.transform = `translateX(-${newTranslate}px)`;
     }
@@ -251,60 +253,27 @@ export default function RecommendedProducts({
   const touchEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
-
-    // Przywracamy animację po zakończeniu przeciągania
     if (carouselRef.current) {
       carouselRef.current.style.transition = 'transform 500ms ease-in-out';
     }
-
     const movedBy = currentTranslate - prevTranslate;
     const maxPosition = calculateMaxPosition();
-
-    // Jeśli przesunięto o więcej niż 100px lub 1/3 szerokości karty, przechodzimy do następnej/poprzedniej pozycji
     if (Math.abs(movedBy) > Math.max(50, cardWidth / 4)) {
       if (movedBy > 0) {
-        // Przesunięto w prawo (palcem w lewo)
-        if (currentPosition < maxPosition) {
-          scrollTo(currentPosition + 1);
-        } else {
-          scrollTo(maxPosition); // Powrót do maksymalnej pozycji
-        }
+        scrollTo(Math.min(currentPosition + 1, maxPosition));
       } else {
-        // Przesunięto w lewo (palcem w prawo)
-        if (currentPosition > 0) {
-          scrollTo(currentPosition - 1);
-        } else {
-          scrollTo(0); // Powrót do pierwszej pozycji
-        }
+        scrollTo(Math.max(currentPosition - 1, 0));
       }
     } else {
-      // Powrót do bieżącej pozycji (zaokrąglonej do najbliższej karty)
       const closestPosition = Math.round(currentTranslate / cardWidth);
       scrollTo(Math.max(0, Math.min(maxPosition, closestPosition)));
     }
-
-    // Reset prevTranslate after animation settles
-    setTimeout(() => {
-      if (carouselRef.current) {
-        const finalPosition = Math.max(
-          0,
-          Math.min(maxPosition, Math.round(currentTranslate / cardWidth)),
-        );
-        setPrevTranslate(finalPosition * cardWidth);
-      }
-    }, 500); // Match transition duration
-
-    // Nie ustawiamy prevTranslate natychmiastowo tutaj, robimy to w setTimeout
-    // setPrevTranslate(currentPosition * cardWidth); // Usunięte
   };
 
-  // Effect to initialize GSAP animations and calculate card width
+  // Effect to initialize GSAP animations
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Register GSAP ScrollTrigger
       gsap.registerPlugin(ScrollTrigger);
-
-      // Animate section headings
       const headingElements =
         sectionRef.current?.querySelectorAll('.section-heading');
       if (headingElements && headingElements.length > 0) {
@@ -329,50 +298,104 @@ export default function RecommendedProducts({
 
   // Effect to calculate card width and handle window resize
   useEffect(() => {
-    // Calculate width of each card based on container
     const calculateCardWidth = () => {
-      if (!carouselContainerRef.current) return;
-
+      if (!carouselContainerRef.current) {
+        console.warn(
+          '[calculateCardWidth] Kontener karuzeli jeszcze nie istnieje.',
+        );
+        return 0;
+      }
       const containerWidth = carouselContainerRef.current.clientWidth;
-      const gapSize = 20; // Gap size (gap-5 = 1.25rem = 20px)
+      if (containerWidth <= 0) {
+        console.warn('[calculateCardWidth] Szerokość kontenera to 0.');
+        return 0;
+      }
+      const gapSize = 20;
+      const visibleCards = getVisibleCards();
+      const paddingSize = 40;
       let newCardWidth = 0;
-      const visibleCards = getVisibleCards(); // Używamy getVisibleCards
-
-      // Calculate card width based on visible cards
       if (visibleCards === 1) {
-        newCardWidth = containerWidth - 40; // Full width minus padding
+        newCardWidth = containerWidth - paddingSize;
       } else {
         newCardWidth =
-          (containerWidth - gapSize * (visibleCards - 1) - 40) / visibleCards;
+          (containerWidth - gapSize * (visibleCards - 1) - paddingSize) /
+          visibleCards;
       }
-
-      setCardWidth(newCardWidth);
+      console.log(
+        `[calculateCardWidth] Obliczono szerokość karty: ${newCardWidth}px (kontener: ${containerWidth}px, widoczne karty: ${visibleCards})`,
+      );
+      if (newCardWidth > 0 && newCardWidth !== cardWidth) {
+        setCardWidth(newCardWidth);
+        return newCardWidth;
+      }
+      return cardWidth;
     };
 
-    // Initialize and handle window resize
-    calculateCardWidth();
+    const initialWidth = calculateCardWidth();
+
+    if (initialWidth > 0 && carouselRef.current) {
+      const maxPos = calculateMaxPosition();
+      const safePosition = Math.min(currentPosition, maxPos);
+      const translateX = safePosition * initialWidth;
+      console.log(
+        `[useEffect Width] Inicjalizacja/Aktualizacja szerokości: ${initialWidth}px, pozycja: ${safePosition}, translateX: ${translateX}px`,
+      );
+      if (safePosition !== currentPosition) {
+        setCurrentPosition(safePosition);
+      }
+      carouselRef.current.style.transition = 'none';
+      carouselRef.current.style.transform = `translateX(-${translateX}px)`;
+      setPrevTranslate(translateX);
+      setCurrentTranslate(translateX);
+    }
 
     const handleResize = () => {
-      calculateCardWidth();
-      scrollTo(currentPosition); // Realign carousel after resize
+      console.log('[handleResize] Zmiana rozmiaru okna.');
+      const newWidth = calculateCardWidth();
+      if (newWidth > 0 && carouselRef.current) {
+        const maxPos = calculateMaxPosition();
+        const safePosition = Math.min(currentPosition, maxPos);
+        const translateX = safePosition * newWidth;
+        console.log(
+          `[handleResize] Nowa szerokość: ${newWidth}px, pozycja: ${safePosition}, translateX: ${translateX}px`,
+        );
+        if (safePosition !== currentPosition) {
+          setCurrentPosition(safePosition);
+        }
+        carouselRef.current.style.transition = 'none';
+        carouselRef.current.style.transform = `translateX(-${translateX}px)`;
+        setPrevTranslate(translateX);
+        setCurrentTranslate(translateX);
+      }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [currentPosition]);
+  }, [
+    safeProducts.length,
+    getVisibleCards,
+    calculateMaxPosition,
+    cardWidth,
+    currentPosition,
+  ]); // Dodano cardWidth i currentPosition do zależności
 
   // Dodajemy obiekt stylów dla karuzeli, uwzględniając tryb przeciągania
   const carouselStyle = {
-    transform: `translateX(-${currentPosition * cardWidth}px)`,
+    transform: `translateX(-${currentTranslate}px)`,
     cursor: isDragging ? 'grabbing' : 'grab',
     transition: isDragging ? 'none' : 'transform 500ms ease-in-out',
-    userSelect: 'none' as 'none', // Zapobiega zaznaczaniu tekstu podczas przeciągania
+    userSelect: 'none' as 'none',
   };
 
-  // For fewer than 3 products, show grid view
-  if (!hasEnoughForCarousel) {
-    const productCards = convertToCards(safeProducts);
+  // Obliczamy maxPosition i konwertujemy karty PRZED warunkiem
+  const maxPosition = useMemo(calculateMaxPosition, [calculateMaxPosition]);
+  const productCards = useMemo(
+    () => convertToCards(safeProducts),
+    [safeProducts, buttonText, moreProductsLink],
+  );
 
+  // Grid view (jeśli mniej niż 2 produkty)
+  if (!hasEnoughForCarousel) {
     return (
       <section
         ref={sectionRef}
@@ -380,7 +403,6 @@ export default function RecommendedProducts({
       >
         {/* Decorative element */}
         <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
-
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='text-center max-w-3xl mx-auto mb-8 md:mb-12 lg:mb-16'>
             <h2 className='section-heading text-2xl sm:text-3xl md:text-4xl text-black mb-3 md:mb-4 tracking-wider luxury-heading'>
@@ -392,9 +414,8 @@ export default function RecommendedProducts({
               </p>
             )}
           </div>
-
           <div className='grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3'>
-            {/* Product cards - safely iterate with array check */}
+            {/* Product cards */}
             {Array.isArray(productCards) && productCards.length > 0 ? (
               productCards.map((card) => (
                 <div key={card.id} className='h-full'>
@@ -408,7 +429,6 @@ export default function RecommendedProducts({
             ) : (
               <div>No products available</div>
             )}
-
             {/* "See More" card */}
             <div className='h-full'>
               <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
@@ -434,10 +454,7 @@ export default function RecommendedProducts({
     );
   }
 
-  // For 3 or more products, show carousel
-  const productCards = convertToCards(safeProducts);
-  const maxPosition = calculateMaxPosition(); // Calculate max position here
-
+  // Carousel view (jeśli 2 lub więcej produktów)
   return (
     <section
       ref={sectionRef}
@@ -445,7 +462,6 @@ export default function RecommendedProducts({
     >
       {/* Decorative element */}
       <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent'></div>
-
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='text-center max-w-3xl mx-auto mb-8 md:mb-12 lg:mb-16'>
           <h2 className='section-heading text-2xl sm:text-3xl md:text-4xl text-black mb-3 md:mb-4 tracking-wider luxury-heading'>
@@ -457,39 +473,38 @@ export default function RecommendedProducts({
             </p>
           )}
         </div>
-
         {/* Carousel container */}
         <div
           className='relative px-4 sm:px-6 md:px-10'
           ref={carouselContainerRef}
         >
-          {/* Navigation buttons */}
+          {/* Przyciski nawigacyjne z atrybutem disabled */}
           <button
-            onClick={scrollLeft}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer border border-gray-200 ${
+            type='button'
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer border border-gray-200 transition-opacity duration-300 ${
               currentPosition <= 0
-                ? 'opacity-0 pointer-events-none'
+                ? 'opacity-50 cursor-not-allowed'
                 : 'opacity-100'
-            } transition-opacity duration-300`}
+            }`}
             aria-label='Poprzedni'
+            onClick={scrollLeft}
             disabled={currentPosition <= 0}
           >
             <span className='border-gray-800 border-r-2 border-b-2 w-2 h-2 transform rotate-135 mr-0.5'></span>
           </button>
-
           <button
-            onClick={scrollRight}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer border border-gray-200 ${
-              currentPosition >= maxPosition // Use calculated maxPosition
-                ? 'opacity-0 pointer-events-none'
+            type='button'
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer border border-gray-200 transition-opacity duration-300 ${
+              currentPosition >= maxPosition
+                ? 'opacity-50 cursor-not-allowed'
                 : 'opacity-100'
-            } transition-opacity duration-300`}
+            }`}
             aria-label='Następny'
-            disabled={currentPosition >= maxPosition} // Use calculated maxPosition
+            onClick={scrollRight}
+            disabled={currentPosition >= maxPosition}
           >
             <span className='border-gray-800 border-r-2 border-b-2 w-2 h-2 transform -rotate-45 ml-0.5'></span>
           </button>
-
           {/* Carousel with products */}
           <div className='overflow-hidden'>
             <div
@@ -500,11 +515,9 @@ export default function RecommendedProducts({
               onTouchMove={touchMove}
               onTouchEnd={touchEnd}
               onMouseDown={(e) => {
-                // Rozpoczynaj przeciąganie tylko dla lewego przycisku myszy
                 if (e.button === 0) touchStart(e);
               }}
               onMouseMove={(e) => {
-                // Zapobiegaj domyślnemu zaznaczaniu tekstu podczas przeciągania
                 if (isDragging) {
                   e.preventDefault();
                   touchMove(e);
@@ -513,14 +526,14 @@ export default function RecommendedProducts({
               onMouseUp={touchEnd}
               onMouseLeave={touchEnd}
             >
-              {/* Product cards - safely iterate with array check */}
+              {/* Product cards */}
               {Array.isArray(productCards) && productCards.length > 0
                 ? productCards.map((card) => (
                     <div
                       key={card.id}
                       className='flex-shrink-0'
                       style={{
-                        width: cardWidth ? `${cardWidth}px` : 'auto', // Używamy auto jeśli cardWidth nie jest jeszcze ustawiony
+                        width: cardWidth ? `${cardWidth}px` : 'auto',
                       }}
                     >
                       <SellingCard
@@ -531,12 +544,11 @@ export default function RecommendedProducts({
                     </div>
                   ))
                 : null}
-
-              {/* "See More" card (always at the end) */}
+              {/* "See More" card */}
               <div
                 className='flex-shrink-0'
                 style={{
-                  width: cardWidth ? `${cardWidth}px` : 'auto', // Używamy auto jeśli cardWidth nie jest jeszcze ustawiony
+                  width: cardWidth ? `${cardWidth}px` : 'auto',
                 }}
               >
                 <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
@@ -557,7 +569,6 @@ export default function RecommendedProducts({
             </div>
           </div>
         </div>
-
         {/* Position indicators */}
         {safeProducts.length > 3 && (
           <div className='flex justify-center mt-6 space-x-2'>
@@ -566,19 +577,16 @@ export default function RecommendedProducts({
                 safeProducts.length + 1 - getVisibleCards() + 1,
                 5,
               ),
-            }).map(
-              // Poprawka długości dla wskaźników
-              (_, index) => (
-                <button
-                  key={index}
-                  onClick={() => scrollTo(index)}
-                  className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-colors duration-300 ${
-                    currentPosition === index ? 'bg-primary' : 'bg-gray-300'
-                  }`}
-                  aria-label={`Przejdź do pozycji ${index + 1}`}
-                />
-              ),
-            )}
+            }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollTo(index)}
+                className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full transition-colors duration-300 ${
+                  currentPosition === index ? 'bg-primary' : 'bg-gray-300'
+                }`}
+                aria-label={`Przejdź do pozycji ${index + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>
