@@ -293,6 +293,8 @@ export default function Navbar() {
               <DesktopNavLink href='/firany' label='Firany' />
               <DesktopNavLink href='/posciel-premium' label='Pościel' />
               <DesktopNavLink href='/rolety' label='Rolety' />
+              <DesktopNavLink href='/realizacje' label='Realizacje' />
+              <DesktopNavLink href='/blog' label='Blog' />
               <DesktopNavLink href='/kontakt' label='Kontakt' />
 
               <div className='flex items-center pl-2 space-x-3'>
@@ -380,6 +382,8 @@ export default function Navbar() {
             <MobileNavLink href='/firany' label='Firany' />
             <MobileNavLink href='/posciel-premium' label='Pościel' />
             <MobileNavLink href='/rolety' label='Rolety' />
+            <MobileNavLink href='/realizacje' label='Realizacje' />
+            <MobileNavLink href='/blog' label='Blog' />
             <MobileNavLink href='/kontakt' label='Kontakt' />
           </div>
         </div>

@@ -122,6 +122,7 @@ export default function OrderForm({
   const [cartAnimation, setCartAnimation] = useState(false);
   const [showFlyingPackage, setShowFlyingPackage] = useState(false);
   const [isPackageAnimating, setIsPackageAnimating] = useState(false);
+  const [imgErrors, setImgErrors] = useState<{ [key: number]: boolean }>({});
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -612,36 +613,45 @@ export default function OrderForm({
                       {selectedProduct.images.length > 1 && (
                         <div className='product-thumbnails'>
                           <div className='flex gap-2 overflow-x-auto pb-2'>
-                            {selectedProduct.images.map((img, index) => (
-                              <div
-                                key={index}
-                                className={`
-                              cursor-pointer border-2 rounded overflow-hidden w-20 h-20 relative flex-shrink-0
-                              ${
-                                formData.selectedImageIndex === index
-                                  ? 'border-royal-gold'
-                                  : 'border-gray-200'
-                              }
-                            `}
-                                onClick={() => handleThumbnailClick(index)}
-                              >
-                                <Image
-                                  src={`${selectedProduct.imagePath}/${img}`}
-                                  alt={
-                                    selectedProduct.alt_texts &&
-                                    selectedProduct.alt_texts[index]
-                                      ? selectedProduct.alt_texts[index]
-                                      : `${selectedProduct.name} - miniatura ${
-                                          index + 1
-                                        }`
-                                  }
-                                  fill
-                                  sizes='80px'
-                                  className='object-cover'
-                                  quality={60}
-                                />
-                              </div>
-                            ))}
+                            {selectedProduct.images.map(
+                              (img, index) =>
+                                !imgErrors[index] && (
+                                  <div
+                                    key={index}
+                                    className={`
+                                    cursor-pointer border-2 rounded overflow-hidden w-20 h-20 relative flex-shrink-0
+                                    ${
+                                      formData.selectedImageIndex === index
+                                        ? 'border-royal-gold'
+                                        : 'border-gray-200'
+                                    }
+                                  `}
+                                    onClick={() => handleThumbnailClick(index)}
+                                  >
+                                    <Image
+                                      src={`${selectedProduct.imagePath}/${img}`}
+                                      alt={
+                                        selectedProduct.alt_texts &&
+                                        selectedProduct.alt_texts[index]
+                                          ? selectedProduct.alt_texts[index]
+                                          : `${
+                                              selectedProduct.name
+                                            } - miniatura ${index + 1}`
+                                      }
+                                      fill
+                                      sizes='80px'
+                                      className='object-cover'
+                                      quality={60}
+                                      onError={() => {
+                                        setImgErrors((prev) => ({
+                                          ...prev,
+                                          [index]: true,
+                                        }));
+                                      }}
+                                    />
+                                  </div>
+                                ),
+                            )}
                           </div>
                         </div>
                       )}
