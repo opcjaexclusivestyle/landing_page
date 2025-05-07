@@ -269,8 +269,6 @@ export default function OrderForm({
     return Math.round(kosztMaterialu * 100) / 100;
   };
 
-  // Usunięta funkcja checkTapeSelection
-
   // Pełna kalkulacja ceny (materiał + szycie) na parę zasłon/firek
   const calculatePrice = () => {
     const rodWidth = parseFloat(formData.rodWidth) || 0;
@@ -279,7 +277,8 @@ export default function OrderForm({
       (tape) => tape.id === formData.tapeType,
     );
 
-    // Nie modyfikujemy stanu w funkcji wywoływanej podczas renderowania
+    // Nie ustawiamy stanu bezpośrednio w tej funkcji, aby uniknąć re-renderów
+    // Sprawdzamy tylko czy taśma jest wybrana
     if (
       !selectedTape ||
       !selectedTape.ratio ||
@@ -328,21 +327,15 @@ export default function OrderForm({
   ) => {
     const { name, value } = e.target;
 
-    // Sprawdź czy użytkownik wpisuje wymiary bez wybranej taśmy
-    if ((name === 'rodWidth' || name === 'height') && value !== '' && !formData.tapeType) {
-      setTapeError('Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji');
-    }
-
     if (name === 'tapeType') {
       if (value === '') {
-        // Jeśli użytkownik ma już wpisane wymiary, pokaż błąd
-        if (formData.rodWidth || formData.height) {
-          setTapeError('Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji');
-        }
+        setTapeError(
+          'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+        );
         setShowTapeImage(false); // Ukryj obraz taśmy przy pustym wyborze
         setSelectedTapeImage('');
       } else {
-        setTapeError(null); // Jeśli wybrano taśmę, usuń komunikat o błędzie
+        setTapeError(null);
         const selected = TAPE_TYPES.find((tape) => tape.id === value);
         if (selected?.imagePath) {
           setSelectedTapeImage(selected.imagePath);
@@ -386,17 +379,23 @@ export default function OrderForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Sprawdź czy taśma została wybrana
-    if (formData.tapeType === '') {
+    setError(null);
+    
+    // Sprawdź czy taśma jest wybrana
+    const selectedTape = TAPE_TYPES.find(
+      (tape) => tape.id === formData.tapeType
+    );
+    
+    if (!selectedTape || !selectedTape.ratio) {
       setTapeError('Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji');
-      setIsPackageAnimating(false);
-      return;
+      return; // Przerwij wykonanie funkcji jeśli taśma nie jest wybrana
     }
     
-    // Najpierw ustaw animację bez stanu ładowania
+    // Jeśli taśma jest wybrana, usuń błąd i kontynuuj
+    setTapeError(null);
+    
+    // Ustaw animację pakowania
     setIsPackageAnimating(true);
-    setError(null);
 
     try {
       // Po 1.5 sekundy dodaj do koszyka i zakończ cały proces
@@ -547,8 +546,6 @@ export default function OrderForm({
       selectedProduct: productName,
     }));
   };
-
-  // Usunięto useEffect, który pokazywał błąd wyboru taśmy przy wprowadzaniu wymiarów
 
   return (
     <>
@@ -1015,8 +1012,13 @@ export default function OrderForm({
                             value={formData.rodWidth}
                             onChange={handleChange}
                             min='1'
-                            className="form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90"
+                            className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                              !formData.tapeType
+                                ? 'bg-gray-100 cursor-not-allowed'
+                                : ''
+                            }`}
                             required
+                            disabled={!formData.tapeType}
                           />
                         </div>
                         <div className='w-1/2'>
@@ -1029,8 +1031,13 @@ export default function OrderForm({
                             value={formData.height}
                             onChange={handleChange}
                             min='1'
-                            className="form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90"
+                            className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
+                              !formData.tapeType
+                                ? 'bg-gray-100 cursor-not-allowed'
+                                : ''
+                            }`}
                             required
+                            disabled={!formData.tapeType}
                           />
                         </div>
                       </div>
@@ -1160,11 +1167,12 @@ export default function OrderForm({
                             }
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
-                            {formatPrice(calculatePrice() * formData.quantity)}{' '}
-                            zł
+                            {formData.tapeType && TAPE_TYPES.find(tape => tape.id === formData.tapeType)?.ratio 
+                              ? `${formatPrice(calculatePrice() * formData.quantity)} zł`
+                              : '- zł'
                           </span>
                         </div>
-                        {calculatePrice() * formData.quantity > 399 && (
+                        {formData.tapeType && TAPE_TYPES.find(tape => tape.id === formData.tapeType)?.ratio && calculatePrice() * formData.quantity > 399 && (
                           <div className='mt-2 text-green-600 font-medium'>
                             Darmowa dostawa
                           </div>
