@@ -388,7 +388,7 @@ export default function OrderForm({
       setTimeout(() => {
         try {
           // Dodaj produkt do koszyka
-          // calculatePrice() zwraca cenę za PARĘ. Mnożymy przez quantity (ilość par).
+          // calculatePrice() zwraca cenę za PARĘ lub sztukę (dla firan). Mnożymy przez quantity.
           const pricePerPair = calculatePrice();
           const totalPrice = pricePerPair * formData.quantity;
 
@@ -1036,14 +1036,14 @@ export default function OrderForm({
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
-                          <span className='text-gray-600'>Ilość par:</span>
+                          <span className='text-gray-600'>{productType === 'firany' ? 'Sztuk:' : 'Ilość par:'}</span>
                           <span className='font-medium'>
                             {formData.quantity}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            Łączny koszt szycia (dla pary):
+                            {productType === 'firany' ? 'Koszt szycia:' : 'Łączny koszt szycia (dla pary):'}
                           </span>
                           <span className='font-medium'>
                             {formData.rodWidth &&
@@ -1083,8 +1083,10 @@ export default function OrderForm({
                       <div className='pt-4 border-t border-gray-200 mt-4'>
                         <div className='flex justify-between items-center mt-2'>
                           <span className='text-lg font-medium text-deep-navy'>
-                            Razem (za {formData.quantity}{' '}
-                            {formData.quantity > 1 ? 'pary' : 'parę'}):
+                            {productType === 'firany' 
+                              ? 'Razem:' 
+                              : `Razem (za ${formData.quantity} ${formData.quantity > 1 ? 'pary' : 'parę'}):`
+                            }
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
                             {formatPrice(calculatePrice() * formData.quantity)}{' '}
@@ -1106,7 +1108,7 @@ export default function OrderForm({
                   {/* 4. Ilość sztuk */}
                   <div className='mb-6'>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      Ilość par
+                      {productType === 'firany' ? 'Sztuk' : 'Ilość par'}
                     </label>
                     <input
                       type='number'
