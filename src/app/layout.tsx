@@ -9,7 +9,7 @@ import Script from 'next/script';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Rolety i Firany - Rodzinny Biznes',
+  title: 'Zasłonex- Rodzinny Biznes',
   description:
     'Specjalizujemy się w produkcji i montażu rolet, firan i zasłon. Działamy na rynku od ponad 20 lat, oferując wysokiej jakości produkty w przystępnych cenach.',
 };

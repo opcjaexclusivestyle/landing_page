@@ -188,37 +188,16 @@ const HeroSection = () => {
             {/* Box 4 */}
             <div
               ref={(el) => addToBoxesRef(el, 3)}
-              className='bg-gradient-to-br from-white-off to-white-off/90 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all h-60 sm:h-auto cursor-pointer group relative'
+              className='bg-gradient-to-br from-gray-300 to-white-pure rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all h-60 sm:h-auto cursor-pointer group relative'
             >
-              <div className='relative h-full w-full flex items-center justify-center p-6'>
-                <div className='absolute inset-0 overflow-hidden opacity-20'>
-                  <Image
-                    src='/images/hero/new-collection.jpg'
-                    alt='Nowa oferta'
-                    fill
-                    className='object-cover object-center'
-                  />
-                </div>
-                <div className='bg-white-pure/60 backdrop-blur-sm rounded-xl p-6 w-full h-full flex flex-col justify-between'>
-                  <div className='text-center flex flex-col items-center'>
-                    <span className='font-semibold text-xl text-black-800 block mb-2 group-hover:scale-105 transition-transform'>
-                      Nowa kolekcja!
-                    </span>
-                    <span className='text-black-700 mb-4'>
-                      Już wkrótce nowa oferta - zapisz się, aby otrzymać
-                      powiadomienie!
-                    </span>
-                  </div>
-                  <div className='flex justify-center mt-6'>
-                    <Image
-                      src='/images/hero/logoliniowe.png'
-                      alt='Logo zasłonex'
-                      width={80}
-                      height={80}
-                      className='object-contain'
-                    />
-                  </div>
-                </div>
+              <div className='relative h-full w-full flex items-center justify-center'>
+                {/* Logo as the main visual element without text */}
+                <Image
+                  src='/images/hero/logoliniowe.png'
+                  alt='Logo zasłonex'
+                  fill
+                  className='object-contain group-hover:scale-105 transition-transform duration-500 p-4'
+                />
               </div>
             </div>
           </div>
