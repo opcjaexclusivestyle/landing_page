@@ -8,7 +8,8 @@ import OrderForm from '@/components/OrderForm';
 import Certification from '../../components/Certification';
 import MeasuringGuide from '@/components/MeasuringGuide';
 import TestimonialsSection from '@/components/TestimonialsSection';
-import WorkProcess from '@/components/WorkProcess';
+// import WorkProcess from '@/components/WorkProcess';
+import WorkProcessArtistic from '@/components/WorkProcessArtistic';
 
 export default function Zaslony() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -114,7 +115,7 @@ export default function Zaslony() {
 
           {/* Sekcja Commercial & Residential */}
           {/* <CommercialResidentialSection /> */}
-          <WorkProcess />
+          <WorkProcessArtistic />
           {/* Sekcja Testimoniali */}
           <TestimonialsSection type='zaslony' />
 

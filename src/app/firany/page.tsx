@@ -8,7 +8,7 @@ import OrderForm from '../../components/OrderForm';
 import Certification from '../../components/Certification';
 import MeasuringGuide from '../../components/MeasuringGuide';
 import TestimonialsSection from '../../components/TestimonialsSection';
-import WorkProcess from '../../components/WorkProcess';
+import WorkProcessArtistic from '../../components/WorkProcessArtistic';
 import About from '../../components/About';
 import TypesSection from '../../components/TypesSection';
 import KeyFactorsSection from '../../components/KeyFactorsSection';
@@ -85,7 +85,7 @@ export default function Firany() {
 
           {/* Sekcja Commercial & Residential */}
           {/* <CommercialResidentialSection /> */}
-          <WorkProcess />
+          <WorkProcessArtistic />
           {/* Sekcja Testimoniali */}
 
           <TestimonialsSection type='firany' />

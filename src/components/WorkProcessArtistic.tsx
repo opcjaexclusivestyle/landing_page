@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ProcessStepCard, { ProcessStep } from './ProcessStepCard';
 
 const WorkProcessArtistic: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -13,7 +14,7 @@ const WorkProcessArtistic: React.FC = () => {
   const flowerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeStep, setActiveStep] = useState(0);
 
-  const processSteps = [
+  const processSteps: ProcessStep[] = [
     {
       icon: '✂️',
       title: 'Tkanina zostaje precyzyjnie przycięta',
@@ -63,6 +64,16 @@ const WorkProcessArtistic: React.FC = () => {
       accent: '#4E342E', // Najciemniejszy brąz
     },
   ];
+
+  // Funkcja do określenia liczby kafelków widocznych na różnych rozmiarach ekranu
+  const getVisibleTiles = () => {
+    if (typeof window === 'undefined') return 3; // Fallback dla SSR
+    if (window.innerWidth >= 1024) return 3; // Desktop
+    if (window.innerWidth >= 768) return 2; // Tablet
+    return 1; // Mobilka
+  };
+
+  const [visibleTiles, setVisibleTiles] = useState(getVisibleTiles());
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -196,32 +207,40 @@ const WorkProcessArtistic: React.FC = () => {
       });
     }
 
-    // Automatyczna zmiana aktywnego kroku co 3 sekundy
-    const interval = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % processSteps.length);
-    }, 5000);
+    // Dostosowanie liczby widocznych kafelków do rozmiaru ekranu
+    const handleResize = () => {
+      setVisibleTiles(getVisibleTiles());
+    };
 
-    return () => clearInterval(interval);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Funkcja zmieniająca aktywny krok
   const handleStepChange = (index: number) => {
-    if (stepsRef.current[index]) {
+    const maxStartIndex = Math.max(0, processSteps.length - visibleTiles);
+    if (index >= 0 && index <= maxStartIndex) {
       // Animacja podświetlenia wybranego kroku
-      gsap.to(stepsRef.current[index], {
-        scale: 1.05,
-        duration: 0.3,
-        yoyo: true,
-        repeat: 1,
-        ease: 'power2.inOut',
-      });
+      if (stepsRef.current[index]) {
+        gsap.to(stepsRef.current[index], {
+          scale: 1.05,
+          duration: 0.3,
+          yoyo: true,
+          repeat: 1,
+          ease: 'power2.inOut',
+        });
+      }
 
       setActiveStep(index);
     }
   };
 
   // Obliczenie szerokości paska postępu
-  const progressWidth = `${((activeStep + 1) / processSteps.length) * 100}%`;
+  const progressWidth = `${
+    (Math.min(activeStep + visibleTiles, processSteps.length) /
+      processSteps.length) *
+    100
+  }%`;
 
   return (
     <section
@@ -233,7 +252,11 @@ const WorkProcessArtistic: React.FC = () => {
         ref={backgroundRef}
         className='absolute inset-0 z-0'
         style={{
-          backgroundImage: 'url(/images/floral-pattern.jpg)',
+          // backgroundImage:
+          //   'url(/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_49aa16d2-bca9-49f0-892e-c45372365ece_3-removebg-preview.png)',
+
+          backgroundImage: 'url(/images/background-flower.jpg)',
+
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           mixBlendMode: 'overlay',
@@ -249,13 +272,13 @@ const WorkProcessArtistic: React.FC = () => {
           }}
           className='absolute z-0 pointer-events-none'
         >
-          <Image
-            src={`/images/flowers/flower-${(i % 5) + 1}.png`}
+          {/* <Image
+            src='/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_d4c0efab-3cd7-42e9-be57-ae5d5f0d8f2a_0-removebg-preview.png'
             width={80}
             height={80}
             alt=''
             className='opacity-20'
-          />
+          /> */}
         </div>
       ))}
 
@@ -270,7 +293,7 @@ const WorkProcessArtistic: React.FC = () => {
           </span>
         </div>
 
-        <div className='flex justify-center items-center mb-6'>
+        {/* <div className='flex justify-center items-center mb-6'>
           <div className='h-0.5 w-12 bg-[var(--primary-color)] opacity-30'></div>
           <div className='mx-4'>
             <Image
@@ -282,7 +305,7 @@ const WorkProcessArtistic: React.FC = () => {
             />
           </div>
           <div className='h-0.5 w-12 bg-[var(--primary-color)] opacity-30'></div>
-        </div>
+        </div> */}
 
         <h2 className='animate-in text-5xl md:text-6xl font-light text-[#8D6E63] max-w-4xl mx-auto leading-tight font-serif'>
           Jak pracujemy
@@ -316,7 +339,7 @@ const WorkProcessArtistic: React.FC = () => {
               <button
                 key={`step-marker-${i}`}
                 onClick={() => handleStepChange(i)}
-                className={`w-5 h-5 rounded-full border-2 transition-all duration-300 -mt-2 ${
+                className={`w-5 h-5 rounded-full border-2 transition-all duration-300 ${
                   i <= activeStep
                     ? 'bg-[var(--primary-color)] border-[var(--primary-color)]'
                     : 'bg-white border-[#DCD2C8]'
@@ -332,70 +355,37 @@ const WorkProcessArtistic: React.FC = () => {
         <div className='relative overflow-hidden'>
           <div
             className='transition-all duration-500 ease-in-out flex'
-            style={{ transform: `translateX(-${activeStep * 100}%)` }}
+            style={{
+              transform: `translateX(-${activeStep * (100 / visibleTiles)}%)`,
+            }}
           >
             {processSteps.map((step, index) => (
-              <div
+              <ProcessStepCard
                 key={`step-card-${index}`}
                 ref={(el) => {
                   stepsRef.current[index] = el;
                 }}
-                className='w-full flex-shrink-0 px-4'
-              >
-                <div
-                  className='bg-white/80 backdrop-blur-lg rounded-xl shadow-xl p-8 md:p-12 border border-[#DCD2C8]/50 transition-all duration-300 hover:shadow-2xl'
-                  style={{
-                    background: `linear-gradient(135deg, white 0%, ${step.color}20 100%)`,
-                    borderImage: `linear-gradient(to right, ${step.accent}40, transparent) 1`,
-                  }}
-                >
-                  <div className='flex flex-col md:flex-row items-center md:items-start gap-6'>
-                    <div
-                      className='w-24 h-24 rounded-full flex items-center justify-center flex-shrink-0 shadow-inner'
-                      style={{
-                        background: `linear-gradient(135deg, white, ${step.color}60)`,
-                        boxShadow: `0 6px 15px -3px ${step.accent}30`,
-                      }}
-                    >
-                      <span className='text-5xl filter drop-shadow-sm'>
-                        {step.icon}
-                      </span>
-                    </div>
-
-                    <div className='flex-1 text-center md:text-left'>
-                      <h3
-                        className='text-2xl md:text-3xl font-light mb-4'
-                        style={{ color: step.accent }}
-                      >
-                        <span className='inline-block bg-[var(--primary-color)]/10 rounded-full w-8 h-8 text-center mr-2 text-base leading-8 font-medium'>
-                          {index + 1}
-                        </span>
-                        {step.title}
-                      </h3>
-
-                      <p className='text-gray-700 leading-relaxed text-lg'>
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                step={step}
+                index={index}
+              />
             ))}
           </div>
         </div>
 
         {/* Nawigacja mobilna */}
         <div className='mt-12 flex justify-center gap-2'>
-          {processSteps.map((_, i) => (
+          {Array.from({
+            length: Math.ceil(processSteps.length / visibleTiles),
+          }).map((_, i) => (
             <button
               key={`mobile-dot-${i}`}
-              onClick={() => handleStepChange(i)}
+              onClick={() => handleStepChange(i * visibleTiles)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                i === activeStep
+                Math.floor(activeStep / visibleTiles) === i
                   ? 'bg-[var(--primary-color)] scale-125'
                   : 'bg-[#DCD2C8]'
               }`}
-              aria-label={`Przejdź do kroku ${i + 1}`}
+              aria-label={`Przejdź do grupy kroków ${i + 1}`}
             />
           ))}
         </div>
@@ -405,11 +395,13 @@ const WorkProcessArtistic: React.FC = () => {
           <button
             onClick={() =>
               handleStepChange(
-                activeStep === 0 ? processSteps.length - 1 : activeStep - 1,
+                activeStep === 0
+                  ? Math.max(0, processSteps.length - visibleTiles)
+                  : Math.max(0, activeStep - visibleTiles),
               )
             }
             className='w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center border border-[#DCD2C8] hover:bg-[var(--primary-color)]/10 transition-colors'
-            aria-label='Poprzedni krok'
+            aria-label='Poprzednia grupa'
           >
             <svg
               width='24'
@@ -430,10 +422,15 @@ const WorkProcessArtistic: React.FC = () => {
 
           <button
             onClick={() =>
-              handleStepChange((activeStep + 1) % processSteps.length)
+              handleStepChange(
+                activeStep + visibleTiles <=
+                  Math.max(0, processSteps.length - visibleTiles)
+                  ? activeStep + visibleTiles
+                  : 0,
+              )
             }
             className='w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center border border-[#DCD2C8] hover:bg-[var(--primary-color)]/10 transition-colors'
-            aria-label='Następny krok'
+            aria-label='Następna grupa'
           >
             <svg
               width='24'
@@ -452,46 +449,6 @@ const WorkProcessArtistic: React.FC = () => {
             </svg>
           </button>
         </div>
-      </div>
-
-      {/* Ozdobny element na dole */}
-      <div className='relative z-10 mt-24 text-center'>
-        <div className='flex justify-center items-center'>
-          <div className='h-0.5 w-16 bg-[var(--primary-color)] opacity-20'></div>
-          <div className='mx-4'>
-            <svg
-              width='24'
-              height='24'
-              viewBox='0 0 24 24'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-              className='opacity-40'
-            >
-              <path
-                d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
-                stroke='#8D6E63'
-                strokeWidth='1.5'
-              />
-              <path
-                d='M12 15V8'
-                stroke='#8D6E63'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-              />
-              <path
-                d='M9 11L12 8L15 11'
-                stroke='#8D6E63'
-                strokeWidth='1.5'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            </svg>
-          </div>
-          <div className='h-0.5 w-16 bg-[var(--primary-color)] opacity-20'></div>
-        </div>
-        <p className='mt-6 text-sm text-[var(--primary-color)]/70 italic font-light'>
-          Przewiń w dół, aby zobaczyć nasze realizacje
-        </p>
       </div>
     </section>
   );
