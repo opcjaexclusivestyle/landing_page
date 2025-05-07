@@ -490,7 +490,7 @@ export default function RecommendedProducts({
             onClick={scrollLeft}
             disabled={currentPosition <= 0}
           >
-            <span className='border-gray-800 border-r-2 border-b-2 w-2 h-2 transform rotate-135 mr-0.5'></span>
+            <span className='border-gray-800 border-l-2 border-b-2 w-2 h-2 transform rotate-45 ml-0.5'></span>
           </button>
           <button
             type='button'
