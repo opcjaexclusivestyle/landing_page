@@ -345,28 +345,6 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ type }) => {
         </h2>
 
         {/* Przyciski przełączania widoku */}
-        <div className='flex flex-wrap justify-center mt-4 sm:mt-6 space-x-0 space-y-2 sm:space-y-0 sm:space-x-4'>
-          <button
-            onClick={() => setShowForm(false)}
-            className={`px-4 sm:px-5 py-2 rounded-md transition-all duration-300 transform hover:scale-105 ${
-              !showForm
-                ? 'bg-[var(--primary-color)] text-white shadow-md'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            } w-full sm:w-auto`}
-          >
-            Zobacz opinie
-          </button>
-          <button
-            onClick={() => setShowForm(true)}
-            className={`px-4 sm:px-5 py-2 rounded-md transition-all duration-300 transform hover:scale-105 ${
-              showForm
-                ? 'bg-[var(--primary-color)] text-white shadow-md'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            } w-full sm:w-auto`}
-          >
-            Dodaj opinię
-          </button>
-        </div>
       </div>
 
       {/* Treść zależna od wybranego widoku */}
@@ -580,6 +558,33 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ type }) => {
           )}
         </div>
       )}
+
+      <div className='flex flex-wrap justify-center mt-4 sm:mt-6 space-x-0 space-y-2 sm:space-y-0 sm:space-x-4'>
+        <button
+          onClick={() => setShowForm(false)}
+          className={`
+            luxury-button
+            px-4 sm:px-5 py-2 rounded-md transition-all duration-300 transform hover:scale-105 ${
+              !showForm
+                ? 'bg-[var(--deep-navy)] text-white shadow-md'
+                : 'bg-[var(--beige)] text-[var(--deep-navy)] hover:bg-[var(--deep-gold)]'
+            } w-full sm:w-auto`}
+        >
+          Zobacz opinie
+        </button>
+        <button
+          onClick={() => setShowForm(true)}
+          className={`
+            luxury-button
+            px-4 sm:px-5 py-2 rounded-md transition-all duration-300 transform hover:scale-105 ${
+            showForm
+              ? 'bg-[var(--deep-navy)] text-white shadow-md'
+              : 'bg-[var(--beige)] text-[var(--deep-navy)] hover:bg-[var(--deep-gold)]'
+          } w-full sm:w-auto`}
+        >
+          Dodaj opinię
+        </button>
+      </div>
 
       {/* Ozdobny element */}
       <div className='relative z-10 mt-10 sm:mt-16 flex justify-center'>
