@@ -123,6 +123,7 @@ export default function OrderForm({
   const [showFlyingPackage, setShowFlyingPackage] = useState(false);
   const [isPackageAnimating, setIsPackageAnimating] = useState(false);
   const [imgErrors, setImgErrors] = useState<{ [key: number]: boolean }>({});
+  const [showTapeDropdown, setShowTapeDropdown] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -873,21 +874,85 @@ export default function OrderForm({
                         <label className='block text-sm font-medium text-gray-700 mb-1'>
                           Rodzaj taśmy
                         </label>
-                        <select
-                          name='tapeType'
-                          value={formData.tapeType}
+                        {/* Custom Select with Thumbnails */}
+                        <div className="relative">
+                          <div 
+                            className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 cursor-pointer flex items-center justify-between ${
+                              tapeError ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                            onClick={() => setShowTapeDropdown(prev => !prev)}
+                          >
+                            {formData.tapeType ? (
+                              <div className="flex items-center gap-3">
+                                {TAPE_TYPES.find(t => t.id === formData.tapeType)?.imagePath && (
+                                  <div className="relative h-8 w-12 flex-shrink-0">
+                                    <Image 
+                                      src={TAPE_TYPES.find(t => t.id === formData.tapeType)?.imagePath || ''}
+                                      alt="Wybrana taśma"
+                                      fill
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                )}
+                                <span>{TAPE_TYPES.find(t => t.id === formData.tapeType)?.name || 'Wybierz rodzaj taśmy'}</span>
+                              </div>
+                            ) : (
+                              <span>Wybierz rodzaj taśmy</span>
+                            )}
+                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={showTapeDropdown ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                            </svg>
+                          </div>
+                          
+                          {/* Dropdown Options */}
+                          {showTapeDropdown && (
+                            <div className="absolute z-30 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                              {TAPE_TYPES.map((tape) => (
+                                <div 
+                                  key={tape.id}
+                                  className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
+                                    tape.id === '' ? 'text-gray-400' : ''
+                                  } ${
+                                    tape.id === formData.tapeType ? 'bg-gray-100' : ''
+                                  }`}
+                                  onClick={() => {
+                                    if (tape.id !== '') {
+                                      handleChange({
+                                        target: { name: 'tapeType', value: tape.id }
+                                      } as React.ChangeEvent<HTMLSelectElement>);
+                                      setShowTapeDropdown(false);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {tape.imagePath && (
+                                      <div className="relative h-10 w-16 flex-shrink-0">
+                                        <Image 
+                                          src={tape.imagePath}
+                                          alt={tape.name}
+                                          fill
+                                          className="object-contain"
+                                        />
+                                      </div>
+                                    )}
+                                    <span>{tape.name}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        {/* Hidden native select for form submission */}
+                        <select 
+                          name="tapeType" 
+                          value={formData.tapeType} 
                           onChange={handleChange}
-                          className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 ${
-                            tapeError ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                          className="sr-only"
                           required
+                          aria-hidden="true"
                         >
                           {TAPE_TYPES.map((tape) => (
-                            <option
-                              key={tape.id}
-                              value={tape.id}
-                              disabled={tape.id === ''}
-                            >
+                            <option key={tape.id} value={tape.id} disabled={tape.id === ''}>
                               {tape.name}
                             </option>
                           ))}
