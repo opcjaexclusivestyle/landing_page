@@ -99,7 +99,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
         // Przetwórz warianty kolorystyczne (max 4)
         Object.entries(productWithColors.colors)
-          .slice(0, 3) // Ograniczamy do 4 kolorów
+          .slice(0, 2) // Ograniczamy do 4 kolorów
           .forEach(([colorCode, colorData]) => {
             if (colorData.images && colorData.images.length > 0) {
               mappedColorVariants.push({
@@ -126,7 +126,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         console.log(
           'Nie znaleziono produktu z wieloma kolorami, pokazuję pierwsze 3 produkty.',
         );
-        const fallbackProducts = linenProducts.slice(0, 3).map((product) => {
+        const fallbackProducts = linenProducts.slice(0, 2).map((product) => {
           const imageUrl = getMainImage(product);
           const price = getProductPrice(product);
           return {

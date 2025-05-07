@@ -169,6 +169,7 @@ export default function RecommendedProducts({
     const totalItems = safeProducts.length + 1; // +1 dla kafelka "Zobacz więcej"
     const visibleCards = getVisibleCards();
     if (cardWidth <= 0 || visibleCards <= 0) return 0;
+    // Upewniamy się, że ostatni kafelek będzie widoczny w całości
     return Math.max(0, totalItems - visibleCards);
   }, [safeProducts.length, cardWidth, getVisibleCards]); // Zależność od getVisibleCards
 
@@ -191,13 +192,60 @@ export default function RecommendedProducts({
       if (newPosition !== currentPosition) {
         setCurrentPosition(newPosition);
       }
-      const translateX = newPosition * cardWidth;
+
+      let translateX = newPosition * cardWidth;
+      // Gdy jesteśmy na ostatniej pozycji, upewnijmy się że ostatni kafelek jest w pełni widoczny
+      // oraz że nie widać kawałków wcześniejszych produktów
+      if (
+        newPosition === maxPos &&
+        maxPos > 0 &&
+        carouselContainerRef.current
+      ) {
+        const gapSize = 20;
+        const visibleCards = getVisibleCards();
+        const containerWidth = carouselContainerRef.current.clientWidth;
+        const isDesktop = containerWidth >= 1024;
+
+        // Obliczamy, ile produktów powinniśmy przesunąć by pokazać ostatnie produkty i kafelek "Zobacz więcej"
+        const totalItems = safeProducts.length + 1; // +1 dla kafelka "Zobacz więcej"
+
+        // Określamy ile pozycji musimy przesunąć, aby dokładnie pokazać ostatnie produkty i kafelek
+        const numberOfItemsToShow = Math.min(visibleCards, totalItems);
+        const startingItemIndex = totalItems - numberOfItemsToShow;
+
+        // Obliczamy dokładną pozycję przewinięcia
+        translateX = startingItemIndex * cardWidth;
+        if (startingItemIndex > 0) {
+          // Dodajemy odstępy między kartami
+          translateX += startingItemIndex * gapSize;
+        }
+
+        // Specjalna korekta dla widoku desktopowego - dodajemy 100px
+        if (isDesktop) {
+          const desktopOffset = 100;
+          translateX += desktopOffset;
+          console.log(
+            `[scrollTo] Zastosowano korektę dla desktopu: +${desktopOffset}px`,
+          );
+        }
+
+        console.log(
+          `[scrollTo] Precyzyjne ustawienie ostatnich ${numberOfItemsToShow} elementów: ${translateX}px`,
+        );
+      }
+
       carousel.style.transition = 'transform 500ms ease-in-out';
       carousel.style.transform = `translateX(-${translateX}px)`;
       setPrevTranslate(translateX);
       setCurrentTranslate(translateX);
     },
-    [cardWidth, currentPosition, calculateMaxPosition], // calculateMaxPosition jest już useCallback
+    [
+      cardWidth,
+      currentPosition,
+      calculateMaxPosition,
+      safeProducts.length,
+      getVisibleCards,
+    ], // Dodane zależności
   );
 
   // Scroll left
@@ -206,11 +254,89 @@ export default function RecommendedProducts({
     scrollTo(currentPosition - 1);
   }, [currentPosition, scrollTo]);
 
+  // Funkcja bezpośrednio pokazująca ostatni kafelek "Zobacz więcej"
+  const showLastTile = useCallback(() => {
+    if (!carouselRef.current || !carouselContainerRef.current) return;
+
+    const lastTileIndex = safeProducts.length; // Indeks kafelka "Zobacz więcej"
+    const containerWidth = carouselContainerRef.current.clientWidth;
+    const visibleCards = getVisibleCards();
+
+    // Pobieramy faktyczne elementy DOM
+    const carouselItems =
+      carouselRef.current.querySelectorAll('.flex-shrink-0');
+    const lastItem = carouselItems[lastTileIndex];
+
+    if (!lastItem) {
+      console.error('[showLastTile] Nie znaleziono ostatniego kafelka');
+      return;
+    }
+
+    // Obliczamy, o ile musimy przesunąć karuzelę, aby ostatni kafelek był w pełni widoczny
+    // Każemy pokazać tyle ostatnich kafelków, ile może się zmieścić w kontenerze
+    const lastItemRect = lastItem.getBoundingClientRect();
+    const lastItemWidth = lastItemRect.width;
+
+    // Maksymalna liczba widocznych kafelków
+    const totalItems = safeProducts.length + 1;
+
+    // Ile kafelków pokazujemy (ostatnich)
+    const showItems = Math.min(visibleCards, totalItems);
+
+    // Indeks pierwszego pokazywanego kafelka
+    const firstVisibleIndex = totalItems - showItems;
+
+    // Obliczamy pozycję do przewinięcia
+    let translateX = 0;
+
+    // Jeśli mamy wystarczająco elementów, przechodzimy do konkretnej pozycji
+    if (firstVisibleIndex >= 0 && firstVisibleIndex < carouselItems.length) {
+      const targetItem = carouselItems[firstVisibleIndex];
+      const targetRect = targetItem.getBoundingClientRect();
+      const containerRect =
+        carouselContainerRef.current.getBoundingClientRect();
+
+      // Obliczamy różnicę między pozycją pierwszego elementu a krawędzią kontenera
+      translateX = targetRect.left - containerRect.left;
+
+      // Jeśli jesteśmy w widoku desktop, dodajemy korektę
+      if (containerWidth >= 1024) {
+        translateX += 150; // Zwiększona korekta dla desktop
+      } else if (containerWidth >= 640) {
+        translateX += 60; // Korekta dla tabletów
+      } else {
+        translateX += 30; // Korekta dla mobile
+      }
+    }
+
+    // Ustawiamy pozycję
+    console.log(
+      `[showLastTile] Przesuwanie do ostatniego kafelka: ${translateX}px`,
+    );
+    const maxPos = calculateMaxPosition();
+    setCurrentPosition(maxPos);
+
+    if (carouselRef.current) {
+      carouselRef.current.style.transition = 'transform 500ms ease-in-out';
+      carouselRef.current.style.transform = `translateX(-${translateX}px)`;
+      setPrevTranslate(translateX);
+      setCurrentTranslate(translateX);
+    }
+  }, [safeProducts.length, getVisibleCards, calculateMaxPosition]);
+
   // Scroll right
   const scrollRight = useCallback(() => {
     console.log('[scrollRight] Kliknięto strzałkę w prawo.');
-    scrollTo(currentPosition + 1);
-  }, [currentPosition, scrollTo]);
+    const maxPos = calculateMaxPosition();
+
+    // Jeśli jesteśmy na przedostatniej lub ostatniej pozycji, pokazujemy ostatni kafelek
+    if (currentPosition >= maxPos - 1) {
+      console.log('[scrollRight] Przesuwanie do ostatniego kafelka');
+      showLastTile();
+    } else {
+      scrollTo(currentPosition + 1);
+    }
+  }, [currentPosition, scrollTo, calculateMaxPosition, showLastTile]);
 
   // Funkcje obsługi przeciągania
   const touchStart = (e: React.TouchEvent | React.MouseEvent) => {
@@ -385,6 +511,8 @@ export default function RecommendedProducts({
     cursor: isDragging ? 'grabbing' : 'grab',
     transition: isDragging ? 'none' : 'transform 500ms ease-in-out',
     userSelect: 'none' as 'none',
+    WebkitUserSelect: 'none' as 'none',
+    MozUserSelect: 'none' as 'none',
   };
 
   // Obliczamy maxPosition i konwertujemy karty PRZED warunkiem
@@ -431,19 +559,21 @@ export default function RecommendedProducts({
             )}
             {/* "See More" card */}
             <div className='h-full'>
-              <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
+              <div className='bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 h-full flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 text-center cursor-pointer hover:translate-y-[-5px] transition-transform duration-300'>
                 <Link
                   href={getCategoryMoreLink()}
                   className='flex flex-col items-center justify-center w-full h-full'
                 >
-                  <span className='text-3xl sm:text-4xl text-primary mb-3 md:mb-4'>
+                  <span className='text-2xl sm:text-3xl md:text-4xl text-primary mb-4'>
                     →
                   </span>
-                  <h3 className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 md:mb-3'>
+                  <h3 className='text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-4 max-w-xs sm:max-w-sm md:max-w-md leading-relaxed'>
                     Chcesz zobaczyć więcej produktów?
                   </h3>
-                  <p className='text-gray-600 text-xs sm:text-sm'>
-                    Naciśnij tutaj aby przejść do pełnej oferty
+                  <p className='text-gray-600 text-sm sm:text-base leading-relaxed max-w-xs sm:max-w-sm md:max-w-md text-wrap text-center'>
+                    Naciśnij tutaj, aby przejść do pełnej oferty i odkryć
+                    wszystkie dostępne produkty, które przygotowaliśmy
+                    specjalnie dla Ciebie.
                   </p>
                 </Link>
               </div>
@@ -560,8 +690,10 @@ export default function RecommendedProducts({
                     <h3 className='text-xl font-semibold text-gray-800 mb-3'>
                       Chcesz zobaczyć więcej produktów?
                     </h3>
-                    <p className='text-gray-600 text-sm'>
-                      Naciśnij tutaj aby przejść do pełnej oferty
+                    <p className='text-gray-600 text-sm text-center'>
+                      Naciśnij tutaj aby przejść
+                      <br />
+                      do pełnej oferty
                     </p>
                   </Link>
                 </div>
