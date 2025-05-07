@@ -27,6 +27,8 @@ interface CalcProduct {
   og_title: string | null;
   og_description: string | null;
   slug: string | null;
+  promoted: boolean | null;
+  promotion_index: number | null;
 }
 
 export default function CalculatorProductsPage() {
@@ -58,6 +60,8 @@ export default function CalculatorProductsPage() {
     og_title: '',
     og_description: '',
     slug: '',
+    promoted: false,
+    promotion_index: 0,
   });
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -113,6 +117,8 @@ export default function CalculatorProductsPage() {
         og_title: product.og_title || '',
         og_description: product.og_description || '',
         slug: product.slug || '',
+        promoted: product.promoted || false,
+        promotion_index: product.promotion_index || 0,
       });
     } else {
       setEditingProduct(null);
@@ -137,6 +143,8 @@ export default function CalculatorProductsPage() {
         og_title: '',
         og_description: '',
         slug: '',
+        promoted: false,
+        promotion_index: 0,
       });
     }
     setIsModalOpen(true);
@@ -1012,6 +1020,49 @@ export default function CalculatorProductsPage() {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
                       placeholder='np. Firanka w salonie, Biała firanka'
                     />
+                  </div>
+
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Promowany
+                      </label>
+                      <div className='mt-2'>
+                        <input
+                          type='checkbox'
+                          name='promoted'
+                          checked={formData.promoted || false}
+                          onChange={(e) => {
+                            setFormData({
+                              ...formData,
+                              promoted: e.target.checked,
+                            });
+                          }}
+                          className='h-4 w-4 text-[var(--gold)] border-gray-300 rounded focus:ring-[var(--gold)]'
+                        />
+                        <span className='ml-2'>Zaznacz, aby promować produkt</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Indeks promocji
+                      </label>
+                      <input
+                        type='number'
+                        name='promotion_index'
+                        value={formData.promotion_index || 0}
+                        onChange={(e) => {
+                          setFormData({
+                            ...formData,
+                            promotion_index: parseInt(e.target.value) || 0,
+                          });
+                        }}
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--gold)]'
+                        placeholder='0'
+                        min='0'
+                      />
+                      <p className='text-sm text-gray-500 mt-1'>Wyższy indeks = wyższa pozycja</p>
+                    </div>
                   </div>
                 </div>
 

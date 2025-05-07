@@ -154,13 +154,6 @@ export default function LinenProductsPage() {
           <div className='space-y-16'>
             {products.map((product) => (
               <div key={product.id} className='mb-10'>
-                <h2 className='text-2xl font-bold text-[var(--deep-navy)] mb-4'>
-                  {product.name}
-                </h2>
-                <p className='text-gray-600 mb-6 max-w-3xl'>
-                  {product.description}
-                </p>
-
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
                   {product.colorVariants.map((variant) => (
                     <div
@@ -170,6 +163,9 @@ export default function LinenProductsPage() {
                       <Link
                         href={`/posciel-premium/${product.id}?color=${variant.code}`}
                       >
+                        <h2 className='text-2xl font-bold text-[var(--deep-navy)] mb-4'>
+                          {product.name}
+                        </h2>
                         <div className='relative h-64 w-full'>
                           <Image
                             src={variant.image}
@@ -178,6 +174,9 @@ export default function LinenProductsPage() {
                             className='object-cover'
                           />
                         </div>
+                        <p className='text-gray-600 mb-6 max-w-3xl'>
+                          {product.description}
+                        </p>
                         <div className='p-4'>
                           <div className='flex items-center mb-2'>
                             <span

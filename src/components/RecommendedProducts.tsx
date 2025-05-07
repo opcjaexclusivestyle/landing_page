@@ -668,7 +668,7 @@ export default function RecommendedProducts({
                     >
                       <SellingCard
                         card={card}
-                        showPrice={true}
+                        showPrice={false}
                         buttonVariant='primary'
                       />
                     </div>

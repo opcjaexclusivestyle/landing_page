@@ -71,22 +71,6 @@ export default async function BlogPage({
           </p>
         </header>
 
-        {/* Filtry kategorii */}
-        <div className='flex flex-wrap justify-center gap-3 mb-12'>
-          <button className='px-4 py-2 rounded-full bg-royal-gold text-white'>
-            Wszystkie
-          </button>
-          <button className='px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800'>
-            Inspiracje
-          </button>
-          <button className='px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800'>
-            Porady
-          </button>
-          <button className='px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800'>
-            Trendy
-          </button>
-        </div>
-
         {/* Siatka wpisów */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10'>
           {posts.map((post) => (

@@ -152,10 +152,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       try {
         console.log('Rozpoczynam pobieranie firan...');
 
-        // Pobieranie tylko 3 pierwszych firan z tabeli calculator_products
+        // Pobieranie tylko 3 produktów z tabeli calculator_products, które są promowane
+        // i sortowanie ich według promotion_index (im wyższy, tym wyżej na liście)
         const { data: curtainData, error: curtainError } = await supabase
           .from('calculator_products')
           .select('*')
+          .eq('promoted', true)
+          .order('promotion_index', { ascending: false })
           .limit(3);
 
         if (curtainError) {
@@ -255,7 +258,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         subtitle='Komfort i elegancja dla Twojej sypialni'
         products={beddingProducts}
         background='white'
-        buttonText='ZAMÓW, SPRAWDŹ'
+        buttonText='SPRAWDŹ'
         className='mt-8'
         moreProductsLink='/posciel-premium'
       />
@@ -265,7 +268,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         title='Wybrane dla Ciebie'
         subtitle='Najlepsze firany w wyjątkowych cenach'
         products={curtainProducts}
-        buttonText='ZAMÓW, SPRAWDŹ'
+        buttonText='SPRAWDŹ'
         background='gray'
         moreProductsLink='/firany-premium'
       />

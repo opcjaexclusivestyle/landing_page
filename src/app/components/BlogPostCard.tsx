@@ -58,12 +58,12 @@ export default function BlogPostCard({ post }: BlogPostCardProps) {
           <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent'></div>
 
           {/* Kategoria na górze zdjęcia */}
-          <Link
+          {/* <Link
             href={`/blog/kategoria/${post.category.toLowerCase()}`}
             className='absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-800 hover:bg-white'
           >
             {post.category}
-          </Link>
+          </Link> */}
         </div>
 
         {/* Treść */}

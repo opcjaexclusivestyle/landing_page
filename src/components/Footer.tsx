@@ -14,21 +14,13 @@ const Footer = () => {
   return (
     <footer className='bg-gray-50 border-t border-gray-100 py-12'>
       <div className='footer-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
           <div className='footer-column'>
             <h3 className='text-lg font-semibold text-[var(--deep-navy)] mb-6 relative'>
               Firma
               <span className='absolute bottom-[-10px] left-0 w-10 h-[3px] bg-[var(--beige)]'></span>
             </h3>
             <ul className='space-y-3'>
-              <li>
-                <Link
-                  href='/o-nas'
-                  className='text-gray-600 hover:text-[var(--deep-gold)] transition-all duration-300 text-sm'
-                >
-                  O nas
-                </Link>
-              </li>
               <li>
                 <Link
                   href='/kontakt'
@@ -46,11 +38,25 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
+            <h3 className='text-lg font-semibold text-[var(--deep-navy)] mt-8 mb-6 relative'>
+              Konto
+              <span className='absolute bottom-[-10px] left-0 w-10 h-[3px] bg-[var(--beige)]'></span>
+            </h3>
+            <ul className='space-y-3'>
+              <li>
+                <Link
+                  href='/cart'
+                  className='text-gray-600 hover:text-[var(--deep-gold)] transition-all duration-300 text-sm'
+                >
+                  Koszyk
+                </Link>
+              </li>
+            </ul>
           </div>
 
           <div className='footer-column'>
             <h3 className='text-lg font-semibold text-[var(--deep-navy)] mb-6 relative'>
-              Kontakt z nami
+              Zasłonex
               <span className='absolute bottom-[-10px] left-0 w-10 h-[3px] bg-[var(--beige)]'></span>
             </h3>
             <div className='space-y-3 text-sm text-gray-600'>
@@ -100,11 +106,11 @@ const Footer = () => {
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4'
-                  viewBox='0 0 496 512'
+                  viewBox='0 0 448 512'
                 >
                   <path
                     fill='currentColor'
-                    d='M496 256c0 137-111 248-248 248-25.6 0-50.2-3.9-73.4-11.1 10.1-16.5 25.2-43.5 30.8-65 3-11.6 15.4-59 15.4-59 8.1 15.4 31.7 28.5 56.8 28.5 74.8 0 128.7-68.8 128.7-154.3 0-81.9-66.9-143.2-152.9-143.2-107 0-163.9 71.8-163.9 150.1 0 36.4 19.4 81.7 50.3 96.1 4.7 2.2 7.2 1.2 8.3-3.3.8-3.4 5-20.3 6.9-28.1.6-2.5.3-4.7-1.7-7.1-10.1-12.5-18.3-35.3-18.3-56.6 0-54.7 41.4-107.6 112-107.6 60.9 0 103.6 41.5 103.6 100.9 0 67.1-33.9 113.6-78 113.6-24.3 0-42.6-20.1-36.7-44.8 7-29.5 20.5-61.3 20.5-82.6 0-19-10.2-34.9-31.4-34.9-24.9 0-44.9 25.7-44.9 60.2 0 22 7.4 36.8 7.4 36.8s-24.5 103.8-29 123.2c-5 21.4-3 51.6-.9 71.2C65.4 450.9 0 361.1 0 256 0 119 111 8 248 8s248 111 248 248z'
+                    d='M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z'
                   />
                 </svg>
               </a>
@@ -128,24 +134,10 @@ const Footer = () => {
 
           <div className='footer-column'>
             <h3 className='text-lg font-semibold text-[var(--deep-navy)] mb-6 relative'>
-              Konto
-              <span className='absolute bottom-[-10px] left-0 w-10 h-[3px] bg-[var(--beige)]'></span>
-            </h3>
-            <ul className='space-y-3'>
-              <li>
-                <Link
-                  href='/cart'
-                  className='text-gray-600 hover:text-[var(--deep-gold)] transition-all duration-300 text-sm'
-                >
-                  Koszyk
-                </Link>
-              </li>
-            </ul>
-            <h3 className='text-lg font-semibold text-[var(--deep-navy)] mt-6 mb-4 relative'>
               Zakupy
               <span className='absolute bottom-[-10px] left-0 w-10 h-[3px] bg-[var(--beige)]'></span>
             </h3>
-            <ul className='space-y-3 mt-6'>
+            <ul className='space-y-3'>
               <li>
                 <Link
                   href='/promocje'
@@ -203,75 +195,6 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
-
-          <div className='footer-column'>
-            <h3 className='text-lg font-semibold text-[var(--deep-navy)] mb-6 relative'>
-              Newsletter
-              <span className='absolute bottom-[-10px] left-0 w-10 h-[3px] bg-[var(--beige)]'></span>
-            </h3>
-            <p className='text-sm text-gray-600 mb-4'>
-              Zapisz się, aby otrzymywać najnowsze informacje o trendach,
-              promocjach i ofertach specjalnych.
-            </p>
-            <form className='space-y-3'>
-              <input
-                type='email'
-                placeholder='Twój e-mail'
-                className='w-full py-2 px-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[var(--beige)] focus:border-[var(--beige)]'
-                required
-              />
-              <input
-                type='tel'
-                placeholder='Telefon (opcjonalnie)'
-                className='w-full py-2 px-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[var(--beige)] focus:border-[var(--beige)]'
-              />
-              <div className='flex items-center space-x-2'>
-                <input
-                  type='checkbox'
-                  id='recaptcha'
-                  className='h-4 w-4 text-[var(--beige)] focus:ring-[var(--beige)]'
-                />
-                <label htmlFor='recaptcha' className='text-xs text-gray-600'>
-                  Nie jestem robotem
-                </label>
-              </div>
-              <div className='flex items-start space-x-2'>
-                <input
-                  type='checkbox'
-                  id='consent'
-                  className='h-4 w-4 mt-0.5 text-[var(--beige)] focus:ring-[var(--beige)]'
-                  required
-                />
-                <label htmlFor='consent' className='text-xs text-gray-500'>
-                  Wyrażam zgodę na otrzymywanie informacji handlowych od firmy
-                  Zasłonex .{' '}
-                  <Link
-                    href='/polityka-prywatnosci'
-                    className='text-[var(--deep-gold)] hover:underline'
-                  >
-                    Zasady przetwarzania danych
-                  </Link>
-                </label>
-              </div>
-              <button type='submit' className='premium-button flex flex-row'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-4 w-4 mr-2'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
-                  />
-                </svg>
-                Zapisz się
-              </button>
-            </form>
           </div>
         </div>
 

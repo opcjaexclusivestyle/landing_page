@@ -56,10 +56,12 @@ const NewProductsSection = () => {
       try {
         console.log('Rozpoczynam pobieranie zasłon...');
 
-        // Pobieranie zasłon z tabeli calculator_zaslony zamiast calculator_products
+        // Pobieranie zasłon z tabeli calculator_zaslony - tylko promowane i posortowane według promotion_index
         const { data: curtainData, error: curtainError } = await supabase
           .from('calculator_zaslony')
           .select('*')
+          .eq('promoted', true)
+          .order('promotion_index', { ascending: false })
           .limit(3);
 
         if (curtainError) {
@@ -469,7 +471,7 @@ const NewProductsSection = () => {
           subtitle=''
           products={curtainProducts}
           background='light'
-          buttonText='ZAMÓW, SPRAWDŹ'
+          buttonText='SPRAWDŹ'
           moreProductsLink='/zaslony-premium'
         />
 
