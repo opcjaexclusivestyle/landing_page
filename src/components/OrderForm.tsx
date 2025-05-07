@@ -329,15 +329,23 @@ export default function OrderForm({
     const { name, value } = e.target;
 
     // Sprawdź czy użytkownik wpisuje wymiary bez wybranej taśmy
-    if ((name === 'rodWidth' || name === 'height') && value !== '' && !formData.tapeType) {
-      setTapeError('Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji');
+    if (
+      (name === 'rodWidth' || name === 'height') &&
+      value !== '' &&
+      !formData.tapeType
+    ) {
+      setTapeError(
+        'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+      );
     }
 
     if (name === 'tapeType') {
       if (value === '') {
         // Jeśli użytkownik ma już wpisane wymiary, pokaż błąd
         if (formData.rodWidth || formData.height) {
-          setTapeError('Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji');
+          setTapeError(
+            'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+          );
         }
         setShowTapeImage(false); // Ukryj obraz taśmy przy pustym wyborze
         setSelectedTapeImage('');
@@ -389,11 +397,13 @@ export default function OrderForm({
 
     // Sprawdź czy taśma została wybrana
     if (formData.tapeType === '') {
-      setTapeError('Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji');
+      setTapeError(
+        'Wybierz rodzaj taśmy marszczącej, a kalkulator uwzględni nadmiar materiału, potrzebnego do uszycia dekoracji',
+      );
       setIsPackageAnimating(false);
       return;
     }
-    
+
     // Najpierw ustaw animację bez stanu ładowania
     setIsPackageAnimating(true);
     setError(null);
@@ -891,63 +901,92 @@ export default function OrderForm({
                           Rodzaj taśmy
                         </label>
                         {/* Custom Select with Thumbnails */}
-                        <div className="relative">
-                          <div 
+                        <div className='relative'>
+                          <div
                             className={`form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90 cursor-pointer flex items-center justify-between ${
                               tapeError ? 'border-red-500' : 'border-gray-300'
                             }`}
-                            onClick={() => setShowTapeDropdown(prev => !prev)}
+                            onClick={() => setShowTapeDropdown((prev) => !prev)}
                           >
                             {formData.tapeType ? (
-                              <div className="flex items-center gap-3">
-                                {TAPE_TYPES.find(t => t.id === formData.tapeType)?.imagePath && (
-                                  <div className="relative h-8 w-12 flex-shrink-0">
-                                    <Image 
-                                      src={TAPE_TYPES.find(t => t.id === formData.tapeType)?.imagePath || ''}
-                                      alt="Wybrana taśma"
+                              <div className='flex items-center gap-3'>
+                                {TAPE_TYPES.find(
+                                  (t) => t.id === formData.tapeType,
+                                )?.imagePath && (
+                                  <div className='relative h-8 w-12 flex-shrink-0'>
+                                    <Image
+                                      src={
+                                        TAPE_TYPES.find(
+                                          (t) => t.id === formData.tapeType,
+                                        )?.imagePath || ''
+                                      }
+                                      alt='Wybrana taśma'
                                       fill
-                                      className="object-contain"
+                                      className='object-contain'
                                     />
                                   </div>
                                 )}
-                                <span>{TAPE_TYPES.find(t => t.id === formData.tapeType)?.name || 'Wybierz rodzaj taśmy'}</span>
+                                <span>
+                                  {TAPE_TYPES.find(
+                                    (t) => t.id === formData.tapeType,
+                                  )?.name || 'Wybierz rodzaj taśmy'}
+                                </span>
                               </div>
                             ) : (
                               <span>Wybierz rodzaj taśmy</span>
                             )}
-                            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={showTapeDropdown ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+                            <svg
+                              className='h-5 w-5 text-gray-400'
+                              fill='none'
+                              stroke='currentColor'
+                              viewBox='0 0 24 24'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth='2'
+                                d={
+                                  showTapeDropdown
+                                    ? 'M5 15l7-7 7 7'
+                                    : 'M19 9l-7 7-7-7'
+                                }
+                              />
                             </svg>
                           </div>
-                          
+
                           {/* Dropdown Options */}
                           {showTapeDropdown && (
-                            <div className="absolute z-30 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div className='absolute z-30 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto'>
                               {TAPE_TYPES.map((tape) => (
-                                <div 
+                                <div
                                   key={tape.id}
                                   className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${
                                     tape.id === '' ? 'text-gray-400' : ''
                                   } ${
-                                    tape.id === formData.tapeType ? 'bg-gray-100' : ''
+                                    tape.id === formData.tapeType
+                                      ? 'bg-gray-100'
+                                      : ''
                                   }`}
                                   onClick={() => {
                                     if (tape.id !== '') {
                                       handleChange({
-                                        target: { name: 'tapeType', value: tape.id }
+                                        target: {
+                                          name: 'tapeType',
+                                          value: tape.id,
+                                        },
                                       } as React.ChangeEvent<HTMLSelectElement>);
                                       setShowTapeDropdown(false);
                                     }
                                   }}
                                 >
-                                  <div className="flex items-center gap-3">
+                                  <div className='flex items-center gap-3'>
                                     {tape.imagePath && (
-                                      <div className="relative h-10 w-16 flex-shrink-0">
-                                        <Image 
+                                      <div className='relative h-10 w-16 flex-shrink-0'>
+                                        <Image
                                           src={tape.imagePath}
                                           alt={tape.name}
                                           fill
-                                          className="object-contain"
+                                          className='object-contain'
                                         />
                                       </div>
                                     )}
@@ -959,16 +998,20 @@ export default function OrderForm({
                           )}
                         </div>
                         {/* Hidden native select for form submission */}
-                        <select 
-                          name="tapeType" 
-                          value={formData.tapeType} 
+                        <select
+                          name='tapeType'
+                          value={formData.tapeType}
                           onChange={handleChange}
-                          className="sr-only"
+                          className='sr-only'
                           required
-                          aria-hidden="true"
+                          aria-hidden='true'
                         >
                           {TAPE_TYPES.map((tape) => (
-                            <option key={tape.id} value={tape.id} disabled={tape.id === ''}>
+                            <option
+                              key={tape.id}
+                              value={tape.id}
+                              disabled={tape.id === ''}
+                            >
                               {tape.name}
                             </option>
                           ))}
@@ -1015,7 +1058,7 @@ export default function OrderForm({
                             value={formData.rodWidth}
                             onChange={handleChange}
                             min='1'
-                            className="form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90"
+                            className='form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90'
                             required
                           />
                         </div>
@@ -1029,7 +1072,7 @@ export default function OrderForm({
                             value={formData.height}
                             onChange={handleChange}
                             min='1'
-                            className="form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90"
+                            className='form-input-focus w-full px-4 py-2 border rounded-lg focus:outline-none bg-white/90'
                             required
                           />
                         </div>
@@ -1107,14 +1150,18 @@ export default function OrderForm({
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
-                          <span className='text-gray-600'>{productType === 'firany' ? 'Sztuk:' : 'Ilość par:'}</span>
+                          <span className='text-gray-600'>
+                            {productType === 'firany' ? 'Sztuk:' : 'Ilość par:'}
+                          </span>
                           <span className='font-medium'>
                             {formData.quantity}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            {productType === 'firany' ? 'Koszt szycia:' : 'Łączny koszt szycia (dla pary):'}
+                            {productType === 'firany'
+                              ? 'Koszt szycia:'
+                              : 'Łączny koszt szycia (dla pary):'}
                           </span>
                           <span className='font-medium'>
                             {formData.rodWidth &&
@@ -1154,10 +1201,11 @@ export default function OrderForm({
                       <div className='pt-4 border-t border-gray-200 mt-4'>
                         <div className='flex justify-between items-center mt-2'>
                           <span className='text-lg font-medium text-deep-navy'>
-                            {productType === 'firany' 
-                              ? 'Razem:' 
-                              : `Razem (za ${formData.quantity} ${formData.quantity > 1 ? 'pary' : 'parę'}):`
-                            }
+                            {productType === 'firany'
+                              ? 'Razem:'
+                              : `Razem (za ${formData.quantity} ${
+                                  formData.quantity > 1 ? 'pary' : 'parę'
+                                }):`}
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
                             {formatPrice(calculatePrice() * formData.quantity)}{' '}
@@ -1192,58 +1240,7 @@ export default function OrderForm({
                     />
                   </div>
 
-                  {/* 5. Certyfikaty w nowym układzie */}
-                  <div className='mb-8 space-y-4'>
-                    <div className='flex flex-col space-y-3'>
-                      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
-                        <div className='flex items-center'>
-                          <div className='eco-icon mr-3'></div>
-                          <h3 className='font-medium'>CERTYFIKAT OEKO-TEX</h3>
-                        </div>
-                        <p className='mt-2 text-sm text-gray-600'>
-                          Nasze produkty są wolne od szkodliwych substancji
-                          chemicznych. Przebadane pod kątem bezpieczeństwa dla
-                          skóry człowieka z bezpośrednim długotrwałym kontaktem
-                          z tkaniną. Co potwierdza międzynarodowy certyfikat
-                          OEKO-TEX.
-                        </p>
-                      </div>
-
-                      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
-                        <div className='flex items-center'>
-                          <div className='warranty-card mr-3'>
-                            <div className='warranty-card-text'>
-                              GWARANCJA JAKOŚCI
-                            </div>
-                            <div className='warranty-seal'></div>
-                          </div>
-                          <h3 className='font-medium'>
-                            GWARANCJA NAJWYŻSZEJ JAKOŚCI
-                          </h3>
-                        </div>
-                        <p className='mt-2 text-sm text-gray-600'>
-                          Do każdego zakupionego produktu dołączamy pisemną
-                          gwarancję z pieczęcią, potwierdzającą autentyczność i
-                          jakość naszych wyrobów oraz dającą pewność
-                          satysfakcji.
-                        </p>
-                      </div>
-
-                      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
-                        <div className='flex items-center'>
-                          <div className='poland-shape mr-3'></div>
-                          <h3 className='font-medium'>PRODUKT POLSKI</h3>
-                        </div>
-                        <p className='mt-2 text-sm text-gray-600'>
-                          Wszystkie nasze{' '}
-                          {productType === 'zaslony' ? 'zasłony' : 'firany'} są
-                          produkowane w Polskiej szwalni przez doświadczonych
-                          rzemieślników, co gwarantuje najwyższą jakość
-                          wykonania i wsparcie lokalnej gospodarki.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <AccordionCertificates />
 
                   {/* Przewodnik pomiarowy */}
                   <div className='bg-gray-50 p-4 rounded-lg border border-gray-100 mb-8'>
