@@ -139,7 +139,7 @@ const CarouselComponent: React.FC<{
   }
 
   return (
-    <div className='mb-8 relative z-0'>
+    <div className='mb-8 relative z-0 max-w-5xl mx-auto'>
       {title && (
         <motion.h4
           initial={{ opacity: 0, y: -10 }}
@@ -320,10 +320,10 @@ const CarouselOfCurtains: React.FC<CarouselOfCurtainsProps> = ({
   );
 
   return (
-    <div className='relative'>
+    <div className='relative max-w-5xl mx-auto'>
       {/* Dekoracyjny element tła */}
-      <div className='absolute -top-10 -right-20 w-64 h-64 bg-royal-gold/5 rounded-full blur-3xl'></div>
-      <div className='absolute -bottom-10 -left-20 w-64 h-64 bg-deep-navy/5 rounded-full blur-3xl'></div>
+      <div className='absolute -top-10 right-0 w-64 h-64 bg-royal-gold/5 rounded-full blur-3xl'></div>
+      <div className='absolute -bottom-10 left-0 w-64 h-64 bg-deep-navy/5 rounded-full blur-3xl'></div>
 
       <motion.div
         initial={{ opacity: 0 }}
