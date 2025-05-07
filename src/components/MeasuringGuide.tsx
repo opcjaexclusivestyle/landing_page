@@ -13,13 +13,11 @@ interface FAQItem {
 
 const MeasuringGuide: React.FC = () => {
   const [openItem, setOpenItem] = useState<number | null>(null);
-  const [isVideoReady, setIsVideoReady] = useState(true);
   const faqItems: FAQItem[] = faqConfig.faqItems;
 
   // Referencje do animowanych elementów
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const videoSectionRef = useRef<HTMLDivElement>(null);
   const faqSectionRef = useRef<HTMLDivElement>(null);
   const flowerElements = useRef<(HTMLDivElement | null)[]>([]);
   const faqItemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -34,7 +32,7 @@ const MeasuringGuide: React.FC = () => {
     if (typeof window !== 'undefined') {
       gsap.registerPlugin(ScrollTrigger);
 
-      // Animacja tytułu
+      // Animacja tytułu - ulepszona
       const titleTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: titleRef.current,
@@ -52,7 +50,7 @@ const MeasuringGuide: React.FC = () => {
         .fromTo(
           '.title-decoration',
           { width: 0, opacity: 0 },
-          { width: '100px', opacity: 1, duration: 0.8, ease: 'power2.inOut' },
+          { width: '150px', opacity: 1, duration: 0.8, ease: 'power2.inOut' },
           '-=0.6',
         )
         .fromTo(
@@ -60,7 +58,7 @@ const MeasuringGuide: React.FC = () => {
           { scale: 0, opacity: 0, rotate: -20 },
           {
             scale: 1,
-            opacity: 0.25,
+            opacity: 0.35,
             rotate: 0,
             duration: 1,
             ease: 'elastic.out(1, 0.5)',
@@ -68,30 +66,8 @@ const MeasuringGuide: React.FC = () => {
           '-=0.8',
         );
 
-      // Animacja sekcji wideo
-      const videoTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: videoSectionRef.current,
-          start: 'top 75%',
-          toggleActions: 'play none none reverse',
-        },
-      });
-
-      videoTimeline
-        .fromTo(
-          videoSectionRef.current,
-          { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out' },
-        )
-        .fromTo(
-          '.video-content',
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' },
-          '-=0.8',
-        );
-
-      // Animacja sekcji FAQ
-      const faqTimeline = gsap.timeline({
+      // Ulepszona animacja sekcji FAQ - teraz jako główna sekcja
+      const mainContentTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: faqSectionRef.current,
           start: 'top 75%',
@@ -99,31 +75,32 @@ const MeasuringGuide: React.FC = () => {
         },
       });
 
-      faqTimeline
+      mainContentTimeline
         .fromTo(
           faqSectionRef.current,
-          { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out', delay: 0.2 },
+          { y: 60, opacity: 0, scale: 0.98 },
+          { y: 0, opacity: 1, scale: 1, duration: 1, ease: 'power3.out' },
         )
         .fromTo(
           '.faq-content',
           { y: 30, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out' },
-          '-=0.8',
+          '-=0.7',
         );
 
-      // Animacja elementów FAQ
+      // Ulepszona animacja elementów FAQ - bardziej dynamiczna
       faqItemRefs.current.forEach((item, index) => {
         if (!item) return;
 
         gsap.fromTo(
           item,
-          { x: 50, opacity: 0 },
+          { x: -40, opacity: 0, scale: 0.95 },
           {
             x: 0,
             opacity: 1,
-            duration: 0.6,
-            delay: 0.15 * index + 0.5,
+            scale: 1,
+            duration: 0.7,
+            delay: 0.12 * index + 0.3,
             ease: 'power2.out',
             scrollTrigger: {
               trigger: faqSectionRef.current,
@@ -134,7 +111,7 @@ const MeasuringGuide: React.FC = () => {
         );
       });
 
-      // Animacja wzorów na obwódkach
+      // Ulepszona animacja wzorów na obwódkach
       borderPatternRefs.current.forEach((pattern, index) => {
         if (!pattern) return;
 
@@ -328,7 +305,7 @@ const MeasuringGuide: React.FC = () => {
             ref={titleRef}
             className='text-3xl md:text-4xl text-deep-navy font-medium luxury-heading relative inline-block px-10 py-4'
           >
-            JAK PRAWIDŁOWO ZMIERZYĆ OKNO
+            Pytania i odpowiedzi{' '}
             <span className='title-decoration h-1.5 bg-gradient-to-r from-royal-gold/30 via-royal-gold to-royal-gold/30 absolute bottom-0 left-1/2 transform -translate-x-1/2 rounded-full glow-effect'></span>
           </h2>
 
@@ -366,129 +343,15 @@ const MeasuringGuide: React.FC = () => {
           </div>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-12'>
-          {/* Lewa kolumna z filmem instruktażowym - ulepszona */}
+        <div className='max-w-3xl mx-auto'>
+          {/* Sekcja FAQ - teraz jako główna sekcja */}
           <div
-            className='video-section transform hover:scale-[1.02] transition-transform duration-500'
-            ref={videoSectionRef}
-          >
-            <div className='rounded-xl shadow-2xl h-full relative overflow-hidden border-2 border-deep-navy/50 glow-effect'>
-              {/* Tło z gradientem - bardziej intensywne */}
-              <div className='absolute inset-0 bg-gradient-to-br from-deep-navy/95 via-deep-navy/90 to-deep-navy/80 z-0'></div>
-
-              {/* Dodatkowe dekoracyjne wzory */}
-              <div
-                className='absolute inset-0 opacity-10 z-0'
-                style={{
-                  backgroundImage: `url('/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_d4c0efab-3cd7-42e9-be57-ae5d5f0d8f2a_3-removebg-preview.png')`,
-                  backgroundSize: '200px',
-                  backgroundRepeat: 'repeat',
-                  backgroundPosition: 'center',
-                  filter: 'blur(1px)',
-                }}
-              ></div>
-
-              {/* Wzory na obwódce - większe i bardziej widoczne */}
-              <div
-                ref={(el) => addBorderPatternRef(el, 0)}
-                className='pattern-1 absolute w-14 h-14 bg-royal-gold/50 rounded-full top-0 left-0 transform -translate-x-1/3 -translate-y-1/3 z-10'
-              ></div>
-              <div
-                ref={(el) => addBorderPatternRef(el, 1)}
-                className='pattern-2 absolute w-14 h-14 bg-royal-gold/50 rounded-full top-0 right-0 transform translate-x-1/3 -translate-y-1/3 z-10'
-              ></div>
-              <div
-                ref={(el) => addBorderPatternRef(el, 2)}
-                className='pattern-3 absolute w-14 h-14 bg-royal-gold/50 rounded-full bottom-0 left-0 transform -translate-x-1/3 translate-y-1/3 z-10'
-              ></div>
-              <div
-                ref={(el) => addBorderPatternRef(el, 3)}
-                className='pattern-4 absolute w-14 h-14 bg-royal-gold/50 rounded-full bottom-0 right-0 transform translate-x-1/3 translate-y-1/3 z-10'
-              ></div>
-
-              {/* Obwódka elementu - grubsza i bardziej ozdobna */}
-              <div className='absolute inset-0 border-2 border-royal-gold/60 rounded-xl z-10'></div>
-              <div className='absolute inset-0 border-4 border-dashed border-royal-gold/30 rounded-xl m-1 z-10'></div>
-
-              {/* Ozdobny kwiat w prawym górnym rogu panelu */}
-              <div className='absolute -top-8 -right-8 w-40 h-40 opacity-20 rotate-12 z-20 decorative-flourish'>
-                <Image
-                  src='/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_d4c0efab-3cd7-42e9-be57-ae5d5f0d8f2a_0-removebg-preview.png'
-                  width={160}
-                  height={160}
-                  alt='Decorative flower'
-                  className='filter drop-shadow-lg'
-                />
-              </div>
-
-              {/* Dodatkowy kwiat w lewym dolnym rogu */}
-              <div className='absolute -bottom-10 -left-10 w-36 h-36 opacity-20 -rotate-15 z-20 decorative-flourish'>
-                <Image
-                  src='/images/background-flower/u8283414962_Detailed_blue_line_drawing_of_lily_flowers_on_whi_49aa16d2-bca9-49f0-892e-c45372365ece_3-removebg-preview.png'
-                  width={140}
-                  height={140}
-                  alt='Decorative flower'
-                  className='filter drop-shadow-lg'
-                />
-              </div>
-
-              {/* Zawartość */}
-              <div className='video-content relative z-20 p-8'>
-                <h3 className='text-2xl font-medium mb-6 text-white tracking-wide'>
-                  Film instruktażowy
-                  <div className='h-0.5 w-24 bg-royal-gold/70 mt-2'></div>
-                </h3>
-
-                <div className='video-container relative z-30 mb-8'>
-                  {/* Dodatkowy element podświetlający */}
-                  <div className='absolute -inset-1 bg-gradient-to-r from-royal-gold/30 via-royal-gold/50 to-royal-gold/30 rounded-xl blur-sm'></div>
-
-                  <div className='aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden relative border-4 border-royal-gold/70 shadow-[0_0_25px_rgba(205,175,50,0.5)] transform hover:scale-[1.02] transition-transform duration-300'>
-                    <iframe
-                      src='https://www.youtube.com/embed/XAzEJqNWTP8'
-                      title='Jak mierzyć okna do zasłon i firan'
-                      frameBorder='0'
-                      allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-                      allowFullScreen
-                      className='absolute inset-0 w-full h-full z-10'
-                    ></iframe>
-                  </div>
-                </div>
-
-                <div className='space-y-5'>
-                  <p className='text-gray-200 text-lg'>
-                    Prawidłowe pomiary są kluczem do idealnie dopasowanych firan
-                    i zasłon. Oglądając powyższy film, dowiesz się:
-                  </p>
-                  <ul className='list-disc pl-6 space-y-3 text-gray-200'>
-                    <li className='text-lg font-light'>
-                      Jak dokładnie zmierzyć szerokość i wysokość okna
-                    </li>
-                    <li className='text-lg font-light'>
-                      Jakie dodatkowe wymiary wziąć pod uwagę przy różnych
-                      typach karnisza
-                    </li>
-                    <li className='text-lg font-light'>
-                      Jak uwzględnić marszczenie materiału w obliczeniach
-                    </li>
-                    <li className='text-lg font-light'>
-                      Jakie są najczęstsze błędy przy pomiarach i jak ich
-                      uniknąć
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Prawa kolumna z FAQ - bardziej wyrazista */}
-          <div
-            className='faq-section transform hover:scale-[1.02] transition-transform duration-500'
+            className='faq-section transform hover:scale-[1.01] transition-transform duration-500'
             ref={faqSectionRef}
           >
-            <div className='rounded-xl shadow-2xl h-full relative overflow-hidden border-2 border-royal-gold/30'>
-              {/* Tło z gradientem - bardziej intensywne */}
-              <div className='absolute inset-0 bg-gradient-to-br from-royal-gold/20 via-royal-gold/10 to-royal-gold/5 z-0'></div>
+            <div className='rounded-xl shadow-2xl h-full relative overflow-hidden border-2 border-royal-gold/40 hover:border-royal-gold/60 transition-colors duration-300'>
+              {/* Tło z gradientem - bardziej intensywne i wyraziste */}
+              <div className='absolute inset-0 bg-gradient-to-br from-royal-gold/25 via-royal-gold/15 to-royal-gold/10 z-0'></div>
 
               {/* Dodatkowa tekstura w tle */}
               <div
@@ -503,20 +366,20 @@ const MeasuringGuide: React.FC = () => {
 
               {/* Wzory na obwódce - większe i bardziej widoczne */}
               <div
-                ref={(el) => addBorderPatternRef(el, 4)}
-                className='pattern-1 absolute w-12 h-12 bg-deep-navy/40 rounded-full top-0 left-0 transform -translate-x-1/3 -translate-y-1/3 z-10'
+                ref={(el) => addBorderPatternRef(el, 0)}
+                className='pattern-1 absolute w-14 h-14 bg-deep-navy/40 rounded-full top-0 left-0 transform -translate-x-1/3 -translate-y-1/3 z-10'
               ></div>
               <div
-                ref={(el) => addBorderPatternRef(el, 5)}
-                className='pattern-2 absolute w-12 h-12 bg-deep-navy/40 rounded-full top-0 right-0 transform translate-x-1/3 -translate-y-1/3 z-10'
+                ref={(el) => addBorderPatternRef(el, 1)}
+                className='pattern-2 absolute w-14 h-14 bg-deep-navy/40 rounded-full top-0 right-0 transform translate-x-1/3 -translate-y-1/3 z-10'
               ></div>
               <div
-                ref={(el) => addBorderPatternRef(el, 6)}
-                className='pattern-3 absolute w-12 h-12 bg-deep-navy/40 rounded-full bottom-0 left-0 transform -translate-x-1/3 translate-y-1/3 z-10'
+                ref={(el) => addBorderPatternRef(el, 2)}
+                className='pattern-3 absolute w-14 h-14 bg-deep-navy/40 rounded-full bottom-0 left-0 transform -translate-x-1/3 translate-y-1/3 z-10'
               ></div>
               <div
-                ref={(el) => addBorderPatternRef(el, 7)}
-                className='pattern-4 absolute w-12 h-12 bg-deep-navy/40 rounded-full bottom-0 right-0 transform translate-x-1/3 translate-y-1/3 z-10'
+                ref={(el) => addBorderPatternRef(el, 3)}
+                className='pattern-4 absolute w-14 h-14 bg-deep-navy/40 rounded-full bottom-0 right-0 transform translate-x-1/3 translate-y-1/3 z-10'
               ></div>
 
               {/* Obwódka elementu - grubsza i bardziej ozdobna */}
@@ -535,9 +398,9 @@ const MeasuringGuide: React.FC = () => {
 
               {/* Zawartość */}
               <div className='faq-content relative z-20 p-8'>
-                <h3 className='text-2xl font-medium mb-8 text-deep-navy tracking-wide'>
+                <h3 className='text-3xl font-medium mb-8 text-deep-navy tracking-wide text-center'>
                   Najczęściej zadawane pytania
-                  <div className='h-0.5 w-24 bg-deep-navy/40 mt-2'></div>
+                  <div className='h-0.5 w-32 bg-deep-navy/50 mt-3 mx-auto'></div>
                 </h3>
 
                 <div className='space-y-6'>
