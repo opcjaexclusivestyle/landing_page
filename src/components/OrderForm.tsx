@@ -1240,6 +1240,7 @@ export default function OrderForm({
                     />
                   </div>
 
+                  {/* 5. Certyfikaty w nowym układzie */}
                   <AccordionCertificates />
 
                   {/* Przewodnik pomiarowy */}

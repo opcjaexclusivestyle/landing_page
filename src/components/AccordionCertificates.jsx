@@ -4,14 +4,9 @@ import './Certification.css'; // Korzystamy z istniejących stylów
 
 const AccordionCertificates = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeCertIndex, setActiveCertIndex] = useState(null);
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);
-  };
-
-  const toggleCert = (index) => {
-    setActiveCertIndex(activeCertIndex === index ? null : index);
   };
 
   const certifications = [
@@ -111,50 +106,20 @@ const AccordionCertificates = () => {
                 tekstylne do ich domów.
               </p>
 
-              <div className='certificates-inner-accordion'>
+              <div className='certificates-list'>
                 {certifications.map((cert, index) => (
-                  <div key={index} className='accordion-item'>
-                    <button
-                      className={`accordion-header ${
-                        activeCertIndex === index ? 'active' : ''
-                      }`}
-                      onClick={() => toggleCert(index)}
-                    >
+                  <div key={index} className='certificate-item mb-4'>
+                    <div className='certificate-header flex justify-between items-center py-2'>
                       <div className='flex items-center'>
                         {renderIcon(cert.iconType)}
                         <span className='ml-3 font-medium'>{cert.title}</span>
                       </div>
-                      <svg
-                        className={`h-5 w-5 transform transition-transform ${
-                          activeCertIndex === index ? 'rotate-180' : ''
-                        }`}
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M19 9l-7 7-7-7'
-                        />
-                      </svg>
-                    </button>
-                    <AnimatePresence>
-                      {activeCertIndex === index && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className='accordion-content'
-                        >
-                          <p className='text-sm text-gray-600'>
-                            {cert.description}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    </div>
+                    <div className='certificate-content pl-10 pr-4 py-2'>
+                      <p className='text-sm text-gray-600'>
+                        {cert.description}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
