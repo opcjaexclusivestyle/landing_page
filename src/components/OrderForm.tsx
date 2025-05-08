@@ -464,7 +464,7 @@ export default function OrderForm({
           // Wyświetl komunikat o dodaniu do koszyka
           setError(
             `Produkt "${formData.selectedProduct}" (${formData.quantity} ${
-              formData.quantity > 1 ? 'pary' : 'para'
+              formData.quantity > 1 ? 'sztuk' : 'para'
             }) został dodany do koszyka. Możesz kontynuować zakupy.`,
           );
 
@@ -1103,9 +1103,7 @@ export default function OrderForm({
                     <div className='calculation-details bg-white/90 p-4 rounded-lg'>
                       <h3 className='text-lg font-medium mb-3'>
                         Szczegóły kalkulacji{' '}
-                        {productType === 'zaslony'
-                          ? '(za sztukę)'
-                          : '(za parę)'}
+                        {productType === 'zaslony' ? '(za sztukę)' : ''}
                       </h3>
                       <div className='space-y-2'>
                         <div className='flex justify-between items-center text-sm'>
@@ -1160,11 +1158,7 @@ export default function OrderForm({
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            Materiał potrzebny{' '}
-                            {productType === 'zaslony'
-                              ? 'na sztukę'
-                              : 'na parę'}
-                            :
+                            Materiał potrzebny na sztukę
                           </span>
                           <span className='font-medium'>
                             {formData.rodWidth &&
@@ -1182,21 +1176,13 @@ export default function OrderForm({
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
-                          <span className='text-gray-600'>
-                            {productType === 'zaslony'
-                              ? 'Sztuk:'
-                              : 'Ilość par:'}
-                          </span>
+                          <span className='text-gray-600'>Sztuk: </span>
                           <span className='font-medium'>
                             {formData.quantity}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
-                          <span className='text-gray-600'>
-                            {productType === 'zaslony'
-                              ? 'Koszt szycia (za sztukę):'
-                              : 'Łączny koszt szycia (dla pary):'}
-                          </span>
+                          <span className='text-gray-600'>Koszt szycia:</span>
                           <span className='font-medium'>
                             {formData.rodWidth &&
                             formData.height &&
@@ -1245,7 +1231,7 @@ export default function OrderForm({
                                   formData.quantity > 1 ? 'sztuki' : 'sztukę'
                                 }):`
                               : `Razem (za ${formData.quantity} ${
-                                  formData.quantity > 1 ? 'pary' : 'parę'
+                                  formData.quantity > 1 ? 'sztuki' : 'sztukę'
                                 }):`}
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
@@ -1267,7 +1253,7 @@ export default function OrderForm({
                   {/* 4. Ilość sztuk */}
                   <div className='mb-6'>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
-                      {productType === 'firany' ? 'Sztuk' : 'Ilość par'}
+                      sztuk
                     </label>
                     <input
                       type='number'
