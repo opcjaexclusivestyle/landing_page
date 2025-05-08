@@ -334,17 +334,12 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ type }) => {
 
       {/* Tytuł sekcji */}
       <div ref={titleRef} className='relative z-10 text-center mb-10 sm:mb-16'>
-        <p className='text-[var(--primary-color)] uppercase tracking-widest mb-2 font-light text-sm sm:text-base'>
-          Historie naszych klientów
-        </p>
         <div className='flex justify-center items-center mb-3 sm:mb-4'>
           <div className='shape h-[1px] w-[50px] sm:w-[70px] bg-[var(--primary-color)] opacity-60'></div>
         </div>
-        <h2 className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-gray-800 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto leading-tight px-4'>
+        <h2 className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto leading-tight px-4'>
           Wyjątkowe opinie naszych wyjątkowych klientów
         </h2>
-
-        {/* Przyciski przełączania widoku */}
       </div>
 
       {/* Treść zależna od wybranego widoku */}
@@ -558,6 +553,7 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ type }) => {
           )}
         </div>
       )}
+      {/* Przyciski przełączania widoku */}
 
       <div className='flex flex-wrap justify-center mt-4 sm:mt-6 space-x-0 space-y-2 sm:space-y-0 sm:space-x-4'>
         <button
@@ -577,10 +573,10 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ type }) => {
           className={`
             luxury-button
             px-4 sm:px-5 py-2 rounded-md transition-all duration-300 transform hover:scale-105 ${
-            showForm
-              ? 'bg-[var(--deep-navy)] text-white shadow-md'
-              : 'bg-[var(--beige)] text-[var(--deep-navy)] hover:bg-[var(--deep-gold)]'
-          } w-full sm:w-auto`}
+              showForm
+                ? 'bg-[var(--deep-navy)] text-white shadow-md'
+                : 'bg-[var(--beige)] text-[var(--deep-navy)] hover:bg-[var(--deep-gold)]'
+            } w-full sm:w-auto`}
         >
           Dodaj opinię
         </button>
