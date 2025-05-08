@@ -259,19 +259,23 @@ export default function OrderForm({
     if (!selectedTape || !selectedTape.ratio || !rodWidth || !selectedProduct)
       return 0;
 
-    // Obliczanie ilości potrzebnego materiału
-    const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
-
-    // Obliczanie kosztu materiału
-    const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
-
-    // Zaokrąglenie do 2 miejsc po przecinku
-    return Math.round(kosztMaterialu * 100) / 100;
+    if (productType === 'zaslony') {
+      // Dla zasłon: obliczamy dla jednej zasłony
+      const szerokoscPoTasmieCm = rodWidth * selectedTape.ratio;
+      const iloscMaterialuNaJednaZaslone = szerokoscPoTasmieCm / 2; // dzielimy przez 2 bo potrzebujemy tylko na jedną zasłonę
+      const iloscMaterialuWM = iloscMaterialuNaJednaZaslone / 100; // konwersja z cm na metry
+      // Mnożymy cenę materiału przez 2, bo w bazie jest za 0,5MB
+      const kosztMaterialu = iloscMaterialuWM * (MATERIAL_PRICE_PER_METER * 2);
+      return Math.round(kosztMaterialu * 100) / 100;
+    } else {
+      // Dla firan: zachowujemy obecną logikę
+      const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
+      const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
+      return Math.round(kosztMaterialu * 100) / 100;
+    }
   };
 
-  // Usunięta funkcja checkTapeSelection
-
-  // Pełna kalkulacja ceny (materiał + szycie) na parę zasłon/firek
+  // Pełna kalkulacja ceny (materiał + szycie)
   const calculatePrice = () => {
     const rodWidth = parseFloat(formData.rodWidth) || 0;
     const height = parseFloat(formData.height) || 0;
@@ -279,7 +283,6 @@ export default function OrderForm({
       (tape) => tape.id === formData.tapeType,
     );
 
-    // Nie modyfikujemy stanu w funkcji wywoływanej podczas renderowania
     if (
       !selectedTape ||
       !selectedTape.ratio ||
@@ -289,31 +292,46 @@ export default function OrderForm({
     )
       return 0;
 
-    // Obliczanie ilości potrzebnego materiału na parę
-    const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
-
-    // Obliczanie kosztu materiału na parę
-    const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
-
-    // Obliczanie długości bieżącej szycia na parę (góra z taśmą + dół + 2 boki)
-    const szerokoscPoTasmieCm = rodWidth * selectedTape.ratio; // szerokość materiału na parę w cm
-    const metryBiezaceSzycie = (2 * szerokoscPoTasmieCm + 2 * height) / 100; // suma długości szwów na parę w metrach
-
-    let kosztSzycia = 0;
-
-    // Warunkowa logika szycia zależna od typu produktu
     if (productType === 'zaslony') {
-      // Logika szycia dla ZASŁON: Stała stawka 6 zł za metr bieżący
-      kosztSzycia = metryBiezaceSzycie * 6;
+      // Dla zasłon:
+      // 1. Obliczamy koszt materiału dla jednej zasłony
+      const szerokoscPoTasmieCm = rodWidth * selectedTape.ratio;
+      const iloscMaterialuNaJednaZaslone = szerokoscPoTasmieCm / 2; // dzielimy przez 2 bo potrzebujemy tylko na jedną zasłonę
+      const iloscMaterialuWM = iloscMaterialuNaJednaZaslone / 100; // konwersja z cm na metry
+      // Mnożymy cenę materiału przez 2, bo w bazie jest za 0,5MB
+      const kosztMaterialu = iloscMaterialuWM * (MATERIAL_PRICE_PER_METER * 2);
+
+      // 2. Obliczamy koszt szycia dla jednej zasłony (6 zł za metr bieżący)
+      const metryBiezaceSzycie =
+        (2 * iloscMaterialuNaJednaZaslone + 2 * height) / 100; // w metrach
+      const kosztSzycia = metryBiezaceSzycie * 6;
+
+      // 3. Łączny koszt dla jednej zasłony
+      const kosztJednejZaslony = kosztMaterialu + kosztSzycia;
+
+      // 4. Mnożymy przez ilość sztuk
+      const cenaKoncowa = kosztJednejZaslony * formData.quantity;
+
+      return Math.round(cenaKoncowa * 100) / 100;
     } else {
-      // dla firan (domyślnie)
+      // Dla firan: zachowujemy obecną logikę
+      const iloscMaterialu = (rodWidth * selectedTape.ratio) / 100; // konwersja z cm na metry
+      const kosztMaterialu = iloscMaterialu * MATERIAL_PRICE_PER_METER;
+
+      // Obliczanie długości bieżącej szycia
+      const szerokoscPoTasmieCm = rodWidth * selectedTape.ratio;
+      const metryBiezaceSzycie = (2 * szerokoscPoTasmieCm + 2 * height) / 100;
+
       // Logika szycia dla FIRANEK: 4 zł za każde rozpoczęte 0.5 metra
       const sewingUnits = Math.ceil(metryBiezaceSzycie / 0.5);
-      kosztSzycia = sewingUnits * 4;
-    }
+      const kosztSzycia = sewingUnits * 4;
 
-    // Całkowity koszt (materiał + szycie) na parę zasłon/firek
-    return Math.round((kosztMaterialu + kosztSzycia) * 100) / 100;
+      // Całkowity koszt (materiał + szycie) * ilość sztuk
+      return (
+        Math.round((kosztMaterialu + kosztSzycia) * formData.quantity * 100) /
+        100
+      );
+    }
   };
 
   // Funkcja pomocnicza do formatowania kwoty
@@ -1084,7 +1102,10 @@ export default function OrderForm({
                   <div className='mb-8'>
                     <div className='calculation-details bg-white/90 p-4 rounded-lg'>
                       <h3 className='text-lg font-medium mb-3'>
-                        Szczegóły kalkulacji (dla pary)
+                        Szczegóły kalkulacji{' '}
+                        {productType === 'zaslony'
+                          ? '(za sztukę)'
+                          : '(za parę)'}
                       </h3>
                       <div className='space-y-2'>
                         <div className='flex justify-between items-center text-sm'>
@@ -1102,7 +1123,9 @@ export default function OrderForm({
                           <span className='font-medium'>
                             {selectedProduct
                               ? `${formatPrice(
-                                  selectedProduct.fabricPricePerMB,
+                                  productType === 'zaslony'
+                                    ? selectedProduct.fabricPricePerMB * 2 // Mnożymy przez 2 dla zasłon
+                                    : selectedProduct.fabricPricePerMB,
                                 )} zł/mb`
                               : '-'}
                           </span>
@@ -1119,16 +1142,17 @@ export default function OrderForm({
                           </span>
                           <span className='font-medium'>
                             {formData.rodWidth && formData.tapeType
-                              ? `${
+                              ? `${formatPrice(
                                   parseFloat(formData.rodWidth) *
-                                  (selectedTape?.ratio || 0)
-                                } cm`
+                                    (selectedTape?.ratio || 0),
+                                )} cm`
                               : '-'}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            Wysokość firany:
+                            Wysokość{' '}
+                            {productType === 'zaslony' ? 'zasłony' : 'firany'}:
                           </span>
                           <span className='font-medium'>
                             {formData.height ? `${formData.height} cm` : '-'}
@@ -1136,22 +1160,32 @@ export default function OrderForm({
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            Materiał potrzebny na parę:
+                            Materiał potrzebny{' '}
+                            {productType === 'zaslony'
+                              ? 'na sztukę'
+                              : 'na parę'}
+                            :
                           </span>
                           <span className='font-medium'>
                             {formData.rodWidth &&
                             formData.tapeType &&
                             selectedTape
                               ? `${formatPrice(
-                                  parseFloat(formData.rodWidth) *
-                                    selectedTape.ratio,
+                                  productType === 'zaslony'
+                                    ? (parseFloat(formData.rodWidth) *
+                                        selectedTape.ratio) /
+                                        2
+                                    : parseFloat(formData.rodWidth) *
+                                        selectedTape.ratio,
                                 )} cm`
                               : '-'}
                           </span>
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            {productType === 'firany' ? 'Sztuk:' : 'Ilość par:'}
+                            {productType === 'zaslony'
+                              ? 'Sztuk:'
+                              : 'Ilość par:'}
                           </span>
                           <span className='font-medium'>
                             {formData.quantity}
@@ -1159,8 +1193,8 @@ export default function OrderForm({
                         </div>
                         <div className='flex justify-between items-center text-sm'>
                           <span className='text-gray-600'>
-                            {productType === 'firany'
-                              ? 'Koszt szycia:'
+                            {productType === 'zaslony'
+                              ? 'Koszt szycia (za sztukę):'
                               : 'Łączny koszt szycia (dla pary):'}
                           </span>
                           <span className='font-medium'>
@@ -1170,29 +1204,34 @@ export default function OrderForm({
                             formData.tapeType &&
                             selectedTape
                               ? (() => {
-                                  // Poprawione obliczenie DŁUGOŚCI do szycia dla pary
-                                  const szerokoscPoTasmieCm =
-                                    parseFloat(formData.rodWidth) *
-                                    (selectedTape.ratio || 0);
-                                  const metryBiezaceSzycie =
-                                    (2 * szerokoscPoTasmieCm +
-                                      2 * parseFloat(formData.height)) /
-                                    100; // w metrach
-
-                                  let kosztSzyciaDisplay = 0;
-                                  // Warunkowa logika dla wyświetlania
                                   if (productType === 'zaslony') {
-                                    kosztSzyciaDisplay = metryBiezaceSzycie * 6; // 6 zł/m dla zasłon
+                                    // Dla zasłon: koszt szycia dla jednej sztuki
+                                    const szerokoscPoTasmieCm =
+                                      parseFloat(formData.rodWidth) *
+                                      selectedTape.ratio;
+                                    const iloscMaterialuNaJednaZaslone =
+                                      szerokoscPoTasmieCm / 2;
+                                    const metryBiezaceSzycie =
+                                      (2 * iloscMaterialuNaJednaZaslone +
+                                        2 * parseFloat(formData.height)) /
+                                      100;
+                                    return `${formatPrice(
+                                      metryBiezaceSzycie * 6,
+                                    )} zł`;
                                   } else {
-                                    // firany
+                                    // Dla firan: koszt szycia dla pary
+                                    const szerokoscPoTasmieCm =
+                                      parseFloat(formData.rodWidth) *
+                                      selectedTape.ratio;
+                                    const metryBiezaceSzycie =
+                                      (2 * szerokoscPoTasmieCm +
+                                        2 * parseFloat(formData.height)) /
+                                      100;
                                     const sewingUnits = Math.ceil(
                                       metryBiezaceSzycie / 0.5,
                                     );
-                                    kosztSzyciaDisplay = sewingUnits * 4; // 4 zł za 0.5m dla firek
+                                    return `${formatPrice(sewingUnits * 4)} zł`;
                                   }
-                                  return `${formatPrice(
-                                    kosztSzyciaDisplay,
-                                  )} zł`;
                                 })()
                               : '-'}
                           </span>
@@ -1201,18 +1240,19 @@ export default function OrderForm({
                       <div className='pt-4 border-t border-gray-200 mt-4'>
                         <div className='flex justify-between items-center mt-2'>
                           <span className='text-lg font-medium text-deep-navy'>
-                            {productType === 'firany'
-                              ? 'Razem:'
+                            {productType === 'zaslony'
+                              ? `Razem (za ${formData.quantity} ${
+                                  formData.quantity > 1 ? 'sztuki' : 'sztukę'
+                                }):`
                               : `Razem (za ${formData.quantity} ${
                                   formData.quantity > 1 ? 'pary' : 'parę'
                                 }):`}
                           </span>
                           <span className='text-xl font-bold text-deep-navy'>
-                            {formatPrice(calculatePrice() * formData.quantity)}{' '}
-                            zł
+                            {formatPrice(calculatePrice())} zł
                           </span>
                         </div>
-                        {calculatePrice() * formData.quantity > 399 && (
+                        {calculatePrice() > 399 && (
                           <div className='mt-2 text-green-600 font-medium'>
                             Darmowa dostawa
                           </div>
