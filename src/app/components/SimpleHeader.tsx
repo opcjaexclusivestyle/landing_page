@@ -30,10 +30,13 @@ export default function SimpleHeader({
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
+    // Ensure the header element exists
     if (!headerRef.current) return;
 
+    // Create a new GSAP timeline
     const tl = gsap.timeline();
-
+    
+    // Only add animations for elements that exist in the DOM
     // Animacja tytułu
     if (titleRef.current) {
       tl.fromTo(
@@ -43,8 +46,8 @@ export default function SimpleHeader({
       );
     }
 
-    // Animacja podtytułu
-    if (subtitleRef.current) {
+    // Animacja podtytułu - only if element exists
+    if (subtitleRef.current && subtitle) {
       tl.fromTo(
         subtitleRef.current,
         { opacity: 0, y: 20 },
@@ -53,8 +56,8 @@ export default function SimpleHeader({
       );
     }
 
-    // Animacja opisu
-    if (descriptionRef.current) {
+    // Animacja opisu - only if element exists
+    if (descriptionRef.current && description) {
       tl.fromTo(
         descriptionRef.current,
         { opacity: 0, y: 20 },
